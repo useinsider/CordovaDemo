@@ -45,7 +45,8 @@ Note: Can easily find the warnings added as comments by searching the `FIXME-INS
 ### iOS
 
 1. Replace widget id with your bundle identifier in `config.xml`.
-2. Open project with XCode and check team, app group and bundle identifier for all targets.
-3. Replace `insider` URL type in main target Info -> URL Types with your partner name. (This step is important to add test device with QR or Email in the panel.)
-4. Change APP_GROUP variables value in `InsiderNotificationService/NotificationService.m` and `InsiderNotificationContent/NotificationViewController.m` files.
-5. Run project with `cordova run ios` command. 
+2. Run the `pod install` command in the `platforms/ios` directory.
+3. Open project with XCode and check team, app group and bundle identifier for all targets.
+4. Replace `insider` URL type in main target Info -> URL Types with your partner name. (This step is important to add test device with QR or Email in the panel.)
+5. Change APP_GROUP variables value in `InsiderNotificationService/NotificationService.m` and `InsiderNotificationContent/NotificationViewController.m` files.
+6. Run project with `cordova run ios` command. 
