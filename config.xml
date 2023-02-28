@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="com.useinsider.cordovademo" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>CordovaDemo</name>
+    <name>HelloCordova</name>
     <description>This Demo contains simple methods that you can use with the Insider SDK.</description>
 
     <content src="index.html" />
