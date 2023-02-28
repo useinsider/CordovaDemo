@@ -4,11 +4,8 @@
         <param name="android-package" value="com.useinsider.cordova.InsiderPlugin" />
         <param name="onload" value="true" />
     </feature>
-    <name>HelloCordova</name>
-    <description>Sample Apache Cordova App</description>
-    <author email="dev@cordova.apache.org" href="https://cordova.apache.org">
-        Apache Cordova Team
-    </author>
+    <name>CordovaDemo</name>
+    <description>This Demo contains simple methods that you can use with the Insider SDK.</description>
     <content src="index.html" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
