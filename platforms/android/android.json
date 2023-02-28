@@ -1,0 +1,116 @@
+{
+  "prepare_queue": {
+    "installed": [],
+    "uninstalled": []
+  },
+  "config_munge": {
+    "files": {
+      "config.xml": {
+        "parents": {
+          "/*": [
+            {
+              "xml": "<preference name=\"GradlePluginGoogleServicesEnabled\" value=\"true\" />",
+              "count": 1
+            },
+            {
+              "xml": "<preference name=\"GradlePluginGoogleServicesVersion\" value=\"4.3.10\" />",
+              "count": 1
+            }
+          ]
+        }
+      },
+      "AndroidManifest.xml": {
+        "parents": {
+          "/manifest": [
+            {
+              "xml": "<uses-permission android:name=\"android.permission.INTERNET\" />",
+              "count": 1
+            },
+            {
+              "xml": "<uses-permission android:name=\"android.permission.WAKE_LOCK\" />",
+              "count": 1
+            },
+            {
+              "xml": "<uses-permission android:name=\"android.permission.ACCESS_FINE_LOCATION\" />",
+              "count": 1
+            }
+          ]
+        }
+      },
+      "res/xml/config.xml": {
+        "parents": {
+          "/*": [
+            {
+              "xml": "<feature name=\"InsiderPlugin\"><param name=\"android-package\" value=\"com.useinsider.cordova.InsiderPlugin\" /><param name=\"onload\" value=\"true\" /></feature>",
+              "count": 1
+            }
+          ]
+        }
+      }
+    }
+  },
+  "installed_plugins": {
+    "cordova-plugin-insider": {
+      "PACKAGE_NAME": "com.useinsider.cordovademo"
+    }
+  },
+  "dependent_plugins": {},
+  "modules": [
+    {
+      "id": "cordova-plugin-insider.InsiderPlugin",
+      "file": "plugins/cordova-plugin-insider/www/InsiderPlugin.js",
+      "pluginId": "cordova-plugin-insider",
+      "clobbers": [
+        "Insider"
+      ]
+    },
+    {
+      "id": "cordova-plugin-insider.CallbackType",
+      "file": "plugins/cordova-plugin-insider/www/CallbackType.js",
+      "pluginId": "cordova-plugin-insider"
+    },
+    {
+      "id": "cordova-plugin-insider.ContentOptimizerDataType",
+      "file": "plugins/cordova-plugin-insider/www/ContentOptimizerDataType.js",
+      "pluginId": "cordova-plugin-insider"
+    },
+    {
+      "id": "cordova-plugin-insider.Gender",
+      "file": "plugins/cordova-plugin-insider/www/Gender.js",
+      "pluginId": "cordova-plugin-insider"
+    },
+    {
+      "id": "cordova-plugin-insider.Identifier",
+      "file": "plugins/cordova-plugin-insider/www/Identifier.js",
+      "pluginId": "cordova-plugin-insider"
+    },
+    {
+      "id": "cordova-plugin-insider.Product",
+      "file": "plugins/cordova-plugin-insider/www/Product.js",
+      "pluginId": "cordova-plugin-insider"
+    },
+    {
+      "id": "cordova-plugin-insider.Event",
+      "file": "plugins/cordova-plugin-insider/www/Event.js",
+      "pluginId": "cordova-plugin-insider"
+    },
+    {
+      "id": "cordova-plugin-insider.User",
+      "file": "plugins/cordova-plugin-insider/www/User.js",
+      "pluginId": "cordova-plugin-insider"
+    },
+    {
+      "id": "cordova-plugin-insider.Constants",
+      "file": "plugins/cordova-plugin-insider/www/Constants.js",
+      "pluginId": "cordova-plugin-insider"
+    },
+    {
+      "id": "cordova-plugin-insider.Utils",
+      "file": "plugins/cordova-plugin-insider/www/Utils.js",
+      "pluginId": "cordova-plugin-insider"
+    }
+  ],
+  "plugin_metadata": {
+    "cordova-plugin-insider": "1.4.0"
+  }
+}

@@ -1,0 +1,43 @@
+name: Release Version Setter
+
+on:
+  repository_dispatch:
+    types: [trigger-release-version-setter]
+
+jobs:
+  release_version_setter:
+    name: Run Version Setter
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: develop
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+          
+      - name: Run release_version.sh
+        run: |
+          ./release_version.sh ${{ github.event.client_payload.sdk_version_name }}
+      
+      - name: Push changes to develop
+        run: |
+          git config --global user.name 'sonerdm'
+          git config --global user.email 'soner@useinsider.com'
+          git remote set-url origin https://x-access-token:${{ secrets.GIT_TOKEN }}@github.com/${{ github.repository }}
+          git commit -am "Release version ${{ github.event.client_payload.sdk_version_name }}"
+          git push
+        env:
+          GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
+
+      - name: Notify QAs
+        run: |
+          text=":tatakae: Cordova SDK is ready to test with version: ${{ github.event.client_payload.sdk_version_name }} <!subteam^SUUGFQNVA|mobileqa>"
+          ./slack_notifier.sh mob-deployment mob-sdk-releaser "$text"
+        env:
+          SLACK_NOTIFIER_AUTH_KEY: ${{ secrets.SLACK_NOTIFIER_AUTH_KEY }}
