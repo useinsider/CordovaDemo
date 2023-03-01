@@ -7,9 +7,17 @@
     "files": {}
   },
   "installed_plugins": {
+    "cordova-plugin-firebase-messaging": {
+      "ANDROID_FIREBASE_BOM_VERSION": "30.3.1",
+      "PACKAGE_NAME": "com.useinsider.cordovademo"
+    },
     "cordova-plugin-insider": {
       "PACKAGE_NAME": "com.useinsider.cordovademo"
     }
   },
-  "dependent_plugins": {}
+  "dependent_plugins": {
+    "cordova-support-android-plugin": {
+      "PACKAGE_NAME": "com.useinsider.cordovademo"
+    }
+  }
 }

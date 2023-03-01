@@ -35,6 +35,7 @@ let app = {
         document.getElementById('contentOptimizer').addEventListener('click', contentOptimizer);
 
         initInsider();
+        initFirebase();
     }
 };
 
@@ -61,6 +62,28 @@ async function initInsider() {
     window.Insider.enableCarrierCollection(true);
 
     console.log("[INSIDER][initialize]: Method is triggered");
+}
+
+function initFirebase() {
+    cordova.plugins.firebase.messaging.getToken().then(function(token) {
+        console.log("[FCM][getToken]: ", token);
+    });
+
+    cordova.plugins.firebase.messaging.onBackgroundMessage(function(payload) {
+        console.log("[FCM][onBackgroundMessage]: ", payload);
+
+        if (payload.source == "Insider") {
+            window.Insider.handleNotification(payload);
+        }
+    });
+
+    cordova.plugins.firebase.messaging.onMessage(function(payload) {
+        console.log("[FCM][onMessage]: ", payload);
+
+        if (payload.source == "Insider") {
+            window.Insider.handleNotification(payload);
+        }
+    });
 }
 
 function userAttributes() {

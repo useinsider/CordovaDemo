@@ -9,6 +9,10 @@
   "installed_plugins": {
     "cordova-plugin-insider": {
       "PACKAGE_NAME": "com.useinsider.cordovademo"
+    },
+    "cordova-plugin-firebase-messaging": {
+      "IOS_FIREBASE_POD_VERSION": "9.3.0",
+      "PACKAGE_NAME": "com.useinsider.cordovademo.InsiderNotificationService"
     }
   },
   "dependent_plugins": {}

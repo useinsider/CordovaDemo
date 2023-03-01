@@ -5,11 +5,33 @@
   },
   "config_munge": {
     "files": {
+      "res/xml/config.xml": {
+        "parents": {
+          "/*": [
+            {
+              "xml": "<feature name=\"FirebaseMessaging\"><param name=\"android-package\" value=\"by.chemerisuk.cordova.firebase.FirebaseMessagingPlugin\" /><param name=\"onload\" value=\"true\" /></feature>",
+              "count": 1
+            },
+            {
+              "xml": "<feature name=\"InsiderPlugin\"><param name=\"android-package\" value=\"com.useinsider.cordova.InsiderPlugin\" /><param name=\"onload\" value=\"true\" /></feature>",
+              "count": 1
+            }
+          ]
+        }
+      },
       "config.xml": {
         "parents": {
           "/*": [
             {
+              "xml": "<preference name=\"AndroidXEnabled\" value=\"true\" />",
+              "count": 1
+            },
+            {
               "xml": "<preference name=\"GradlePluginGoogleServicesEnabled\" value=\"true\" />",
+              "count": 2
+            },
+            {
+              "xml": "<preference name=\"GradlePluginGoogleServicesVersion\" value=\"4.3.13\" />",
               "count": 1
             },
             {
@@ -21,6 +43,16 @@
       },
       "AndroidManifest.xml": {
         "parents": {
+          "/manifest/application": [
+            {
+              "xml": "<service android:exported=\"false\" android:name=\"by.chemerisuk.cordova.firebase.FirebaseMessagingPluginService\"><intent-filter><action android:name=\"com.google.firebase.MESSAGING_EVENT\" /></intent-filter></service>",
+              "count": 1
+            },
+            {
+              "xml": "<meta-data android:name=\"com.google.firebase.messaging.default_notification_channel_id\" android:value=\"default\" />",
+              "count": 1
+            }
+          ],
           "/manifest": [
             {
               "xml": "<uses-permission android:name=\"android.permission.INTERNET\" />",
@@ -36,26 +68,31 @@
             }
           ]
         }
-      },
-      "res/xml/config.xml": {
-        "parents": {
-          "/*": [
-            {
-              "xml": "<feature name=\"InsiderPlugin\"><param name=\"android-package\" value=\"com.useinsider.cordova.InsiderPlugin\" /><param name=\"onload\" value=\"true\" /></feature>",
-              "count": 1
-            }
-          ]
-        }
       }
     }
   },
   "installed_plugins": {
+    "cordova-support-android-plugin": {
+      "PACKAGE_NAME": "com.useinsider.cordovademo"
+    },
+    "cordova-plugin-firebase-messaging": {
+      "ANDROID_FIREBASE_BOM_VERSION": "30.3.1",
+      "PACKAGE_NAME": "com.useinsider.cordovademo"
+    },
     "cordova-plugin-insider": {
       "PACKAGE_NAME": "com.useinsider.cordovademo"
     }
   },
   "dependent_plugins": {},
   "modules": [
+    {
+      "id": "cordova-plugin-firebase-messaging.FirebaseMessaging",
+      "file": "plugins/cordova-plugin-firebase-messaging/www/FirebaseMessaging.js",
+      "pluginId": "cordova-plugin-firebase-messaging",
+      "merges": [
+        "cordova.plugins.firebase.messaging"
+      ]
+    },
     {
       "id": "cordova-plugin-insider.InsiderPlugin",
       "file": "plugins/cordova-plugin-insider/www/InsiderPlugin.js",
@@ -111,6 +148,8 @@
     }
   ],
   "plugin_metadata": {
+    "cordova-support-android-plugin": "2.0.4",
+    "cordova-plugin-firebase-messaging": "7.0.4",
     "cordova-plugin-insider": "1.4.0"
   }
 }

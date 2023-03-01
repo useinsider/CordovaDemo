@@ -193,7 +193,7 @@ android {
             maxSdkVersion cordovaConfig.MAX_SDK_VERSION
         }
         targetSdkVersion cordovaConfig.SDK_VERSION
-        compileSdkVersion cordovaConfig.SDK_VERSION
+        compileSdkVersion cordovaConfig.COMPILE_SDK_VERSION
     }
 
     lintOptions {
@@ -300,6 +300,7 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: '*.jar')
     implementation "androidx.appcompat:appcompat:${cordovaConfig.ANDROIDX_APP_COMPAT_VERSION}"
+    implementation "androidx.core:core-splashscreen:${cordovaConfig.ANDROIDX_CORE_SPLASHSCREEN_VERSION}"
 
     if (cordovaConfig.IS_GRADLE_PLUGIN_KOTLIN_ENABLED) {
         implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${cordovaConfig.KOTLIN_VERSION}"
@@ -307,6 +308,9 @@ dependencies {
 
     // SUB-PROJECT DEPENDENCIES START
     implementation(project(path: ":CordovaLib"))
+    implementation platform("com.google.firebase:firebase-bom:30.3.1")
+    implementation "com.google.firebase:firebase-messaging"
+    implementation "me.leolin:ShortcutBadger:1.1.22@aar"
     // SUB-PROJECT DEPENDENCIES END
 }
 

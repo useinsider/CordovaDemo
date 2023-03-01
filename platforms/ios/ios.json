@@ -11,6 +11,40 @@
             {
               "xml": "<feature name=\"InsiderPlugin\"><param name=\"ios-package\" value=\"InsiderPlugin\" /></feature>",
               "count": 1
+            },
+            {
+              "xml": "<feature name=\"FirebaseMessaging\"><param name=\"ios-package\" value=\"FirebaseMessagingPlugin\" /><param name=\"onload\" value=\"true\" /></feature>",
+              "count": 1
+            }
+          ]
+        }
+      },
+      "*-Info.plist": {
+        "parents": {
+          "UIBackgroundModes": [
+            {
+              "xml": "<array><string>remote-notification</string></array>",
+              "count": 1
+            }
+          ]
+        }
+      },
+      "*-Debug.plist": {
+        "parents": {
+          "aps-environment": [
+            {
+              "xml": "<string>development</string>",
+              "count": 1
+            }
+          ]
+        }
+      },
+      "*-Release.plist": {
+        "parents": {
+          "aps-environment": [
+            {
+              "xml": "<string>production</string>",
+              "count": 1
             }
           ]
         }
@@ -20,6 +54,10 @@
   "installed_plugins": {
     "cordova-plugin-insider": {
       "PACKAGE_NAME": "com.useinsider.cordovademo"
+    },
+    "cordova-plugin-firebase-messaging": {
+      "IOS_FIREBASE_POD_VERSION": "9.3.0",
+      "PACKAGE_NAME": "com.useinsider.cordovademo.InsiderNotificationService"
     }
   },
   "dependent_plugins": {},
@@ -76,9 +114,18 @@
       "id": "cordova-plugin-insider.Utils",
       "file": "plugins/cordova-plugin-insider/www/Utils.js",
       "pluginId": "cordova-plugin-insider"
+    },
+    {
+      "id": "cordova-plugin-firebase-messaging.FirebaseMessaging",
+      "file": "plugins/cordova-plugin-firebase-messaging/www/FirebaseMessaging.js",
+      "pluginId": "cordova-plugin-firebase-messaging",
+      "merges": [
+        "cordova.plugins.firebase.messaging"
+      ]
     }
   ],
   "plugin_metadata": {
-    "cordova-plugin-insider": "1.4.0"
+    "cordova-plugin-insider": "1.4.0",
+    "cordova-plugin-firebase-messaging": "7.0.4"
   }
 }

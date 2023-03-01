@@ -6,6 +6,7 @@ target 'HelloCordova' do
 	project 'HelloCordova.xcodeproj'
 	pod 'InsiderMobile', '12.5.4'
 	pod 'InsiderHybrid', '1.4.0'
+	pod 'Firebase/Messaging', '9.3.0'
 end
 
 target 'InsiderNotificationContent' do

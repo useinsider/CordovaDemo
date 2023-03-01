@@ -35,7 +35,6 @@
 {
     self.viewController = [[MainViewController alloc] init];
     
-    UNUserNotificationCenter.currentNotificationCenter.delegate = self;
     
     return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }
