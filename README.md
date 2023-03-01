@@ -35,6 +35,8 @@ Replace partner name and app group value in `www/js/index.js` with your info.
 
 Note: Can easily find the warnings added as comments by searching the `FIXME-INSIDER` key in the project and you can quickly make the necessary arrangements for the project.
 
+Note: You Can see the detailed usage of the methods used with the integration with Firebase by examining the `www/js/index.js`, and `platforms/ios/HelloCordova/Classes/AppDelegate.m` files.
+
 ### Android
 
 1. Add `google-services.json` and `agconnect-services.json` to `platforms/android/app` folder.
@@ -47,6 +49,7 @@ Note: Can easily find the warnings added as comments by searching the `FIXME-INS
 1. Replace widget id with your bundle identifier in `config.xml`.
 2. Run the `pod install` command in the `platforms/ios` directory.
 3. Open project with XCode and check team, app group and bundle identifier for all targets.
-4. Replace `insider` URL type in main target Info -> URL Types with your partner name. (This step is important to add test device with QR or Email in the panel.)
-5. Change APP_GROUP variables value in `InsiderNotificationService/NotificationService.m` and `InsiderNotificationContent/NotificationViewController.m` files.
-6. Run project with `cordova run ios` command. 
+4. Add `GoogleService-Info.plist` to main target.
+5. Replace `insider` URL type in main target Info -> URL Types with your partner name. (This step is important to add test device with QR or Email in the panel.)
+6. Change APP_GROUP variables value in `InsiderNotificationService/NotificationService.m` and `InsiderNotificationContent/NotificationViewController.m` files.
+7. Run project with `cordova run ios` command. 
