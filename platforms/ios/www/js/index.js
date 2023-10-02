@@ -5,6 +5,8 @@ let app = {
         document.addEventListener('deviceready', this.onDeviceReady.bind(this), false);
     },
     onDeviceReady: function() {
+        document.getElementById('reinitWithPartnerName').addEventListener('click', reinitWithPartnerName);
+
         document.getElementById('userAttributes').addEventListener('click', userAttributes);
 
         document.getElementById('login').addEventListener('click', userIdentifiers.login);
@@ -40,7 +42,16 @@ let app = {
 
 async function initInsider() {
     // FIXME-INSIDER: Please change with your partner name and app group.
-    await window.Insider.init('your_partner_name', 'group.com.useinsider.CordovaDemo',
+    let partnerName = "your_default_partner_name";
+    let storedPartnerName = window.localStorage.getItem("insider_partner_name");
+
+    if (storedPartnerName != null) {
+        partnerName = storedPartnerName;
+
+        console.log("[INSIDER][init]: Partner name updated from storage. New Partner Name: " + storedPartnerName);
+    }
+
+    await window.Insider.init(partnerName, 'group.com.useinsider.cordovademo',
         (callback) => {
             switch ((callback.result || {}).type) {
                 case window.Insider.callbackType.NOTIFICATION_OPEN:
@@ -61,6 +72,17 @@ async function initInsider() {
     window.Insider.enableCarrierCollection(true);
 
     console.log("[INSIDER][initialize]: Method is triggered");
+}
+
+function reinitWithPartnerName() {
+    // --- REINIT --- //
+    let newPartnerName = "your_partner_name";
+
+    window.Insider.reinitWithPartnerName(newPartnerName);
+
+    window.localStorage.setItem("insider_partner_name", newPartnerName);
+
+    console.log("[INSIDER][reinitWithPartnerName]: Method is triggered");
 }
 
 function userAttributes() {

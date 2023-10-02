@@ -36,7 +36,7 @@
             [Insider registerInsiderCallbackWithSelector:@selector(registerCallback:) sender:self];
             [Insider setHybridSDKVersion:[command.arguments objectAtIndex:1]];
             [Insider initWithLaunchOptions:nil partnerName:[command.arguments objectAtIndex:0] appGroup:[command.arguments objectAtIndex:2]];
-            [Insider resumeSession];
+            [Insider hybridApplicationDidBecomeActive];
             [self sendSuccessResultWithString:@"Insider Cordova Plugin: initWithLaunchOptions" andCommand:command];
         }];
     } @catch (NSException *exception){
@@ -70,7 +70,7 @@
             [Insider registerInsiderCallbackWithSelector:@selector(registerCallback:) sender:self];
             [Insider setHybridSDKVersion:[command.arguments objectAtIndex:1]];
             [Insider initWithLaunchOptions:nil partnerName:[command.arguments objectAtIndex:0] appGroup:[command.arguments objectAtIndex:2] customEndpoint:[command.arguments objectAtIndex:3]];
-            [Insider resumeSession];
+            [Insider hybridApplicationDidBecomeActive];
             [self sendSuccessResultWithString:@"Insider Cordova Plugin: initWithCustomEndpoint" andCommand:command];
         }];
 
@@ -246,7 +246,7 @@
 - (void)hybridIntent:(CDVInvokedUrlCommand *)command {
     @try {
         [self.commandDelegate runInBackground:^{
-            [Insider resumeSession];
+            [Insider hybridApplicationDidBecomeActive];
         }];
     } @catch (NSException *e) {
         [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];

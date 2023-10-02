@@ -25,11 +25,11 @@
         <param name="ios-package" value="CDVGestureHandler" />
         <param name="onload" value="true" />
     </feature>
+    <feature name="InsiderPlugin">
+        <param name="ios-package" value="InsiderPlugin" />
+    </feature>
     <name>HelloCordova</name>
-    <description>Sample Apache Cordova App</description>
-    <author email="dev@cordova.apache.org" href="https://cordova.apache.org">
-        Apache Cordova Team
-    </author>
+    <description>This Demo contains simple methods that you can use with the Insider SDK.</description>
     <content src="index.html" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
@@ -46,7 +46,4 @@
     <preference name="PageLength" value="0" />
     <preference name="PaginationBreakingMode" value="page" />
     <preference name="PaginationMode" value="unpaginated" />
-    <feature name="InsiderPlugin">
-        <param name="ios-package" value="InsiderPlugin" />
-    </feature>
 </widget>

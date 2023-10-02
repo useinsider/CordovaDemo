@@ -8,3 +8,17 @@ target 'HelloCordova' do
 	pod 'InsiderGeofence', '1.1.0'
 	pod 'InsiderHybrid', '1.4.0'
 end
+
+target 'InsiderNotificationContent' do
+  use_frameworks!
+  inherit! :search_paths
+  # Pods for InsiderNotificationContent
+  pod "InsiderMobileAdvancedNotification"
+end
+
+target 'InsiderNotificationService' do
+  use_frameworks!
+  inherit! :search_paths
+  # Pods for InsiderNotificationService
+  pod "InsiderMobileAdvancedNotification"
+end
