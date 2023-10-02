@@ -1,0 +1,12 @@
+.DS_Store
+node_modules
+agconnect-services.json
+google-services.json 
+InsiderDemo-Cordova/platforms
+InsiderDemo-Cordova/plugins
+InsiderDemo-Cordova/node_modules
+*.xdke_bak
+*.xdk_bak
+InsiderDemo-Cordova/mykeystore.jks
+
+.idea

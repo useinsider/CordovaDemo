@@ -22,8 +22,6 @@
       "android",
       "ios"
     ],
-    "plugins": {
-      "cordova-plugin-insider": {}
-    }
+    "plugins": {}
   }
 }

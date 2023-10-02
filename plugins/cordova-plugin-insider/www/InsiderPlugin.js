@@ -39,7 +39,13 @@ class InsiderPlugin {
     }
 
     init = (partnerName, appGroup, handleNotificationCallback) => {
-        if (partnerName === null || appGroup === null || handleNotificationCallback === null) return;
+        if (Utils.checkParameters([
+              { type: 'string', value: partnerName },
+              { type: 'string', value: appGroup },
+              { type: 'function', value: handleNotificationCallback }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-init');
+            return;
+        }
 
         try {
             this.initCordovaBase(partnerName, appGroup, null, handleNotificationCallback);
@@ -49,7 +55,14 @@ class InsiderPlugin {
     };
 
     initWithCustomEndpoint = (partnerName, appGroup, endpoint, handleNotificationCallback) => {
-        if (partnerName === null || appGroup === null || endpoint === null || handleNotificationCallback === null) return;
+        if (Utils.checkParameters([
+            { type: 'string', value: partnerName },
+            { type: 'string', value: appGroup },
+            { type: 'string', value: endpoint },
+            { type: 'function', value: handleNotificationCallback }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-init');
+            return;
+        }
 
         try {
             this.initCordovaBase(partnerName, appGroup, endpoint, handleNotificationCallback);
@@ -57,6 +70,20 @@ class InsiderPlugin {
             Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
         }
     }
+
+    reinitWithPartnerName = (partnerName) => {
+        if (Utils.checkParameters([
+              { type: 'string', value: partnerName }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-reinit');
+            return;
+        }
+
+        try {
+            Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.REINIT_WITH_PARTNER_NAME, [partnerName])
+        } catch (error) {
+            Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+        }
+    };
 
     getCurrentUser = () => {
         try {
@@ -67,7 +94,11 @@ class InsiderPlugin {
     }
 
     tagEvent = (eventName) => {
-        if (eventName === null) { Utils.showWarning('eventName'); return; }
+        if (Utils.checkParameters([{ type: 'string', value: eventName }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-tagEvent');
+            return;
+        }
+
         try {
             return new InsiderEvent(eventName);
         } catch (error) {
@@ -76,14 +107,26 @@ class InsiderPlugin {
     }
 
     createNewProduct = (productID, name, taxonomy, imageURL, price, currency) => {
-        if (productID === null || name === null || taxonomy === null || imageURL === null || price === null || currency === null || Utils.isEmpty(taxonomy) || Utils.isEmpty(price))
+        if (Utils.checkParameters([
+            { type: 'string', value: productID },
+            { type: 'string', value: name },
+            { type: 'object', value: taxonomy },
+            { type: 'string', value: imageURL },
+            { type: 'number', value: price },
+            { type: 'string', value: currency } ])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-createNewProduct');
+
             return new InsiderProduct('', '', [], '', 0, '');
+        }
 
         return new InsiderProduct(productID, name, taxonomy, imageURL, price, currency);
     }
 
     itemPurchased = (uniqueSaleID, product) => {
-        if (uniqueSaleID === null || product === null) return;
+        if (Utils.checkParameters([{ type: 'string', value: uniqueSaleID }, { type: 'object', value: product }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-itemPurchased');
+            return;
+        }
 
         try {
             Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.ITEM_PURCHASED, [uniqueSaleID, product.productMustMap, product.productOptMap]);
@@ -93,7 +136,10 @@ class InsiderPlugin {
     }
 
     itemAddedToCart = (product) => {
-        if (product === null) return;
+        if (Utils.checkParameters([{ type: 'object', value: product }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-itemAddedToCart');
+            return;
+        }
 
         try {
             Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.ITEM_ADDED_TO_CART, [product.productMustMap, product.productOptMap]);
@@ -103,7 +149,10 @@ class InsiderPlugin {
     }
 
     itemRemovedFromCart = (productID) => {
-        if (productID === null) return;
+        if (Utils.checkParameters([{ type: 'string', value: productID }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-itemRemovedFromCart');
+            return;
+        }
 
         try {
             Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.ITEM_REMOVED_FROM_CART, [productID]);
@@ -121,7 +170,13 @@ class InsiderPlugin {
     }
 
     getMessageCenterData = (limit, startDate, endDate) => {
-        if (limit === null || startDate === null || endDate === null || startDate.getTime() === endDate.getTime() || startDate.getTime() > endDate.getTime()) return;
+        if (Utils.checkParameters([
+            { type: 'number', value: limit },
+            { type: 'object', value: startDate },
+            { type: 'object', value: endDate }]) || startDate.getTime() === endDate.getTime() || startDate.getTime() > endDate.getTime()) {
+            Utils.showParameterWarningLog(this.constructor.name + '-getMessageCenterData');
+            return;
+        }
 
         try {
             return Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.GET_MESSAGE_CENTER_DATA, [limit, startDate, endDate]);
@@ -131,7 +186,13 @@ class InsiderPlugin {
     }
 
     getSmartRecommendation = (recommendationID, locale, currency) => {
-        if (recommendationID === null || locale === null || currency === null) return;
+        if (Utils.checkParameters([
+            { type: 'number', value: recommendationID },
+            { type: 'string', value: locale },
+            { type: 'string', value: currency }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-getSmartRecommendation');
+            return;
+        }
 
         try {
             return Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.GET_SMART_RECOMMENDATION, [recommendationID, locale, currency]);
@@ -141,7 +202,13 @@ class InsiderPlugin {
     }
 
     getSmartRecommendationWithProduct = (product, recommendationID, locale) => {
-        if (product === null || recommendationID === null || locale === null) return;
+        if (Utils.checkParameters([
+            { type: 'number', value: recommendationID },
+            { type: 'string', value: locale },
+            { type: 'object', value: product }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-getSmartRecommendationWithProduct');
+            return;
+        }
 
         try {
             return Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.GET_SMART_RECOMMENDATION_WITH_PRODUCT, [product.productMustMap, product.productOptMap, recommendationID, locale]);
@@ -151,7 +218,14 @@ class InsiderPlugin {
     }
 
     getSmartRecommendationWithProductIDs = (productIDs, recommendationID, locale, currency) => {
-        if (productIDs === null || recommendationID === null || locale === null || currency === null) return;
+        if (Utils.checkParameters([
+            { type: 'number', value: recommendationID },
+            { type: 'string', value: locale },
+            { type: 'string', value: currency },
+            { type: 'object', value: productIDs }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-getSmartRecommendationWithProductIDs');
+            return;
+        }
 
         productIDs = productIDs.filter(value => value != null && typeof value == "string" && value.trim());
 
@@ -163,7 +237,12 @@ class InsiderPlugin {
     }
 
     clickSmartRecommendationProduct = (product, recommendationID) => {
-        if (product === null || recommendationID === null) return;
+        if (Utils.checkParameters([
+            { type: 'number', value: recommendationID },
+            { type: 'object', value: product }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-clickSmartRecommendationProduct');
+            return;
+        }
 
         try {
             Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.CLICK_SMART_RECOMMENDATION_PRODUCT, [product.productMustMap, product.productOptMap, recommendationID]);
@@ -173,7 +252,13 @@ class InsiderPlugin {
     }
 
     getContentStringWithName = (variableName, defaultValue, contentOptimizerDataType) => {
-        if (defaultValue === null || contentOptimizerDataType === null) return;
+        if (Utils.checkParameters([
+            { type: 'string', value: variableName },
+            { type: 'string', value: defaultValue },
+            { type: 'number', value: contentOptimizerDataType }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-getContentStringWithName');
+            return;
+        }
 
         try {
             return Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.GET_CONTENT_STRING_WITH_NAME, [variableName, defaultValue, contentOptimizerDataType]);
@@ -183,7 +268,13 @@ class InsiderPlugin {
     }
 
     getContentBoolWithName = (variableName, defaultValue, contentOptimizerDataType) => {
-        if (variableName === null || defaultValue === null || contentOptimizerDataType === null) return;
+        if (Utils.checkParameters([
+            { type: 'string', value: variableName },
+            { type: 'boolean', value: defaultValue },
+            { type: 'number', value: contentOptimizerDataType }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-getContentBoolWithName');
+            return;
+        }
 
         try {
             return Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.GET_CONTENT_BOOL_WITH_NAME, [variableName, defaultValue, contentOptimizerDataType]);
@@ -193,7 +284,13 @@ class InsiderPlugin {
     }
 
     getContentIntWithName = (variableName, defaultValue, contentOptimizerDataType) => {
-        if (variableName === null || defaultValue === null || contentOptimizerDataType === null) return;
+        if (Utils.checkParameters([
+            { type: 'string', value: variableName },
+            { type: 'number', value: defaultValue },
+            { type: 'number', value: contentOptimizerDataType }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-getContentIntWithName');
+            return;
+        }
 
         try {
             return Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.GET_CONTENT_INT_WITH_NAME, [variableName, defaultValue, contentOptimizerDataType]);
@@ -211,7 +308,10 @@ class InsiderPlugin {
     }
 
     visitListingPage = (taxonomy) => {
-        if (taxonomy === null) return;
+        if (Utils.checkParameters([{ type: 'object', value: taxonomy }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-visitListingPage');
+            return;
+        }
 
         try {
             Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.VISIT_LISTING_PAGE, [taxonomy]);
@@ -221,7 +321,10 @@ class InsiderPlugin {
     }
 
     visitProductDetailPage = (product) => {
-        if (product === null) return;
+        if (Utils.checkParameters([{ type: 'object', value: product }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-visitProductDetailPage');
+            return;
+        }
 
         try {
             Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.VISIT_PRODUCT_DETAIL_PAGE, [product.productMustMap, product.productOptMap]);
@@ -231,7 +334,11 @@ class InsiderPlugin {
     }
 
     visitCartPage = (products) => {
-        if (products === null) return;
+        if (Utils.checkParameters([{ type: 'object', value: products }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-visitCartPage');
+            return;
+        }
+
         try {
             let productMap = {};
             let mappedProducts = new Array(products.length);
@@ -257,6 +364,11 @@ class InsiderPlugin {
     }
 
     setGDPRConsent = (gdprConsent) => {
+        if (Utils.checkParameters([{ type: 'boolean', value: gdprConsent }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-setGDPRConsent');
+            return;
+        }
+
         try {
             Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.SET_GDPR_CONSENT, [gdprConsent.toString().toLowerCase()]);
         } catch (error) {
@@ -265,6 +377,11 @@ class InsiderPlugin {
     };
 
     enableIDFACollection = (idfaCollection) => {
+        if (Utils.checkParameters([{ type: 'boolean', value: idfaCollection }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-enableIDFACollection');
+            return;
+        }
+
         try {
             Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.ENABLE_IDFA_COLLECTION, [idfaCollection.toString().toLowerCase()]);
         } catch (error) {
@@ -281,7 +398,10 @@ class InsiderPlugin {
     };
 
     registerWithQuietPermission = (permission) => {
-        if (cordova.platformId !== InsiderConstants.IOS) return;
+        if (Utils.checkParameters([{ type: 'boolean', value: permission }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-registerWithQuietPermission');
+            return;
+        }
 
         try {
             Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.REGISTER_WITH_QUIET_PERMISSION, [permission.toString().toLowerCase()]);
@@ -291,7 +411,10 @@ class InsiderPlugin {
     };
 
     setHybridPushToken = (token) => {
-        if (stoken === null) return;
+        if (Utils.checkParameters([{ type: 'string', value: token }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-setHybridPushToken');
+            return;
+        }
 
         try {
             if (Platform.OS !== InsiderConstants.ANDROID) return;
@@ -303,6 +426,11 @@ class InsiderPlugin {
     }
 
     enableLocationCollection = (locationCollection) => {
+        if (Utils.checkParameters([{ type: 'boolean', value: locationCollection }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-enableLocationCollection');
+            return;
+        }
+
         try {
             Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.ENABLE_LOCATION_COLLECTION, [locationCollection]);
         } catch (error) {
@@ -311,6 +439,11 @@ class InsiderPlugin {
     }
 
     enableIpCollection = (ipCollection) => {
+        if (Utils.checkParameters([{ type: 'boolean', value: ipCollection }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-enableIpCollection');
+            return;
+        }
+
         try {
             Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.ENABLE_IP_COLLECTION, [ipCollection]);
         } catch (error) {
@@ -319,6 +452,11 @@ class InsiderPlugin {
     }
 
     enableCarrierCollection = (carrierCollection) => {
+        if (Utils.checkParameters([{ type: 'boolean', value: carrierCollection }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-enableCarrierCollection');
+            return;
+        }
+
         try {
             Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.ENABLE_CARRIER_COLLECTION, [carrierCollection]);
         } catch (error) {
@@ -351,6 +489,11 @@ class InsiderPlugin {
     }
 
     setForegroundPushCallback = (callback) => {
+        if (Utils.checkParameters([{ type: 'function', value: callback }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-setForegroundPushCallback');
+            return;
+        }
+
         try {
             if (cordova.platformId === "ios") {
                 Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.SET_FOREGROUND_PUSH_CALLBACK, []);
@@ -365,6 +508,11 @@ class InsiderPlugin {
     }
 
     handleNotification = (userInfo) => {
+        if (Utils.checkParameters([{ type: 'object', value: userInfo }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-setForegroundPushCallback');
+            return;
+        }
+
         try {
             Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.HANDLE_NOTIFICATION, [userInfo]);
         } catch (error) {

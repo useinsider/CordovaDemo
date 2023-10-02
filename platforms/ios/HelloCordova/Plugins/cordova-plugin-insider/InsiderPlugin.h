@@ -1,6 +1,7 @@
 #import <InsiderMobile/Insider.h>
 #import <InsiderHybrid/InsiderHybrid.h>
 #import <InsiderMobile/InsiderCallbackTypeEnum.h>
+#import <InsiderGeofence/InsiderGeofence.h>
 #import "IDFAHelper.h"
 #import <UserNotifications/UserNotifications.h>
 
@@ -8,6 +9,7 @@
 
 - (void) init:(CDVInvokedUrlCommand *)command;
 - (void) initWithLaunchOptions:(CDVInvokedUrlCommand *)command;
+- (void) reinitWithPartnerName:(CDVInvokedUrlCommand *)command;
 - (void) registerWithQuietPermission:(CDVInvokedUrlCommand *)command;
 - (void) enableIDFACollection:(CDVInvokedUrlCommand *)command;
 - (void) setGDPRConsent:(CDVInvokedUrlCommand *)command;

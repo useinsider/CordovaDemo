@@ -11,7 +11,10 @@ class Identifier {
     }
 
     addEmail(email) {
-        if (email === null || Utils.isEmpty(email)){ Utils.showWarning(this.constructor.name + '-email'); return this;}
+        if (Utils.checkParameters([{ type: 'string', value: email }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-addEmail');
+            return this;
+        }
 
         try {
             this.identifiers[InsiderConstants.ADD_EMAIL] = email;
@@ -23,7 +26,10 @@ class Identifier {
     }
 
     addPhoneNumber(phoneNumber) {
-        if (phoneNumber === null || Utils.isEmpty(phoneNumber)){ Utils.showWarning(this.constructor.name + '-phoneNumber'); return this;}
+        if (Utils.checkParameters([{ type: 'string', value: phoneNumber }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-addPhoneNumber');
+            return this;
+        }
 
         try {
             this.identifiers[InsiderConstants.ADD_PHONE_NUMBER] = phoneNumber;
@@ -35,7 +41,10 @@ class Identifier {
     }
 
     addUserID(userID) {
-        if (userID === null || Utils.isEmpty(userID)){ Utils.showWarning(this.constructor.name + '-userID'); return this;}
+        if (Utils.checkParameters([{ type: 'string', value: userID }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-addUserID');
+            return this;
+        }
 
         try {
             this.identifiers[InsiderConstants.ADD_USER_ID] = userID;
@@ -47,7 +56,10 @@ class Identifier {
     }
 
     addCustomIdentifier(key, value) {
-        if (key === null || value === null || Utils.isEmpty(key)){ Utils.showWarning(this.constructor.name + '-addCustomIdentifier key or value'); return this;}
+        if (Utils.checkParameters([{ type: 'string', value: key }, { type: 'string', value: value }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-addCustomIdentifier');
+            return this;
+        }
 
         try {
             this.identifiers[key] = value;

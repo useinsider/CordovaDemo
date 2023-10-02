@@ -6,10 +6,6 @@
   "config_munge": {
     "files": {}
   },
-  "installed_plugins": {
-    "cordova-plugin-insider": {
-      "PACKAGE_NAME": "com.useinsider.cordovademo"
-    }
-  },
+  "installed_plugins": {},
   "dependent_plugins": {}
 }

@@ -1,8 +1,8 @@
 {
   "cordova-plugin-insider": {
     "source": {
-      "type": "registry",
-      "id": "cordova-plugin-insider"
+      "type": "local",
+      "path": "/Users/melih/Documents/GitHub/CordovaDemo/node_modules/cordova-plugin-insider"
     },
     "is_top_level": true,
     "variables": {}

@@ -12,7 +12,10 @@ class Event {
     }
 
     addParameterWithString(key, value) {
-        if (key === null || value === null || Utils.isEmpty(key) || Utils.isEmpty(value)){ Utils.showWarning(this.constructor.name + '-addParameterWithString key or value'); return this;}
+        if (Utils.checkParameters([{ type: 'string', value: key }, { type: 'string', value: value }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-addParameterWithString');
+            return this;
+        }
 
         try {
             this.parameters[key] = value;
@@ -24,7 +27,10 @@ class Event {
     }
 
     addParameterWithInt(key, value) {
-        if (key === null || value === null || Utils.isEmpty(key) || Utils.isEmpty(value)){ Utils.showWarning(this.constructor.name + '-addParameterWithInt key or value'); return this;}
+        if (Utils.checkParameters([{ type: 'string', value: key }, { type: 'number', value: value }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-addParameterWithInt');
+            return this;
+        }
 
         try {
             this.parameters[key] = value;
@@ -36,7 +42,10 @@ class Event {
     }
 
     addParameterWithDouble(key, value) {
-        if (key === null || value === null || Utils.isEmpty(key) || Utils.isEmpty(value)){ Utils.showWarning(this.constructor.name + '-addParameterWithDouble key or value'); return this;}
+        if (Utils.checkParameters([{ type: 'string', value: key }, { type: 'number', value: value }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-addParameterWithDouble');
+            return this;
+        }
 
         try {
             this.parameters[key] = value;
@@ -48,7 +57,10 @@ class Event {
     }
 
     addParameterWithBoolean(key, value) {
-        if (key === null || value === null || Utils.isEmpty(key)|| Utils.isEmpty(value)){ Utils.showWarning(this.constructor.name + '-addParameterWithBoolean key or value'); return this;}
+        if (Utils.checkParameters([{ type: 'string', value: key }, { type: 'boolean', value: value }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-addParameterWithBoolean');
+            return this;
+        }
 
         try {
             this.parameters[key] = value;
@@ -60,10 +72,12 @@ class Event {
     }
 
     addParameterWithDate(key, value) {
-        if (key === null || value === null || Utils.isEmpty(key) || Utils.isEmpty(value)){ Utils.showWarning(this.constructor.name + '-addParameterWithDate key or value'); return this;}
+        if (Utils.checkParameters([{ type: 'string', value: key }, { type: 'object', value: value }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-addParameterWithDate');
+            return this;
+        }
 
         try {
-
             this.parameters[key] = value.toISOString();
 
             return this;
@@ -73,7 +87,10 @@ class Event {
     }
 
     addParameterWithArray(key, value) {
-        if (key === null || value === null || Utils.isEmpty(key) || Utils.isEmpty(value)){ Utils.showWarning(this.constructor.name + '-addParameterWithArray key or value'); return this;}
+        if (Utils.checkParameters([{ type: 'string', value: key }, { type: 'object', value: value }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-addParameterWithArray');
+            return this;
+        }
 
         try {
             this.parameters[key] = value;

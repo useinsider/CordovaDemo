@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget  android-packageName="com.company.app" ios-CFBundleIdentifier="com.company.app" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>InsiderDemo</name>
+    <description>Insider Apache Cordova App</description>
+    <author href="https://useinsider.com">
+        Insider
+    </author>
+    <plugin name="cordova-plugin-whitelist" spec="1" />
+    <access origin="*" />
+    <content src="index.html" />
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
+    <platform name="android">
+        <allow-intent href="market:*" />
+        <resource-file src="google-services.json" target="app/google-services.json" />
+        <resource-file src="agconnect-services.json" target="app/agconnect-services.json" />
+        <preference name="AndroidXEnabled" value="true" />
+    </platform>
+    <platform name="ios">
+        <allow-intent href="itms:*" />
+        <allow-intent href="itms-apps:*" />
+        <edit-config file="*-Info.plist" mode="merge" target="NSLocationWhenInUseUsageDescription">
+            <string>need location access to find things nearby</string>
+        </edit-config>
+        <edit-config file="*-Info.plist" mode="merge" target="NSLocationAlwaysAndWhenInUseUsageDescription">
+            <string>need location access to find things nearby</string>
+        </edit-config>
+        <edit-config file="*-Info.plist" mode="merge" target="NSLocationAlwaysUsageDescription">
+            <string>need location access to find things nearby</string>
+        </edit-config>
+
+        <config-file target="*-Info.plist" parent="NSUserTrackingUsageDescription">
+            <string>need access to use data to track user or device</string>
+        </config-file>
+    </platform>
+</widget>

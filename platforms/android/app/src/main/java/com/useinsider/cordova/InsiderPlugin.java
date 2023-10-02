@@ -87,7 +87,6 @@ public class InsiderPlugin extends CordovaPlugin {
                         }
                     });
 
-                    Insider.Instance.handleHybridIntent();
                     Insider.Instance.storePartnerName(partnerName);
                 }
             });
@@ -113,10 +112,10 @@ public class InsiderPlugin extends CordovaPlugin {
                 Insider.Instance.setCustomEndpoint(args.getString(3));
 
                 init(args.getString(0), args.getString(1));
+            } else if (action.equals("reinitWithPartnerName")) {
+                Insider.Instance.reinitWithPartnerName(args.getString(0));
             } else if (action.equals("setGDPRConsent")) {
                 Insider.Instance.setGDPRConsent(Boolean.parseBoolean(args.getString(0)));
-            } else if (action.equals("enableIDFACollection")) {
-                Insider.Instance.enableIDFACollection(Boolean.parseBoolean(args.getString(0)));
             } else if (action.equals("startTrackingGeofence")) {
                 cordova.getThreadPool().execute(new Runnable() {
                     @Override

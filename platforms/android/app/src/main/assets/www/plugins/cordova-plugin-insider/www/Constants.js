@@ -84,8 +84,10 @@ module.exports = {
     // Platform
     ANDROID: 'android',
     IOS: 'ios',
+    // Reinit
+    REINIT_WITH_PARTNER_NAME: 'reinitWithPartnerName',
     // SDK Version
-    SDK_VERSION: 'CDV-1.4.0',
+    SDK_VERSION: 'CDV-1.8.0',
 };
 
 });

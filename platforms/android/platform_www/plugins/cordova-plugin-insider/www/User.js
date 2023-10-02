@@ -8,7 +8,10 @@ class User {
     constructor() {}
 
     setGender(gender) {
-        if (gender === null || Utils.isEmpty(gender)){ Utils.showWarning(this.constructor.name + '-gender'); return this;}
+        if (Utils.checkParameters([{ type: 'number', value: gender }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-setGender');
+            return this;
+        }
 
         try {
             Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.SET_GENDER, [gender]);
@@ -20,7 +23,10 @@ class User {
     }
 
     setBirthday(birthday) {
-        if (birthday === null || Utils.isEmpty(birthday)){ Utils.showWarning(this.constructor.name + '-birthday'); return this;}
+        if (Utils.checkParameters([{ type: 'string', value: birthday }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-setBirthday');
+            return this;
+        }
 
         try {
             Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.SET_BIRTDAY, [birthday.toISOString()]);
@@ -31,7 +37,10 @@ class User {
     }
 
     setName(name) {
-        if (name === null || Utils.isEmpty(name)){ Utils.showWarning(this.constructor.name + '-name'); return this;}
+        if (Utils.checkParameters([{ type: 'string', value: name }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-setName');
+            return this;
+        }
 
         try {
             Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.SET_NAME, [name]);
@@ -42,7 +51,10 @@ class User {
     }
 
     setSurname(surname) {
-        if (surname === null || Utils.isEmpty(surname)){ Utils.showWarning(this.constructor.name + '-surname'); return this;}
+        if (Utils.checkParameters([{ type: 'string', value: surname }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-setSurname');
+            return this;
+        }
 
         try {
             Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.SET_SURNAME, [surname]);
@@ -54,7 +66,10 @@ class User {
     }
 
     setAge(age) {
-        if (age === null || Utils.isEmpty(age)){ Utils.showWarning(this.constructor.name + '-age'); return this;}
+        if (Utils.checkParameters([{ type: 'string', value: age }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-setAge');
+            return this;
+        }
 
         try {
             Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.SET_AGE, [age]);
@@ -67,7 +82,10 @@ class User {
 
 
     setEmail(email) {
-        if (email === null || Utils.isEmpty(email)){ Utils.showWarning(this.constructor.name + '-email'); return this;}
+        if (Utils.checkParameters([{ type: 'string', value: email }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-setEmail');
+            return this;
+        }
 
         try {
             Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.SET_EMAIL, [email]);
@@ -79,7 +97,10 @@ class User {
     }
 
     setPhoneNumber(phone) {
-        if (phone === null || Utils.isEmpty(phone)){ Utils.showWarning(this.constructor.name + '-phone'); return this;}
+        if (Utils.checkParameters([{ type: 'string', value: phone }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-setPhoneNumber');
+            return this;
+        }
 
         try {
             Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.SET_PHONE_NUMBER, [phone]);
@@ -91,7 +112,10 @@ class User {
     }
 
     setLanguage(language) {
-        if (language === null || Utils.isEmpty(language)){ Utils.showWarning(this.constructor.name + '-language'); return this;}
+        if (Utils.checkParameters([{ type: 'string', value: language }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-setLanguage');
+            return this;
+        }
 
         try {
             Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.SET_LANGUAGE, [language]);
@@ -103,7 +127,10 @@ class User {
     }
 
     setLocale(locale) {
-        if (locale === null || Utils.isEmpty(locale)){ Utils.showWarning(this.constructor.name + '-locale'); return this;}
+        if (Utils.checkParameters([{ type: 'string', value: locale }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-setLocale');
+            return this;
+        }
 
         try {
             Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.SET_LOCALE, [locale]);
@@ -115,7 +142,10 @@ class User {
     }
 
     setFacebookID(facebookID) {
-        if (facebookID === null || Utils.isEmpty(facebookID)){ Utils.showWarning(this.constructor.name + '-facebookID'); return this;}
+        if (Utils.checkParameters([{ type: 'string', value: facebookID }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-setFacebookID');
+            return this;
+        }
 
         try {
             Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.SET_FACEBOOK_ID, [facebookID]);
@@ -127,7 +157,10 @@ class User {
     }
 
     setTwitterID(twitterID) {
-        if (twitterID === null || Utils.isEmpty(twitterID)){ Utils.showWarning(this.constructor.name + '-twitterID'); return this;}
+        if (Utils.checkParameters([{ type: 'string', value: twitterID }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-setTwitterID');
+            return this;
+        }
 
         try {
             Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.SET_TWITTER_ID, [twitterID]);
@@ -139,7 +172,10 @@ class User {
     }
 
     setEmailOptin(emailOptIn) {
-        if (emailOptIn === null || Utils.isEmpty(emailOptIn)){ Utils.showWarning(this.constructor.name + '-emailOptIn'); return this;}
+        if (Utils.checkParameters([{ type: 'boolean', value: emailOptIn }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-setEmailOptin');
+            return this;
+        }
 
         try {
             Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.SET_EMAIL_OPTIN, [emailOptIn]);
@@ -151,7 +187,10 @@ class User {
     }
 
     setSMSOptin(smsOptIn) {
-        if (smsOptIn === null || Utils.isEmpty(smsOptIn)){ Utils.showWarning(this.constructor.name + '-smsOptIn'); return this;}
+        if (Utils.checkParameters([{ type: 'boolean', value: emailOptIn }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-setSMSOptin');
+            return this;
+        }
 
         try {
             Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.SET_SMS_OPTIN, [smsOptIn]);
@@ -162,7 +201,10 @@ class User {
     }
 
     setPushOptin(pushOptIn) {
-        if (pushOptIn === null || Utils.isEmpty(pushOptIn)){ Utils.showWarning(this.constructor.name + '-pushOptIn'); return this;}
+        if (Utils.checkParameters([{ type: 'boolean', value: pushOptIn }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-setPushOptin');
+            return this;
+        }
 
         try {
             Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.SET_PUSH_OPTIN, [pushOptIn]);
@@ -174,10 +216,13 @@ class User {
     }
 
     setLocationOptin(locationOptIn) {
-        if (locationOptIn === null || locationOptIn == undefined) { Utils.showWarning(this.constructor.name + '-locationOptIn'); return this; }
+        if (Utils.checkParameters([{ type: 'boolean', value: locationOptIn }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-setLocationOptin');
+            return this;
+        }
 
         try {
-            Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.SET_LOCATION_OPTIN, [!!locationOptIn]);
+            Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.SET_LOCATION_OPTIN, [locationOptIn]);
         } catch (error) {
             Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
         }
@@ -186,7 +231,10 @@ class User {
     }
 
     setWhatsappOptin(whatsappOptin) {
-        if (whatsappOptin === null || Utils.isEmpty(whatsappOptin)){ Utils.showWarning(this.constructor.name + '-whatsappOptin'); return this;}
+        if (Utils.checkParameters([{ type: 'boolean', value: whatsappOptin }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-setWhatsappOptin');
+            return this;
+        }
 
         try {
             Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.SET_WHATSAPP_OPTIN, [whatsappOptin]);
@@ -199,11 +247,13 @@ class User {
 
     login(identifiers, insiderIDResult) {
         try {
-            if (insiderIDResult !== null) {
+            if (!Utils.checkParameters([{ type: 'function', value: insiderIDResult }, { type: 'object', value: identifiers }])) {
                 Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.LOGIN, [identifiers, insiderIDResult]).then(id => insiderIDResult(id));
+            } else if (!Utils.checkParameters([{ type: 'object', value: identifiers }])) {
+                Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.LOGIN, [identifiers]);
+            } else {
+                Utils.showParameterWarningLog(this.constructor.name + '-login');
             }
-
-            return Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.LOGIN, [identifiers]);
         } catch (error) {
             Utils.asyncExec(InsiderCordovaPlugin, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
         }
@@ -218,7 +268,10 @@ class User {
     }
 
     setCustomAttributeWithString(key, value) {
-        if (key == null || value === null || Utils.isEmpty(key)|| Utils.isEmpty(value)){ Utils.showWarning(this.constructor.name + '-setCustomAttributeWithString key or value'); return this;}
+        if (Utils.checkParameters([{ type: 'string', value: key }, { type: 'string', value: value }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-setCustomAttributeWithString');
+            return this;
+        }
 
         try {
             Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.SET_CUSTOM_ATTRIBUTE_WITH_STRING, [key, value]);
@@ -230,7 +283,10 @@ class User {
     }
 
     setCustomAttributeWithInt(key, value) {
-        if (key == null || value === null || Utils.isEmpty(key)|| Utils.isEmpty(value)){ Utils.showWarning(this.constructor.name + '-setCustomAttributeWithInt key or value'); return this;}
+        if (Utils.checkParameters([{ type: 'string', value: key }, { type: 'number', value: value }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-setCustomAttributeWithInt');
+            return this;
+        }
 
         try {
             Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.SET_CUSTOM_ATTRIBUTE_WITH_INT, [key, value]);
@@ -242,7 +298,10 @@ class User {
     }
 
     setCustomAttributeWithDouble(key, value) {
-        if (key == null || value === null || Utils.isEmpty(key)|| Utils.isEmpty(value)){ Utils.showWarning(this.constructor.name + '-setCustomAttributeWithDouble key or value'); return this;}
+        if (Utils.checkParameters([{ type: 'string', value: key }, { type: 'number', value: value }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-setCustomAttributeWithDouble');
+            return this;
+        }
 
         try {
             Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.SET_CUSTOM_ATTRIBUTE_WITH_DOUBLE, [key, value]);
@@ -254,7 +313,10 @@ class User {
     }
 
     setCustomAttributeWithBoolean(key, value) {
-        if (key == null || value === null || Utils.isEmpty(key) || Utils.isEmpty(value)){ Utils.showWarning(this.constructor.name + '-setCustomAttributeWithBoolean key or value'); return this;}
+        if (Utils.checkParameters([{ type: 'string', value: key }, { type: 'boolean', value: value }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-setCustomAttributeWithBoolean');
+            return this;
+        }
 
         try {
             Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.SET_CUSTOM_ATTRIBUTE_WITH_BOOLEAN, [key, value]);
@@ -266,7 +328,10 @@ class User {
     }
 
     setCustomAttributeWithDate(key, value) {
-        if (key == null || value === null || Utils.isEmpty(key) || Utils.isEmpty(value)){ Utils.showWarning(this.constructor.name + '-setCustomAttributeWithDate key or value'); return this;}
+        if (Utils.checkParameters([{ type: 'string', value: key }, { type: 'object', value: value }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-setCustomAttributeWithDate');
+            return this;
+        }
 
         try {
             Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.SET_CUSTOM_ATTRIBUTE_WITH_DATE, [key, value.toISOString()]);
@@ -278,7 +343,10 @@ class User {
     }
 
     setCustomAttributeWithArray(key, value) {
-        if (key == null || value === null || Utils.isEmpty(key)|| Utils.isEmpty(value)){ Utils.showWarning(this.constructor.name + '-setCustomAttributeWithArray key or value'); return this;}
+        if (Utils.checkParameters([{ type: 'string', value: key }, { type: 'object', value: value }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-setCustomAttributeWithArray');
+            return this;
+        }
 
         try {
             Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.SET_CUSTOM_ATTRIBUTE_WITH_ARRAY, [key, value]);
@@ -290,7 +358,11 @@ class User {
     }
 
     unsetCustomAttribute(key) {
-        if (key == null || Utils.isEmpty(key)|| Utils.isEmpty(value)){ Utils.showWarning(this.constructor.name + '-unsetCustomAttribute key'); return this;}
+        if (Utils.checkParameters([{ type: 'string', value: key }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-unsetCustomAttribute');
+            return this;
+        }
+
         try {
             Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.UNSET_CUSTOM_ATTRIBUTE, [key]);
         } catch (error) {

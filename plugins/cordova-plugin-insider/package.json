@@ -1,6 +1,6 @@
 {
   "name": "cordova-plugin-insider",
-  "version": "1.4.0",
+  "version": "1.8.0",
   "description": "A plugin that you can use Insider SDK with Cordova and Ionic",
   "cordova_name": "Insider Cordova Plugin",
   "cordova": {

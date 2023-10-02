@@ -1,9 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="com.useinsider.cordovademo" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <feature name="InsiderPlugin">
-        <param name="android-package" value="com.useinsider.cordova.InsiderPlugin" />
-        <param name="onload" value="true" />
-    </feature>
     <name>HelloCordova</name>
     <description>This Demo contains simple methods that you can use with the Insider SDK.</description>
     <content src="index.html" />
@@ -12,4 +8,8 @@
     <preference name="loglevel" value="DEBUG" />
     <preference name="GradlePluginGoogleServicesEnabled" value="true" />
     <preference name="GradlePluginGoogleServicesVersion" value="4.3.10" />
+    <feature name="InsiderPlugin">
+        <param name="android-package" value="com.useinsider.cordova.InsiderPlugin" />
+        <param name="onload" value="true" />
+    </feature>
 </widget>

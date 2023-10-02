@@ -7,12 +7,14 @@ module.exports = {
         });
     },
     generateJSONErrorString: (error) => {
-        return ('[JavaScript Error] ' + error);
+        return ('[InsiderCordova][JavaScriptError] ' + error);
     },
-     isEmpty(str) {
-        return (!str || str.length === 0 );
+    checkParameters(parameters) {
+        return parameters.some((parameterConfig) => {
+            return parameterConfig.type !== typeof parameterConfig.value;
+        });
     },
-    showWarning(name){
-        console.log("[InsiderPlugin Warning] Value is null or empty: " + name);
+    showParameterWarningLog(functionName) {
+        console.warn("[InsiderCordova] paramaters is not valid, function: " + functionName);
     }
 };

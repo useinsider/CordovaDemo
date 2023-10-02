@@ -20,7 +20,10 @@ class Product {
     }
 
     setColor(color) {
-        if (color === null|| Utils.isEmpty(color)){ Utils.showWarning(this.constructor.name + '-color'); return this;}
+        if (Utils.checkParameters([{ type: 'string', value: color }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-color');
+            return this;
+        }
 
         try {
             this.productOptMap[InsiderConstants.COLOR] = color;
@@ -32,7 +35,10 @@ class Product {
     }
 
     setVoucherName(voucherName) {
-        if (voucherName === null|| Utils.isEmpty(voucherName)){ Utils.showWarning(this.constructor.name + '-voucherName'); return this;}
+        if (Utils.checkParameters([{ type: 'string', value: voucherName }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-voucherName');
+            return this;
+        }
 
         try {
             this.productOptMap[InsiderConstants.VOUCHER_NAME] = voucherName;
@@ -44,19 +50,25 @@ class Product {
     }
 
     setPromotionName(promotionName) {
-        if (promotionName === null|| Utils.isEmpty(promotionName)){ Utils.showWarning(this.constructor.name + '-promotionName'); return this;}
+        if (Utils.checkParameters([{ type: 'string', value: promotionName }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-promotionName');
+            return this;
+        }
 
         try {
             this.productOptMap[InsiderConstants.PROMOTION_NAME] = promotionName;
         } catch (error) {
             Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
         }
-        
+
         return this;
     }
 
     setSize(size) {
-        if (size === null|| Utils.isEmpty(size)){ Utils.showWarning(this.constructor.name + '-size'); return this;}
+        if (Utils.checkParameters([{ type: 'string', value: size }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-size');
+            return this;
+        }
 
         try {
             this.productOptMap[InsiderConstants.SIZE] = size;
@@ -68,7 +80,10 @@ class Product {
     }
 
     setGroupCode(groupCode) {
-        if (!groupCode) { Utils.showWarning(this.constructor.name + '-groupCode'); return this; }
+        if (Utils.checkParameters([{ type: 'string', value: groupCode }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-groupCode');
+            return this;
+        }
 
         try {
             this.productOptMap[InsiderConstants.GROUP_CODE] = groupCode;
@@ -80,7 +95,10 @@ class Product {
     }
 
     setSalePrice(salePrice) {
-        if (salePrice === null|| Utils.isEmpty(salePrice)){ Utils.showWarning(this.constructor.name + '-salePrice'); return this;}
+        if (Utils.checkParameters([{ type: 'number', value: salePrice }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-salePrice');
+            return this;
+        }
 
         try {
             this.productOptMap[InsiderConstants.SALE_PRICE] = salePrice;
@@ -91,7 +109,10 @@ class Product {
     }
 
     setShippingCost(shippingCost) {
-        if (shippingCost === null|| Utils.isEmpty(shippingCost)){ Utils.showWarning(this.constructor.name + '-shippingCost'); return this;}
+        if (Utils.checkParameters([{ type: 'number', value: shippingCost }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-shippingCost');
+            return this;
+        }
 
         try {
             this.productOptMap[InsiderConstants.SHIPPING_COST] = shippingCost;
@@ -103,7 +124,10 @@ class Product {
     }
 
     setVoucherDiscount(voucherDiscount) {
-        if (voucherDiscount === null|| Utils.isEmpty(voucherDiscount)){ Utils.showWarning(this.constructor.name + '-voucherDiscount'); return this;}
+        if (Utils.checkParameters([{ type: 'number', value: voucherDiscount }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-voucherDiscount');
+            return this;
+        }
 
         try {
             this.productOptMap[InsiderConstants.VOUCHER_DISCOUNT] = voucherDiscount;
@@ -115,7 +139,10 @@ class Product {
     }
 
     setPromotionDiscount(promotionDiscount) {
-        if (promotionDiscount === null|| Utils.isEmpty(promotionDiscount)){ Utils.showWarning(this.constructor.name + '-promotionDiscount'); return this;}
+        if (Utils.checkParameters([{ type: 'number', value: promotionDiscount }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-promotionDiscount');
+            return this;
+        }
 
         try {
             this.productOptMap[InsiderConstants.PROMOTION_DISCOUNT] = promotionDiscount;
@@ -127,7 +154,10 @@ class Product {
     }
 
     setStock(stock) {
-        if (stock === null|| Utils.isEmpty(stock)){ Utils.showWarning(this.constructor.name + '-stock'); return this;}
+        if (Utils.checkParameters([{ type: 'number', value: stock }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-stock');
+            return this;
+        }
 
         try {
             this.productOptMap[InsiderConstants.STOCK] = stock;
@@ -139,7 +169,10 @@ class Product {
     }
 
     setQuantity(quantity) {
-        if (quantity === null|| Utils.isEmpty(quantity)|| Utils.isEmpty(quantity)){ Utils.showWarning(this.constructor.name + '-quantity'); return this;}
+        if (Utils.checkParameters([{ type: 'number', value: quantity }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-quantity');
+            return this;
+        }
 
         try {
             this.productOptMap[InsiderConstants.QUANTITY] = quantity;
@@ -151,7 +184,10 @@ class Product {
     }
 
     setCustomAttributeWithString(key, value) {
-        if (key === null || value === null || Utils.isEmpty(key)|| Utils.isEmpty(value)){ Utils.showWarning(this.constructor.name + '-setCustomAttributeWithString key or value'); return this;}
+        if (Utils.checkParameters([{ type: 'string', value: key }, { type: 'string', value: value }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-setCustomAttributeWithString');
+            return this;
+        }
 
         try {
             this.productOptMap[key] = value;
@@ -163,7 +199,10 @@ class Product {
     }
 
     setCustomAttributeWithInt(key, value) {
-        if (key === null || value === null || Utils.isEmpty(key)|| Utils.isEmpty(value)){ Utils.showWarning(this.constructor.name + '-setCustomAttributeWithInt key or value'); return this;}
+        if (Utils.checkParameters([{ type: 'string', value: key }, { type: 'number', value: value }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-setCustomAttributeWithInt');
+            return this;
+        }
 
         try {
             this.productOptMap[key] = value;
@@ -174,7 +213,10 @@ class Product {
     }
 
     setCustomAttributeWithBoolean(key, value) {
-        if (key === null || value === null || Utils.isEmpty(key) || Utils.isEmpty(value)){ Utils.showWarning(this.constructor.name + '-setCustomAttributeWithBoolean key or value'); return this;}
+        if (Utils.checkParameters([{ type: 'string', value: key }, { type: 'boolean', value: value }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-setCustomAttributeWithBoolean');
+            return this;
+        }
 
         try {
             this.productOptMap[key] = value;
@@ -185,7 +227,10 @@ class Product {
     }
 
     setCustomAttributeWithDouble(key, value) {
-        if (key === null || value === null || Utils.isEmpty(key)|| Utils.isEmpty(value)){ Utils.showWarning(this.constructor.name + '-setCustomAttributeWithDouble key or value'); return this;}
+        if (Utils.checkParameters([{ type: 'string', value: key }, { type: 'number', value: value }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-setCustomAttributeWithDouble');
+            return this;
+        }
 
         try {
             this.productOptMap[key] = value;
@@ -197,7 +242,10 @@ class Product {
     }
 
     setCustomAttributeWithDate(key, value) {
-        if (key === null || value === null || Utils.isEmpty(key) || Utils.isEmpty(value)){ Utils.showWarning(this.constructor.name + '-setCustomAttributeWithDate key or value'); return this;}
+        if (Utils.checkParameters([{ type: 'string', value: key }, { type: 'object', value: value }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-setCustomAttributeWithDate');
+            return this;
+        }
 
         try {
             this.productOptMap[key] = value.toISOString();
@@ -209,7 +257,10 @@ class Product {
     }
 
     setCustomAttributeWithArray(key, value) {
-        if (key === null || value === null || Utils.isEmpty(key)|| Utils.isEmpty(value)){ Utils.showWarning(this.constructor.name + '-setCustomAttributeWithArray key or value'); return this;}
+        if (Utils.checkParameters([{ type: 'string', value: key }, { type: 'object', value: value }])) {
+            Utils.showParameterWarningLog(this.constructor.name + '-setCustomAttributeWithArray');
+            return this;
+        }
 
         try {
             this.productOptMap[key] = value;

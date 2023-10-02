@@ -44,6 +44,23 @@
     }
 }
 
+- (void) reinitWithPartnerName:(CDVInvokedUrlCommand *)command {
+    @try {
+        if (![command.arguments objectAtIndex:0])
+            return;
+
+        [self.commandDelegate runInBackground:^{
+            NSString* partnerName = [[command arguments] objectAtIndex:0];
+
+            [Insider reinitWithPartnerName:partnerName];
+
+            [self sendSuccessResultWithString:@"Insider Cordova Plugin: Re-Initialized." andCommand:command];
+        }];
+    } @catch (NSException *exception) {
+        [Insider sendError:exception desc:@"Insider.m - init"];
+    }
+}
+
 - (void)initWithCustomEndpoint:(CDVInvokedUrlCommand *)command {
     @try{
         if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1] || ![command.arguments objectAtIndex:2] || ![command.arguments objectAtIndex:3]) {
@@ -62,41 +79,47 @@
     }
 }
 
--(void)registerCallback:(NSDictionary *)notfDict {
+-(void)registerCallback:(NSDictionary *)callbackDictionary {
     @try {
-        if (!notfDict || [notfDict count] == 0)
+        if (!callbackDictionary || [callbackDictionary count] == 0)
             return;
-        InsiderCallbackType type = (InsiderCallbackType)[[notfDict objectForKey:@"type"] intValue];
-        NSString* notfData = [InsiderHybrid dictToJson:notfDict];
+        InsiderCallbackType type = (InsiderCallbackType)[[callbackDictionary objectForKey:@"type"] intValue];
+        NSString* callbackData = [InsiderHybrid dictToJson:callbackDictionary];
 
         NSString *js;
         switch (type) {
             case InsiderCallbackTypeNotificationOpen:{
-                NSString * data = [NSString stringWithFormat:@"{""action"":'NOTIFICATION_OPEN',""result"":""%@""}", notfData];
+                NSString * data = [NSString stringWithFormat:@"{""action"":'NOTIFICATION_OPEN',""result"":""%@""}", callbackData];
                 js = [NSString stringWithFormat:@"cordova.fireDocumentEvent('ins_notification_handle',%@);", data];
                 [self.commandDelegate evalJs:js];
                 break;
             }
             case InsiderCallbackTypeInappButtonClick:{
-                NSString * data = [NSString stringWithFormat:@"{""action"":'INAPP_BUTTON_CLICK',""result"":""%@""}", notfData];
+                NSString * data = [NSString stringWithFormat:@"{""action"":'INAPP_BUTTON_CLICK',""result"":""%@""}", callbackData];
                 js = [NSString stringWithFormat:@"cordova.fireDocumentEvent('ins_notification_handle',%@);", data];
                 [self.commandDelegate evalJs:js];
                 break;
             }
             case InsiderCallbackTypeTempStorePurchase:{
-                NSString * data = [NSString stringWithFormat:@"{""action"":'TEMP_STORE_PURCHASE',""result"":""%@""}", notfData];
+                NSString * data = [NSString stringWithFormat:@"{""action"":'TEMP_STORE_PURCHASE',""result"":""%@""}", callbackData];
                 js = [NSString stringWithFormat:@"cordova.fireDocumentEvent('ins_notification_handle',%@);", data];
                 [self.commandDelegate evalJs:js];
                 break;
             }
             case InsiderCallbackTypeTempStoreAddedToCart:{
-                NSString * data = [NSString stringWithFormat:@"{""action"":'TEMP_STORE_ADDED_TO_CART',""result"":""%@""}", notfData];
+                NSString * data = [NSString stringWithFormat:@"{""action"":'TEMP_STORE_ADDED_TO_CART',""result"":""%@""}", callbackData];
                 js = [NSString stringWithFormat:@"cordova.fireDocumentEvent('ins_notification_handle',%@);", data];
                 [self.commandDelegate evalJs:js];
                 break;
             }
             case InsiderCallbackTypeTempStoreCustomAction:{
-                NSString * data = [NSString stringWithFormat:@"{""action"":'TEMP_STORE_CUSTOM_ACTION',""result"":""%@""}", notfData];
+                NSString * data = [NSString stringWithFormat:@"{""action"":'TEMP_STORE_CUSTOM_ACTION',""result"":""%@""}", callbackData];
+                js = [NSString stringWithFormat:@"cordova.fireDocumentEvent('ins_notification_handle',%@);", data];
+                [self.commandDelegate evalJs:js];
+                break;
+            }
+            case InsiderCallbackTypeInAppSeen:{
+                NSString * data = [NSString stringWithFormat:@"{""action"":'INAPP_SEEN',""result"":""%@""}", callbackData];
                 js = [NSString stringWithFormat:@"cordova.fireDocumentEvent('ins_notification_handle',%@);", data];
                 [self.commandDelegate evalJs:js];
                 break;
@@ -138,7 +161,7 @@
 - (void) startTrackingGeofence:(CDVInvokedUrlCommand *)command {
     @try {
         [self.commandDelegate runInBackground:^{
-            [Insider startTrackingGeofence];
+            [InsiderGeofence startTracking];
             [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
         }];
     } @catch (NSException *exception) {

@@ -11,15 +11,12 @@ android {
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 31
-        versionCode 1
-        versionName "1.0"
-        manifestPlaceholders = [ partner: "partner_name" ]
         multiDexEnabled true
     }
 }
 
 dependencies {
-    implementation 'com.useinsider:insider:13.6.0'
+    implementation 'com.useinsider:insider:14.1.0'
     implementation 'com.useinsider:insiderhybrid:1.1.6'
 
     implementation 'com.fasterxml.jackson.core:jackson-core:2.12.4'
@@ -28,11 +25,13 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.lifecycle:lifecycle-process:2.3.1'
 
-    implementation 'com.google.android.gms:play-services-location:20.0.0'
+    implementation 'com.google.android.gms:play-services-location:21.0.1'
     implementation 'com.google.firebase:firebase-messaging:23.0.5'
-    implementation 'com.google.android.gms:play-services-ads:16.0.0'
+    implementation 'com.google.android.play:core-ktx:1.8.1'
 
     implementation 'com.huawei.hms:push:6.5.0.300'
     implementation 'com.huawei.hms:ads-identifier:3.4.39.302'
     implementation 'com.huawei.hms:location:6.4.0.300'
+    
+    implementation 'androidx.security:security-crypto:1.0.0'
 }

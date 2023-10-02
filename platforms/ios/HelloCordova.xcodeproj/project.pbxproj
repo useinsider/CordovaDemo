@@ -8,17 +8,13 @@
 
 /* Begin PBXBuildFile section */
 		0207DA581B56EA530066E2B4 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0207DA571B56EA530066E2B4 /* Images.xcassets */; };
-		15281B255595421BB2C141AF /* libicucore.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 31A034E9EE1448D2B09776F2 /* libicucore.tbd */; };
 		1D3623260D0F684500981E51 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D3623250D0F684500981E51 /* AppDelegate.m */; };
 		1D60589B0D05DD56006BFB54 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
 		301BF552109A68D80062928A /* libCordova.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 301BF535109A57CC0062928A /* libCordova.a */; settings = {ATTRIBUTES = (Required, ); }; };
 		302D95F114D2391D003F00A1 /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 302D95EF14D2391D003F00A1 /* MainViewController.m */; };
 		302D95F214D2391D003F00A1 /* MainViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 302D95F014D2391D003F00A1 /* MainViewController.xib */; };
+		48EF98A39543C7F7DB90AE1C /* libPods-HelloCordova.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B09B28AC4366E00CA36EBC59 /* libPods-HelloCordova.a */; };
 		6AFF5BF91D6E424B00AB3073 /* CDVLaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6AFF5BF81D6E424B00AB3073 /* CDVLaunchScreen.storyboard */; };
-		7570634C3E497735431DB8C0 /* Pods_HelloCordova.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A207B780F41C88E184D5882D /* Pods_HelloCordova.framework */; };
-		BB5DB78349994F05BB62E88E /* IDFAHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CE1C6D509CD42A9A2EE4B86 /* IDFAHelper.m */; };
-		C2EB5ED5E541481DB0F8B270 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 48E3DAB30A7C4C5286BC8AE6 /* libsqlite3.tbd */; };
-		CDC414AF8129482FB9759366 /* InsiderPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = 6831C13AA04248CDB8B23D61 /* InsiderPlugin.m */; };
 		D4BC4BD529AE912E00F21000 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D4BC4BD429AE912D00F21000 /* UserNotifications.framework */; };
 		D4BC4BD729AE912E00F21000 /* UserNotificationsUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D4BC4BD629AE912E00F21000 /* UserNotificationsUI.framework */; };
 		D4BC4BDB29AE912E00F21000 /* NotificationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D4BC4BDA29AE912E00F21000 /* NotificationViewController.m */; };
@@ -26,8 +22,10 @@
 		D4BC4BE229AE912E00F21000 /* InsiderNotificationContent.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D4BC4BD329AE912D00F21000 /* InsiderNotificationContent.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		D4BC4BEF29AE914B00F21000 /* NotificationService.m in Sources */ = {isa = PBXBuildFile; fileRef = D4BC4BEE29AE914B00F21000 /* NotificationService.m */; };
 		D4BC4BF329AE914B00F21000 /* InsiderNotificationService.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D4BC4BEB29AE914B00F21000 /* InsiderNotificationService.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		D69DDE9100309B7F7BA8D848 /* Pods_InsiderNotificationContent.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B9284204989DEAA31506B5F0 /* Pods_InsiderNotificationContent.framework */; };
-		F54CFD87C2EBB9CACBC0E570 /* Pods_InsiderNotificationService.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EDA13930EED9E7B9EEEE7E96 /* Pods_InsiderNotificationService.framework */; };
+		3B0EBAEDD06940EE8F744222 /* InsiderPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = 80C3C7889747447B9CB83B82 /* InsiderPlugin.m */; };
+		2EDBAE0B27DA4F38AFC98045 /* IDFAHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = DE3EB1F0855F4C9297F07F9D /* IDFAHelper.m */; };
+		48E8826B39DC48F8A20E21E8 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E58A89CB699E458A98BDBB7A /* libsqlite3.tbd */; };
+		A78D187D8BF642319328B633 /* libicucore.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 65E05E44F5224635881003CC /* libicucore.tbd */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -97,20 +95,11 @@
 		3047A50F1AB8059700498E2A /* build-debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = "build-debug.xcconfig"; path = "cordova/build-debug.xcconfig"; sourceTree = SOURCE_ROOT; };
 		3047A5101AB8059700498E2A /* build-release.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = "build-release.xcconfig"; path = "cordova/build-release.xcconfig"; sourceTree = SOURCE_ROOT; };
 		3047A5111AB8059700498E2A /* build.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = build.xcconfig; path = cordova/build.xcconfig; sourceTree = SOURCE_ROOT; };
-		31A034E9EE1448D2B09776F2 /* libicucore.tbd */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libicucore.tbd; path = usr/lib/libicucore.tbd; sourceTree = SDKROOT; };
 		32CA4F630368D1EE00C91783 /* HelloCordova-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "HelloCordova-Prefix.pch"; sourceTree = "<group>"; };
-		48E3DAB30A7C4C5286BC8AE6 /* libsqlite3.tbd */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 		5D89AF61F3B6D017B8F79A67 /* Pods-HelloCordova.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HelloCordova.release.xcconfig"; path = "Target Support Files/Pods-HelloCordova/Pods-HelloCordova.release.xcconfig"; sourceTree = "<group>"; };
-		6831C13AA04248CDB8B23D61 /* InsiderPlugin.m */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.objc; name = InsiderPlugin.m; path = "cordova-plugin-insider/InsiderPlugin.m"; sourceTree = "<group>"; };
 		6AFF5BF81D6E424B00AB3073 /* CDVLaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = CDVLaunchScreen.storyboard; path = HelloCordova/CDVLaunchScreen.storyboard; sourceTree = SOURCE_ROOT; };
-		7383C2C0C7E943358F8E924F /* InsiderPlugin.h */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.h; name = InsiderPlugin.h; path = "cordova-plugin-insider/InsiderPlugin.h"; sourceTree = "<group>"; };
-		80000B253C264652AECC7E6D /* IDFAHelper.h */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.h; name = IDFAHelper.h; path = "cordova-plugin-insider/IDFAHelper.h"; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* HelloCordova-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "HelloCordova-Info.plist"; path = "HelloCordova/HelloCordova-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = SOURCE_ROOT; };
-		9CE1C6D509CD42A9A2EE4B86 /* IDFAHelper.m */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.objc; name = IDFAHelper.m; path = "cordova-plugin-insider/IDFAHelper.m"; sourceTree = "<group>"; };
-		A207B780F41C88E184D5882D /* Pods_HelloCordova.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_HelloCordova.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		A7784F803E0EF1256C43A063 /* Pods-InsiderNotificationContent.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-InsiderNotificationContent.release.xcconfig"; path = "Target Support Files/Pods-InsiderNotificationContent/Pods-InsiderNotificationContent.release.xcconfig"; sourceTree = "<group>"; };
-		B9284204989DEAA31506B5F0 /* Pods_InsiderNotificationContent.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_InsiderNotificationContent.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		C39D7CE161CDCDED645EC3F1 /* Pods-InsiderNotificationService.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-InsiderNotificationService.debug.xcconfig"; path = "Target Support Files/Pods-InsiderNotificationService/Pods-InsiderNotificationService.debug.xcconfig"; sourceTree = "<group>"; };
+		B09B28AC4366E00CA36EBC59 /* libPods-HelloCordova.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-HelloCordova.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D31F08342EA7A0CE7F00CF6E /* Pods-HelloCordova.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HelloCordova.debug.xcconfig"; path = "Target Support Files/Pods-HelloCordova/Pods-HelloCordova.debug.xcconfig"; sourceTree = "<group>"; };
 		D4BC4BD329AE912D00F21000 /* InsiderNotificationContent.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = InsiderNotificationContent.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		D4BC4BD429AE912D00F21000 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
@@ -126,10 +115,13 @@
 		EB87FDF31871DA8E0020F90C /* www */ = {isa = PBXFileReference; lastKnownFileType = folder; name = www; path = ../../www; sourceTree = "<group>"; };
 		EB87FDF41871DAF40020F90C /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = config.xml; path = ../../config.xml; sourceTree = "<group>"; };
 		ED33DF2A687741AEAF9F8254 /* Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Bridging-Header.h"; sourceTree = "<group>"; };
-		ED8AA97E95CC95CFBDFADD45 /* Pods-InsiderNotificationService.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-InsiderNotificationService.release.xcconfig"; path = "Target Support Files/Pods-InsiderNotificationService/Pods-InsiderNotificationService.release.xcconfig"; sourceTree = "<group>"; };
-		EDA13930EED9E7B9EEEE7E96 /* Pods_InsiderNotificationService.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_InsiderNotificationService.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		F835D92BF23CF363B1165994 /* Pods-InsiderNotificationContent.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-InsiderNotificationContent.debug.xcconfig"; path = "Target Support Files/Pods-InsiderNotificationContent/Pods-InsiderNotificationContent.debug.xcconfig"; sourceTree = "<group>"; };
 		F840E1F0165FE0F500CFE078 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = config.xml; path = HelloCordova/config.xml; sourceTree = "<group>"; };
+		80C3C7889747447B9CB83B82 /* InsiderPlugin.m */ = {isa = PBXFileReference; name = "InsiderPlugin.m"; path = "cordova-plugin-insider/InsiderPlugin.m"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; explicitFileType = undefined; includeInIndex = 0; };
+		DE3EB1F0855F4C9297F07F9D /* IDFAHelper.m */ = {isa = PBXFileReference; name = "IDFAHelper.m"; path = "cordova-plugin-insider/IDFAHelper.m"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; explicitFileType = undefined; includeInIndex = 0; };
+		CE60984CEF6F420C939F0474 /* InsiderPlugin.h */ = {isa = PBXFileReference; name = "InsiderPlugin.h"; path = "cordova-plugin-insider/InsiderPlugin.h"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; explicitFileType = undefined; includeInIndex = 0; };
+		48E8C7F583CD438CA7E51222 /* IDFAHelper.h */ = {isa = PBXFileReference; name = "IDFAHelper.h"; path = "cordova-plugin-insider/IDFAHelper.h"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; explicitFileType = undefined; includeInIndex = 0; };
+		E58A89CB699E458A98BDBB7A /* libsqlite3.tbd */ = {isa = PBXFileReference; name = "libsqlite3.tbd"; path = "usr/lib/libsqlite3.tbd"; sourceTree = SDKROOT; fileEncoding = undefined; lastKnownFileType = sourcecode.text-based-dylib-definition; explicitFileType = undefined; includeInIndex = 0; };
+		65E05E44F5224635881003CC /* libicucore.tbd */ = {isa = PBXFileReference; name = "libicucore.tbd"; path = "usr/lib/libicucore.tbd"; sourceTree = SDKROOT; fileEncoding = undefined; lastKnownFileType = sourcecode.text-based-dylib-definition; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -138,9 +130,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				301BF552109A68D80062928A /* libCordova.a in Frameworks */,
-				C2EB5ED5E541481DB0F8B270 /* libsqlite3.tbd in Frameworks */,
-				15281B255595421BB2C141AF /* libicucore.tbd in Frameworks */,
-				7570634C3E497735431DB8C0 /* Pods_HelloCordova.framework in Frameworks */,
+				48EF98A39543C7F7DB90AE1C /* libPods-HelloCordova.a in Frameworks */,
+				48E8826B39DC48F8A20E21E8 /* libsqlite3.tbd in Frameworks */,
+				A78D187D8BF642319328B633 /* libicucore.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -150,7 +142,6 @@
 			files = (
 				D4BC4BD729AE912E00F21000 /* UserNotificationsUI.framework in Frameworks */,
 				D4BC4BD529AE912E00F21000 /* UserNotifications.framework in Frameworks */,
-				D69DDE9100309B7F7BA8D848 /* Pods_InsiderNotificationContent.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -158,7 +149,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F54CFD87C2EBB9CACBC0E570 /* Pods_InsiderNotificationService.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -183,10 +173,6 @@
 			children = (
 				D31F08342EA7A0CE7F00CF6E /* Pods-HelloCordova.debug.xcconfig */,
 				5D89AF61F3B6D017B8F79A67 /* Pods-HelloCordova.release.xcconfig */,
-				F835D92BF23CF363B1165994 /* Pods-InsiderNotificationContent.debug.xcconfig */,
-				A7784F803E0EF1256C43A063 /* Pods-InsiderNotificationContent.release.xcconfig */,
-				C39D7CE161CDCDED645EC3F1 /* Pods-InsiderNotificationService.debug.xcconfig */,
-				ED8AA97E95CC95CFBDFADD45 /* Pods-InsiderNotificationService.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -201,7 +187,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
+		29B97314FDCFA39411CA2CEA = {
 			isa = PBXGroup;
 			children = (
 				EB87FDF41871DAF40020F90C /* config.xml */,
@@ -247,13 +233,11 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				48E3DAB30A7C4C5286BC8AE6 /* libsqlite3.tbd */,
-				31A034E9EE1448D2B09776F2 /* libicucore.tbd */,
-				A207B780F41C88E184D5882D /* Pods_HelloCordova.framework */,
 				D4BC4BD429AE912D00F21000 /* UserNotifications.framework */,
 				D4BC4BD629AE912E00F21000 /* UserNotificationsUI.framework */,
-				B9284204989DEAA31506B5F0 /* Pods_InsiderNotificationContent.framework */,
-				EDA13930EED9E7B9EEEE7E96 /* Pods_InsiderNotificationService.framework */,
+				B09B28AC4366E00CA36EBC59 /* libPods-HelloCordova.a */,
+				E58A89CB699E458A98BDBB7A /* libsqlite3.tbd */,
+				65E05E44F5224635881003CC /* libicucore.tbd */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -280,10 +264,10 @@
 		307C750510C5A3420062BCA9 /* Plugins */ = {
 			isa = PBXGroup;
 			children = (
-				6831C13AA04248CDB8B23D61 /* InsiderPlugin.m */,
-				9CE1C6D509CD42A9A2EE4B86 /* IDFAHelper.m */,
-				7383C2C0C7E943358F8E924F /* InsiderPlugin.h */,
-				80000B253C264652AECC7E6D /* IDFAHelper.h */,
+				80C3C7889747447B9CB83B82 /* InsiderPlugin.m */,
+				DE3EB1F0855F4C9297F07F9D /* IDFAHelper.m */,
+				CE60984CEF6F420C939F0474 /* InsiderPlugin.h */,
+				48E8C7F583CD438CA7E51222 /* IDFAHelper.h */,
 			);
 			name = Plugins;
 			path = HelloCordova/Plugins;
@@ -331,9 +315,7 @@
 				1D60588D0D05DD3D006BFB54 /* Resources */,
 				1D60588E0D05DD3D006BFB54 /* Sources */,
 				1D60588F0D05DD3D006BFB54 /* Frameworks */,
-				8CADBDF95CB4B4D505546F44 /* [CP] Embed Pods Frameworks */,
 				D4BC4BE629AE912E00F21000 /* Embed Foundation Extensions */,
-				95640D48A17A2138C22675BC /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -351,11 +333,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = D4BC4BE329AE912E00F21000 /* Build configuration list for PBXNativeTarget "InsiderNotificationContent" */;
 			buildPhases = (
-				7F31B478272CD6ED88BB51EB /* [CP] Check Pods Manifest.lock */,
 				D4BC4BCF29AE912D00F21000 /* Sources */,
 				D4BC4BD029AE912D00F21000 /* Frameworks */,
 				D4BC4BD129AE912D00F21000 /* Resources */,
-				D3C3F5DA964D5E7194A067BC /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -370,11 +350,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = D4BC4BF429AE914B00F21000 /* Build configuration list for PBXNativeTarget "InsiderNotificationService" */;
 			buildPhases = (
-				33C0E84B00E84813881A1611 /* [CP] Check Pods Manifest.lock */,
 				D4BC4BE729AE914B00F21000 /* Sources */,
 				D4BC4BE829AE914B00F21000 /* Frameworks */,
 				D4BC4BE929AE914B00F21000 /* Resources */,
-				F3533898871B3B9198E456E7 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -409,7 +387,7 @@
 				en,
 				Base,
 			);
-			mainGroup = 29B97314FDCFA39411CA2CEA /* CustomTemplate */;
+			mainGroup = 29B97314FDCFA39411CA2CEA;
 			productRefGroup = 19C28FACFE9D520D11CA2CBB /* Products */;
 			projectDirPath = "";
 			projectReferences = (
@@ -488,28 +466,6 @@
 			shellScript = "\"$SRCROOT/HelloCordova/Scripts/copy-www-build-step.sh\"";
 			showEnvVarsInLog = 0;
 		};
-		33C0E84B00E84813881A1611 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-InsiderNotificationService-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
 		56596B04493E646696B37810 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -532,96 +488,6 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		7F31B478272CD6ED88BB51EB /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-InsiderNotificationContent-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		8CADBDF95CB4B4D505546F44 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-HelloCordova/Pods-HelloCordova-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-HelloCordova/Pods-HelloCordova-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-HelloCordova/Pods-HelloCordova-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		95640D48A17A2138C22675BC /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-HelloCordova/Pods-HelloCordova-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-HelloCordova/Pods-HelloCordova-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-HelloCordova/Pods-HelloCordova-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		D3C3F5DA964D5E7194A067BC /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-InsiderNotificationContent/Pods-InsiderNotificationContent-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-InsiderNotificationContent/Pods-InsiderNotificationContent-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-InsiderNotificationContent/Pods-InsiderNotificationContent-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		F3533898871B3B9198E456E7 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-InsiderNotificationService/Pods-InsiderNotificationService-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-InsiderNotificationService/Pods-InsiderNotificationService-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-InsiderNotificationService/Pods-InsiderNotificationService-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -632,8 +498,8 @@
 				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
 				1D3623260D0F684500981E51 /* AppDelegate.m in Sources */,
 				302D95F114D2391D003F00A1 /* MainViewController.m in Sources */,
-				CDC414AF8129482FB9759366 /* InsiderPlugin.m in Sources */,
-				BB5DB78349994F05BB62E88E /* IDFAHelper.m in Sources */,
+				3B0EBAEDD06940EE8F744222 /* InsiderPlugin.m in Sources */,
+				2EDBAE0B27DA4F38AFC98045 /* IDFAHelper.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -824,7 +690,6 @@
 		};
 		D4BC4BE429AE912E00F21000 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = F835D92BF23CF363B1165994 /* Pods-InsiderNotificationContent.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -873,7 +738,6 @@
 		};
 		D4BC4BE529AE912E00F21000 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = A7784F803E0EF1256C43A063 /* Pods-InsiderNotificationContent.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -919,7 +783,6 @@
 		};
 		D4BC4BF529AE914B00F21000 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C39D7CE161CDCDED645EC3F1 /* Pods-InsiderNotificationService.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -968,7 +831,6 @@
 		};
 		D4BC4BF629AE914B00F21000 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = ED8AA97E95CC95CFBDFADD45 /* Pods-InsiderNotificationService.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
