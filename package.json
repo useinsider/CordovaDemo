@@ -15,7 +15,7 @@
   "devDependencies": {
     "cordova-android": "^10.1.2",
     "cordova-ios": "^6.2.0",
-    "cordova-plugin-insider": "^1.4.0"
+    "cordova-plugin-insider": "file:../insider-cordova-SDK"
   },
   "cordova": {
     "platforms": [
