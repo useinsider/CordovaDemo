@@ -410,9 +410,9 @@ class InsiderPlugin {
         }
     };
 
-    setHybridPushToken = (token) => {
+    setPushToken = (token) => {
         if (Utils.checkParameters([{ type: 'string', value: token }])) {
-            Utils.showParameterWarningLog(this.constructor.name + '-setHybridPushToken');
+            Utils.showParameterWarningLog(this.constructor.name + '-setPushToken');
             return;
         }
 

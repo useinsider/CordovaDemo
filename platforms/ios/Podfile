@@ -4,7 +4,7 @@ platform :ios, '11.0'
 use_frameworks!
 target 'HelloCordova' do
 	project 'HelloCordova.xcodeproj'
-	pod 'InsiderMobile', '13.2.1'
+	pod 'InsiderMobile', '13.3.1'
 	pod 'InsiderGeofence', '1.1.0'
 	pod 'InsiderHybrid', '1.4.0'
 end

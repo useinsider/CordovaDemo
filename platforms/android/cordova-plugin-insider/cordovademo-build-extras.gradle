@@ -16,7 +16,7 @@ android {
 }
 
 dependencies {
-    implementation 'com.useinsider:insider:14.1.0'
+    implementation 'com.useinsider:insider:14.1.2'
     implementation 'com.useinsider:insiderhybrid:1.1.6'
 
     implementation 'com.fasterxml.jackson.core:jackson-core:2.12.4'

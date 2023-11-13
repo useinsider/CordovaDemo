@@ -15,12 +15,13 @@
     @try {
         if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1] || ![command.arguments objectAtIndex:2])
             return;
-        [self.commandDelegate runInBackground:^{
-            NSString* partnerName = [[command arguments] objectAtIndex:0];
-            NSString* appGroup = [[command arguments] objectAtIndex:1];
-            [Insider initWithLaunchOptions:nil partnerName:partnerName appGroup:appGroup];
-            [self sendSuccessResultWithString:@"Insider Cordova Plugin: Initialized" andCommand:command];
-        }];
+
+        NSString* partnerName = [[command arguments] objectAtIndex:0];
+        NSString* appGroup = [[command arguments] objectAtIndex:1];
+
+        [Insider initWithLaunchOptions:nil partnerName:partnerName appGroup:appGroup];
+
+        [self sendSuccessResultWithString:@"Insider Cordova Plugin: Initialized" andCommand:command];
     } @catch (NSException *exception) {
         [Insider sendError:exception desc:@"Insider.m - init"];
     }
@@ -32,15 +33,31 @@
         if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1] || ![command.arguments objectAtIndex:2])
             return;
 
-        [self.commandDelegate runInBackground:^{
-            [Insider registerInsiderCallbackWithSelector:@selector(registerCallback:) sender:self];
-            [Insider setHybridSDKVersion:[command.arguments objectAtIndex:1]];
-            [Insider initWithLaunchOptions:nil partnerName:[command.arguments objectAtIndex:0] appGroup:[command.arguments objectAtIndex:2]];
-            [Insider hybridApplicationDidBecomeActive];
-            [self sendSuccessResultWithString:@"Insider Cordova Plugin: initWithLaunchOptions" andCommand:command];
-        }];
+        [Insider registerInsiderCallbackWithSelector:@selector(registerCallback:) sender:self];
+        [Insider setHybridSDKVersion:[command.arguments objectAtIndex:1]];
+        [Insider initWithLaunchOptions:nil partnerName:[command.arguments objectAtIndex:0] appGroup:[command.arguments objectAtIndex:2]];
+        [Insider hybridApplicationDidBecomeActive];
+
+        [self sendSuccessResultWithString:@"Insider Cordova Plugin: initWithLaunchOptions" andCommand:command];
     } @catch (NSException *exception){
         [Insider sendError:exception desc:@"Insider Cordova Plugin - initWithLaunchOptions"];
+    }
+}
+
+- (void)initWithCustomEndpoint:(CDVInvokedUrlCommand *)command {
+    @try{
+        if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1] || ![command.arguments objectAtIndex:2] || ![command.arguments objectAtIndex:3]) {
+            return;
+        }
+
+        [Insider registerInsiderCallbackWithSelector:@selector(registerCallback:) sender:self];
+        [Insider setHybridSDKVersion:[command.arguments objectAtIndex:1]];
+        [Insider initWithLaunchOptions:nil partnerName:[command.arguments objectAtIndex:0] appGroup:[command.arguments objectAtIndex:2] customEndpoint:[command.arguments objectAtIndex:3]];
+        [Insider hybridApplicationDidBecomeActive];
+
+        [self sendSuccessResultWithString:@"Insider Cordova Plugin: initWithCustomEndpoint" andCommand:command];
+    } @catch (NSException *exception){
+        [Insider sendError:exception desc:@"Insider Cordova Plugin.m - initWithCustomEndpoint"];
     }
 }
 
@@ -58,24 +75,6 @@
         }];
     } @catch (NSException *exception) {
         [Insider sendError:exception desc:@"Insider.m - init"];
-    }
-}
-
-- (void)initWithCustomEndpoint:(CDVInvokedUrlCommand *)command {
-    @try{
-        if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1] || ![command.arguments objectAtIndex:2] || ![command.arguments objectAtIndex:3]) {
-            return;
-        }
-        [self.commandDelegate runInBackground:^{
-            [Insider registerInsiderCallbackWithSelector:@selector(registerCallback:) sender:self];
-            [Insider setHybridSDKVersion:[command.arguments objectAtIndex:1]];
-            [Insider initWithLaunchOptions:nil partnerName:[command.arguments objectAtIndex:0] appGroup:[command.arguments objectAtIndex:2] customEndpoint:[command.arguments objectAtIndex:3]];
-            [Insider hybridApplicationDidBecomeActive];
-            [self sendSuccessResultWithString:@"Insider Cordova Plugin: initWithCustomEndpoint" andCommand:command];
-        }];
-
-    } @catch (NSException *exception){
-        [Insider sendError:exception desc:@"Insider Cordova Plugin.m - initWithCustomEndpoint"];
     }
 }
 

@@ -33,7 +33,7 @@ interface InsiderPlugin {
     enableIDFACollection(idfaCollection: boolean): void;
     removeInapp(): void;
     registerWithQuietPermission(booleanValue: boolean): void;
-    setHybridPushToken(token: string): void;
+    setPushToken(token: string): void;
     enableLocationCollection(locationCollection: boolean): void;
     enableIpCollection(ipCollection: boolean): void;
     enableCarrierCollection(carrierCollection: boolean): void;

@@ -55,7 +55,7 @@ module.exports = {
     SET_GDPR_CONSENT: 'setGDPRConsent',
     REMOVE_IN_APP: 'removeInapp',
     REGISTER_WITH_QUIET_PERMISSION: 'registerWithQuietPermission',
-    SET_HYBRID_PUSH_TOKEN: 'setHybridPushToken',
+    SET_HYBRID_PUSH_TOKEN: 'setPushToken',
     ENABLE_IDFA_COLLECTION: 'enableIDFACollection',
     ENABLE_LOCATION_COLLECTION: 'enableLocationCollection',
     ENABLE_IP_COLLECTION: 'enableIpCollection',
@@ -86,5 +86,5 @@ module.exports = {
     // Reinit
     REINIT_WITH_PARTNER_NAME: 'reinitWithPartnerName',
     // SDK Version
-    SDK_VERSION: 'CDV-1.8.0',
+    SDK_VERSION: 'CDV-1.9.0',
 };

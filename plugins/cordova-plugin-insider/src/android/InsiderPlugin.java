@@ -637,6 +637,8 @@ public class InsiderPlugin extends CordovaPlugin {
                 return true;
             } else if (action.equals("signUpConfirmation")) {
                 Insider.Instance.signUpConfirmation();
+            } else if (action.equals("setPushToken")) {
+                Insider.Instance.setPushToken(args.getString(0));
             } else {
                 return false;
             }
