@@ -418,7 +418,7 @@ class InsiderPlugin {
         }
 
         try {
-            if (Platform.OS !== InsiderConstants.ANDROID) return;
+            if (cordova.platformId !== InsiderConstants.ANDROID) return;
 
             Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.SET_HYBRID_PUSH_TOKEN, [token]);
         } catch (error) {
