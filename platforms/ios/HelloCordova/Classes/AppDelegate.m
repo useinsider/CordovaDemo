@@ -31,12 +31,9 @@
 
 @implementation AppDelegate
 
-- (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions
-{
-    self.viewController = [[MainViewController alloc] init];
-    
+- (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions {
     UNUserNotificationCenter.currentNotificationCenter.delegate = self;
-    
+    self.viewController = [[MainViewController alloc] init];
     return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }
 
