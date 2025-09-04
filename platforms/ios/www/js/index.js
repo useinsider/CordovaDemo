@@ -55,6 +55,7 @@ async function initInsider() {
     );
 
     await window.Insider.registerWithQuietPermission(false);
+    window.Insider.setActiveForegroundPushView();
     window.Insider.startTrackingGeofence();
     window.Insider.enableIDFACollection(true);
     window.Insider.enableLocationCollection(true);
