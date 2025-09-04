@@ -54,7 +54,6 @@ async function initInsider() {
         },
     );
 
-    await window.Insider.registerWithQuietPermission(false);
     window.Insider.setActiveForegroundPushView();
     window.Insider.startTrackingGeofence();
     window.Insider.enableIDFACollection(true);
@@ -66,6 +65,10 @@ async function initInsider() {
 }
 
 function initFirebase() {
+    cordova.plugins.firebase.messaging.requestPermission({forceShow: true}).then(function() {
+        console.log("[FCM][requestPermission]");
+    });
+
     cordova.plugins.firebase.messaging.getToken().then(function(token) {
         console.log("[FCM][getToken]: ", token);
     });
