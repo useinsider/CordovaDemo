@@ -1,25 +1,31 @@
 name: gitleaks
-on: [push]
+on:
+  - push
 env:
   GIT_DISCOVERY_ACROSS_FILESYSTEM: 1
-
 jobs:
   gitleaks:
     runs-on: self-runner-node
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: '2'
-    - name: Clone GitLeak Action
-      uses: actions/checkout@v2
-      with:
-        repository: useinsider/gitleaks-action
-        ref: master
-        token: ${{ secrets.PAT }}
-        path: .github/actions/gitleaks-action
-    - name: Install Dependencies
-      run: npm install
-      working-directory: .github/actions/gitleaks-action
-    - name: gitleaks-action
-      uses:  ./.github/actions/gitleaks-action
+      - name: Create GitHub App token
+        id: github-app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.InsiderActionsApplication_APP_ID }}
+          private-key: ${{ secrets.InsiderActionsApplication_PRIVATE_KEY }}
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: "2"
+      - name: Clone GitLeak Action
+        uses: actions/checkout@v2
+        with:
+          repository: useinsider/gitleaks-action
+          ref: master
+          token: ${{ secrets.PAT }}
+          path: .github/actions/gitleaks-action
+      - name: Install Dependencies
+        run: npm install
+        working-directory: .github/actions/gitleaks-action
+      - name: gitleaks-action
+        uses: ./.github/actions/gitleaks-action
