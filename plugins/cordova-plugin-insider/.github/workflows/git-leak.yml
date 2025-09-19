@@ -14,11 +14,11 @@ jobs:
           app-id: ${{ secrets.InsiderActionsApplication_APP_ID }}
           private-key: ${{ secrets.InsiderActionsApplication_PRIVATE_KEY }}
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: "2"
       - name: Clone GitLeak Action
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: useinsider/gitleaks-action
           ref: master
