@@ -48,6 +48,8 @@
                 <input class="insider-button " type="submit" id="login" value="Login" />
                 <input class="insider-button" type="submit" style="background-color: rgba(229, 127, 116, 1);" id="logout" value="Logout" />
             </div>
+            <input class="insider-button" type="submit" id="logoutResettingInsiderID" value="Logout Resetting Insider ID" />
+            <input class="insider-button" type="submit" id="signUpConfirmation" value="Sign Up" />
 
             <div class="insider-title">Event</div>
             <input class="insider-button" type="submit" id="triggerEvents" value="Trigger Events" />
@@ -69,6 +71,8 @@
 
             <div class="insider-title">Smart Recommender</div>
             <input class="insider-button" type="submit" id="smartRecommender" value="Get Smart Recommender Data" />
+            <input class="insider-button" type="submit" id="smartRecommenderWithIDs" value="Smart Rec. with Product IDs" />
+            <input class="insider-button" type="submit" id="clickSmartRecommendationProduct" value="Click Smart Rec Product" />
 
             <div class="insider-title">Social Proof</div>
             <input class="insider-button" type="submit" id="socialProof" value="Trigger Social Proof" />
@@ -93,11 +97,23 @@
                 </div>
             </div>
 
+            <div class="insider-title">Mobile App Access</div>
+            <div class="insider-row">
+                <div class="insider-col">
+                    <input class="insider-button" type="submit" id="mobileAppAccessTrue" value="Mobile App Access True" />
+                    <input class="insider-button" type="submit" id="mobileAppAccessFalse" value="Mobile App Access False" />
+                </div>
+            </div>
+
             <div class="insider-title">Message Center</div>
             <input class="insider-button" type="submit" id="messageCenter" value="Get Message Center Data" />
 
             <div class="insider-title">Content Optimizer</div>
             <input class="insider-button" type="submit" id="contentOptimizer" value="Get Variable With Content Optimizer" />
+            <input class="insider-button" type="submit" id="contentOptimizerNoCache" value="Get Variable Without Cache" />
+
+            <div class="insider-title">In-App Messages</div>
+            <input class="insider-button" type="submit" id="removeInapp" value="Remove In-App" />
         </div>
 
         <script src="cordova.js"></script>
