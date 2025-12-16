@@ -15,5 +15,10 @@ export interface Product {
     setCustomAttributeWithBoolean(key: string, value: boolean):Product;
     setCustomAttributeWithDouble(key: string, value: number):Product;
     setCustomAttributeWithDate(key: string, value: Date):Product;
+    /**
+    * @deprecated Use `setCustomAttributeWithStringArray` instead.
+    */
     setCustomAttributeWithArray(key: string, value: object):Product;
+    setCustomAttributeWithStringArray(key: string, value: Array<string>):Product;
+    setCustomAttributeWithNumericArray(key: string, value: Array<number>):Product;
 }

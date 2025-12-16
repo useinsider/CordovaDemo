@@ -1,0 +1,88 @@
+name: Publish Release
+on:
+  workflow_dispatch:
+    inputs:
+      debug:
+        default: false
+        type: boolean
+        description: 'Dry run option (Useful for debugging)'
+
+concurrency:
+  group: cordova-publish-release-${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+jobs:
+  publish_release:
+    name: Publish Release
+    runs-on: self-runner-node
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}
+
+    steps:
+      - name: Create GitHub App token
+        id: github-app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.InsiderActionsApplication_APP_ID }}
+          private-key: ${{ secrets.InsiderActionsApplication_PRIVATE_KEY }}
+
+      - name: Configure Git Properties
+        run: |
+          set -Eeuo pipefail
+          git config --global user.name  "insider-automation"
+          git config --global user.email "devops@useinsider.com"
+          git config --global init.defaultBranch master
+          git config --global --add safe.directory "${GITHUB_WORKSPACE}"
+          git config --global commit.gpgsign true
+
+      - name: Checkout to Branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ steps.github-app-token.outputs.token }}
+
+      - name: Setup node
+        uses: actions/setup-node@v5
+        with:
+          token: ${{ steps.github-app-token.outputs.token }}
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Publish Release
+        id: publish
+        env:
+          DRY_RUN: ${{ github.event.inputs.debug }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ "${DRY_RUN}" = "false" ]; then
+            npm publish
+            PACKAGE="$(npm pack --quiet)"
+          else
+            npm publish --dry-run
+            PACKAGE="$(npm pack --dry-run --quiet)"
+          fi
+          echo "package=$PACKAGE" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy Release (Github)
+        shell: bash
+        env:
+          PACKAGE: ${{ steps.publish.outputs.package }}
+          DRY_RUN: ${{ github.event.inputs.debug }}
+          GH_TOKEN: ${{ steps.github-app-token.outputs.token }}
+        run: |
+          set -Eeuo pipefail
+          test -x "${GITHUB_WORKSPACE}/devops/github_deploy_release.sh" || chmod +x "${GITHUB_WORKSPACE}/devops/github_deploy_release.sh"
+          if [ "${DRY_RUN}" = "false" ]; then
+            bash "${GITHUB_WORKSPACE}/devops/github_deploy_release.sh" --package "${GITHUB_WORKSPACE}/${PACKAGE}"
+          else
+            bash "${GITHUB_WORKSPACE}/devops/github_deploy_release.sh" --package "${GITHUB_WORKSPACE}/${PACKAGE}" --dry-run
+          fi

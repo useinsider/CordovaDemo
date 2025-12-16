@@ -1,0 +1,9 @@
+.idea
+example
+media
+
+.github
+release_version.sh
+slack_notifier.sh
+js
+package-lock.json

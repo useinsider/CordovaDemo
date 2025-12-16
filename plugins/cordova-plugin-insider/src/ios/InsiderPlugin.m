@@ -15,12 +15,13 @@
     @try {
         if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1] || ![command.arguments objectAtIndex:2])
             return;
-        [self.commandDelegate runInBackground:^{
-            NSString* partnerName = [[command arguments] objectAtIndex:0];
-            NSString* appGroup = [[command arguments] objectAtIndex:1];
-            [Insider initWithLaunchOptions:nil partnerName:partnerName appGroup:appGroup];
-            [self sendSuccessResultWithString:@"Insider Cordova Plugin: Initialized" andCommand:command];
-        }];
+
+        NSString* partnerName = [[command arguments] objectAtIndex:0];
+        NSString* appGroup = [[command arguments] objectAtIndex:1];
+
+        [Insider initWithLaunchOptions:nil partnerName:partnerName appGroup:appGroup];
+
+        [self sendSuccessResultWithString:@"Insider Cordova Plugin: Initialized" andCommand:command];
     } @catch (NSException *exception) {
         [Insider sendError:exception desc:@"Insider.m - init"];
     }
@@ -32,13 +33,12 @@
         if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1] || ![command.arguments objectAtIndex:2])
             return;
 
-        [self.commandDelegate runInBackground:^{
-            [Insider registerInsiderCallbackWithSelector:@selector(registerCallback:) sender:self];
-            [Insider setHybridSDKVersion:[command.arguments objectAtIndex:1]];
-            [Insider initWithLaunchOptions:nil partnerName:[command.arguments objectAtIndex:0] appGroup:[command.arguments objectAtIndex:2]];
-            [Insider resumeSession];
-            [self sendSuccessResultWithString:@"Insider Cordova Plugin: initWithLaunchOptions" andCommand:command];
-        }];
+        [Insider registerInsiderCallbackWithSelector:@selector(registerCallback:) sender:self];
+        [Insider setHybridSDKVersion:[command.arguments objectAtIndex:1]];
+        [Insider initWithLaunchOptions:nil partnerName:[command.arguments objectAtIndex:0] appGroup:[command.arguments objectAtIndex:2]];
+        [Insider applicationDidBecomeActive];
+
+        [self sendSuccessResultWithString:@"Insider Cordova Plugin: initWithLaunchOptions" andCommand:command];
     } @catch (NSException *exception){
         [Insider sendError:exception desc:@"Insider Cordova Plugin - initWithLaunchOptions"];
     }
@@ -49,54 +49,82 @@
         if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1] || ![command.arguments objectAtIndex:2] || ![command.arguments objectAtIndex:3]) {
             return;
         }
-        [self.commandDelegate runInBackground:^{
-            [Insider registerInsiderCallbackWithSelector:@selector(registerCallback:) sender:self];
-            [Insider setHybridSDKVersion:[command.arguments objectAtIndex:1]];
-            [Insider initWithLaunchOptions:nil partnerName:[command.arguments objectAtIndex:0] appGroup:[command.arguments objectAtIndex:2] customEndpoint:[command.arguments objectAtIndex:3]];
-            [Insider resumeSession];
-            [self sendSuccessResultWithString:@"Insider Cordova Plugin: initWithCustomEndpoint" andCommand:command];
-        }];
 
+        [Insider registerInsiderCallbackWithSelector:@selector(registerCallback:) sender:self];
+        [Insider setHybridSDKVersion:[command.arguments objectAtIndex:1]];
+        [Insider initWithLaunchOptions:nil partnerName:[command.arguments objectAtIndex:0] appGroup:[command.arguments objectAtIndex:2] customEndpoint:[command.arguments objectAtIndex:3]];
+        [Insider applicationDidBecomeActive];
+
+        [self sendSuccessResultWithString:@"Insider Cordova Plugin: initWithCustomEndpoint" andCommand:command];
     } @catch (NSException *exception){
         [Insider sendError:exception desc:@"Insider Cordova Plugin.m - initWithCustomEndpoint"];
     }
 }
 
--(void)registerCallback:(NSDictionary *)notfDict {
+- (void) reinitWithPartnerName:(CDVInvokedUrlCommand *)command {
     @try {
-        if (!notfDict || [notfDict count] == 0)
+        if (![command.arguments objectAtIndex:0])
             return;
-        InsiderCallbackType type = (InsiderCallbackType)[[notfDict objectForKey:@"type"] intValue];
-        NSString* notfData = [InsiderHybrid dictToJson:notfDict];
+
+        [self.commandDelegate runInBackground:^{
+            NSString* partnerName = [[command arguments] objectAtIndex:0];
+
+            [Insider reinitWithPartnerName:partnerName];
+
+            [self sendSuccessResultWithString:@"Insider Cordova Plugin: Re-Initialized." andCommand:command];
+        }];
+    } @catch (NSException *exception) {
+        [Insider sendError:exception desc:@"Insider.m - init"];
+    }
+}
+
+-(void)registerCallback:(NSDictionary *)callbackDictionary {
+    @try {
+        if (!callbackDictionary || [callbackDictionary count] == 0)
+            return;
+        InsiderCallbackType type = (InsiderCallbackType)[[callbackDictionary objectForKey:@"type"] intValue];
+        NSString* callbackData = [InsiderHybrid dictToJson:callbackDictionary];
 
         NSString *js;
         switch (type) {
             case InsiderCallbackTypeNotificationOpen:{
-                NSString * data = [NSString stringWithFormat:@"{""action"":'NOTIFICATION_OPEN',""result"":""%@""}", notfData];
+                NSString * data = [NSString stringWithFormat:@"{""action"":'NOTIFICATION_OPEN',""result"":""%@""}", callbackData];
                 js = [NSString stringWithFormat:@"cordova.fireDocumentEvent('ins_notification_handle',%@);", data];
                 [self.commandDelegate evalJs:js];
                 break;
             }
             case InsiderCallbackTypeInappButtonClick:{
-                NSString * data = [NSString stringWithFormat:@"{""action"":'INAPP_BUTTON_CLICK',""result"":""%@""}", notfData];
+                NSString * data = [NSString stringWithFormat:@"{""action"":'INAPP_BUTTON_CLICK',""result"":""%@""}", callbackData];
                 js = [NSString stringWithFormat:@"cordova.fireDocumentEvent('ins_notification_handle',%@);", data];
                 [self.commandDelegate evalJs:js];
                 break;
             }
             case InsiderCallbackTypeTempStorePurchase:{
-                NSString * data = [NSString stringWithFormat:@"{""action"":'TEMP_STORE_PURCHASE',""result"":""%@""}", notfData];
+                NSString * data = [NSString stringWithFormat:@"{""action"":'TEMP_STORE_PURCHASE',""result"":""%@""}", callbackData];
                 js = [NSString stringWithFormat:@"cordova.fireDocumentEvent('ins_notification_handle',%@);", data];
                 [self.commandDelegate evalJs:js];
                 break;
             }
             case InsiderCallbackTypeTempStoreAddedToCart:{
-                NSString * data = [NSString stringWithFormat:@"{""action"":'TEMP_STORE_ADDED_TO_CART',""result"":""%@""}", notfData];
+                NSString * data = [NSString stringWithFormat:@"{""action"":'TEMP_STORE_ADDED_TO_CART',""result"":""%@""}", callbackData];
                 js = [NSString stringWithFormat:@"cordova.fireDocumentEvent('ins_notification_handle',%@);", data];
                 [self.commandDelegate evalJs:js];
                 break;
             }
             case InsiderCallbackTypeTempStoreCustomAction:{
-                NSString * data = [NSString stringWithFormat:@"{""action"":'TEMP_STORE_CUSTOM_ACTION',""result"":""%@""}", notfData];
+                NSString * data = [NSString stringWithFormat:@"{""action"":'TEMP_STORE_CUSTOM_ACTION',""result"":""%@""}", callbackData];
+                js = [NSString stringWithFormat:@"cordova.fireDocumentEvent('ins_notification_handle',%@);", data];
+                [self.commandDelegate evalJs:js];
+                break;
+            }
+            case InsiderCallbackTypeInAppSeen:{
+                NSString * data = [NSString stringWithFormat:@"{""action"":'INAPP_SEEN',""result"":""%@""}", callbackData];
+                js = [NSString stringWithFormat:@"cordova.fireDocumentEvent('ins_notification_handle',%@);", data];
+                [self.commandDelegate evalJs:js];
+                break;
+            }
+            case InsiderCallbackTypeSessionStarted:{
+                NSString * data = [NSString stringWithFormat:@"{""action"":'SESSION_STARTED',""result"":""%@""}", callbackData];
                 js = [NSString stringWithFormat:@"cordova.fireDocumentEvent('ins_notification_handle',%@);", data];
                 [self.commandDelegate evalJs:js];
                 break;
@@ -134,11 +162,22 @@
         [Insider sendError:exception desc:@"Insider.m - setGDPRConsent"];
     }
 }
+- (void) setMobileAppAccess:(CDVInvokedUrlCommand *)command {
+    @try {
+        [self.commandDelegate runInBackground:^{
+            NSString* booleanValueByString = [[command arguments] objectAtIndex:0];
+            [Insider setMobileAppAccess:[booleanValueByString isEqualToString: @"true"]];
+            [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
+        }];
+    } @catch (NSException *exception) {
+        [Insider sendError:exception desc:@"Insider.m - setMobileAppAccess"];
+    }
+}
 
 - (void) startTrackingGeofence:(CDVInvokedUrlCommand *)command {
     @try {
         [self.commandDelegate runInBackground:^{
-            [Insider startTrackingGeofence];
+            [InsiderGeofence startTracking];
             [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
         }];
     } @catch (NSException *exception) {
@@ -223,7 +262,7 @@
 - (void)hybridIntent:(CDVInvokedUrlCommand *)command {
     @try {
         [self.commandDelegate runInBackground:^{
-            [Insider resumeSession];
+            [Insider applicationDidBecomeActive];
         }];
     } @catch (NSException *e) {
         [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
@@ -259,7 +298,43 @@
         if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1] || ![command.arguments objectAtIndex:2]) return;
         [self.commandDelegate runInBackground:^{
             bool coResult = [Insider getContentBoolWithName:[command.arguments objectAtIndex:0] defaultBool:[[command.arguments objectAtIndex:1] boolValue] dataType:[[command.arguments objectAtIndex:2] intValue]];
+            [self sendSuccessResultWithBool:coResult andCommand:command];
+        }];
+    } @catch (NSException *e) {
+        [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+    }
+}
+
+- (void)getContentStringWithoutCache:(CDVInvokedUrlCommand *)command {
+    @try {
+        if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1] || ![command.arguments objectAtIndex:2]) return;
+        [self.commandDelegate runInBackground:^{
+            NSString *coResult = [Insider getContentStringWithoutCache:[command.arguments objectAtIndex:0] defaultString:[command.arguments objectAtIndex:1] dataType:[[command.arguments objectAtIndex:2] intValue]];
+            [self sendSuccessResultWithString:coResult andCommand:command];
+        }];
+    } @catch (NSException *e) {
+        [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+    }
+}
+
+- (void)getContentIntWithoutCache:(CDVInvokedUrlCommand *)command {
+    @try {
+        if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1] || ![command.arguments objectAtIndex:2]) return;
+        [self.commandDelegate runInBackground:^{
+            int coResult = [Insider getContentIntWithoutCache:[command.arguments objectAtIndex:0] defaultInt:[[command.arguments objectAtIndex:1] intValue] dataType:[[command.arguments objectAtIndex:2] intValue]];
             [self sendSuccessResultWithInt:coResult andCommand:command];
+        }];
+    } @catch (NSException *e) {
+        [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+    }
+}
+
+- (void)getContentBoolWithoutCache:(CDVInvokedUrlCommand *)command {
+    @try {
+        if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1] || ![command.arguments objectAtIndex:2]) return;
+        [self.commandDelegate runInBackground:^{
+            bool coResult = [Insider getContentBoolWithoutCache:[command.arguments objectAtIndex:0] defaultBool:[[command.arguments objectAtIndex:1] boolValue] dataType:[[command.arguments objectAtIndex:2] intValue]];
+            [self sendSuccessResultWithBool:coResult andCommand:command];
         }];
     } @catch (NSException *e) {
         [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
@@ -420,7 +495,11 @@
     @try {
         [self.commandDelegate runInBackground:^{
             if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1] || ![command.arguments objectAtIndex:2]) return;
-            [InsiderHybrid getMessageCenterDataWithLimit:[[command.arguments objectAtIndex:0] intValue] startDate:[command.arguments objectAtIndex:1] endDate:[command.arguments objectAtIndex:2] success:^(NSArray *messageCenterData) {
+
+            NSInteger startDateEpoch = [[command.arguments objectAtIndex:1] integerValue];
+            NSInteger endDateEpoch = [[command.arguments objectAtIndex:2] integerValue];
+
+            [InsiderHybrid getMessageCenterDataWithLimit:[[command.arguments objectAtIndex:0] intValue] startDate:startDateEpoch endDate:endDateEpoch success:^(NSArray *messageCenterData) {
                 [self sendSuccessResultWithArray:messageCenterData andCommand:command];
             }];
         }];
@@ -485,10 +564,30 @@
     }
 }
 
+- (void)setPhoneNumber:(CDVInvokedUrlCommand *)command {
+    @try {
+        if (![command.arguments objectAtIndex:0]) return;
+
+        [Insider getCurrentUser].setPhoneNumber([command.arguments objectAtIndex:0]);
+    } @catch (NSException *e) {
+        [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+    }
+}
+
 - (void)setEmailOptin:(CDVInvokedUrlCommand *)command {
     @try {
         if (![command.arguments objectAtIndex:0]) return;
         [Insider getCurrentUser].setEmailOptin([[command.arguments objectAtIndex:0] boolValue]);
+    } @catch (NSException *e) {
+        [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+    }
+}
+
+- (void)setEmail:(CDVInvokedUrlCommand *)command {
+    @try {
+        if (![command.arguments objectAtIndex:0]) return;
+
+        [Insider getCurrentUser].setEmail([command.arguments objectAtIndex:0]);
     } @catch (NSException *e) {
         [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
     }
@@ -652,12 +751,9 @@
                 [[Insider getCurrentUser] login:insiderIdentifiers insiderIDResult:^(NSString *insiderID) {
                     [self sendSuccessResultWithString:insiderID andCommand:command];
                 }];
+            } else {
+                [[Insider getCurrentUser] login:insiderIdentifiers];
             }
-
-            InsiderUser* currentUser = [Insider getCurrentUser];
-
-            [currentUser login:insiderIdentifiers];
-
         });
     } @catch (NSException *e) {
         [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
@@ -671,6 +767,31 @@
             [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
         });
 
+    } @catch (NSException *e) {
+        [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+    }
+}
+
+- (void)logoutResettingInsiderID:(CDVInvokedUrlCommand *)command {
+    @try {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSArray *identifiersArray = nil;
+            if ([command.arguments count] > 0 && [command.arguments objectAtIndex:0] != [NSNull null]) {
+                identifiersArray = [command.arguments objectAtIndex:0];
+            }
+
+            NSArray<InsiderIdentifiers *> *identifiers = [self convertArrayToInsiderIdentifiersArray:identifiersArray];
+
+            if ([command.arguments count] > 1) {
+                [[Insider getCurrentUser] logoutResettingInsiderID:identifiers insiderIDResult:^(NSString *insiderID) {
+                    NSString *insiderIDToPass = insiderID ? insiderID : @"";
+                    [self sendSuccessResultWithString:insiderIDToPass andCommand:command];
+                }];
+            } else {
+                [[Insider getCurrentUser] logoutResettingInsiderID:identifiers];
+                [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
+            }
+        });
     } @catch (NSException *e) {
         [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
     }
@@ -730,6 +851,114 @@
     }
 }
 
+- (void)getInsiderID:(CDVInvokedUrlCommand *)command {
+    @try {
+        [self sendSuccessResultWithString:[Insider getInsiderID] andCommand:command];
+    } @catch (NSException *exception){
+        [Insider sendError:exception desc:@"Insider.m - getInsiderID"];
+
+        [self sendSuccessResultWithString:nil andCommand:command];
+    }
+}
+
+- (void)registerInsiderIDListener:(CDVInvokedUrlCommand *)command {
+    @try {
+        [Insider registerInsiderIDListenerWithSelector:@selector(insiderIDChangeListener:) sender:self];
+    } @catch (NSException *exception){
+        [Insider sendError:exception desc:@"Insider.m - registerInsiderIDListener"];
+    }
+}
+
+-(void)insiderIDChangeListener:(NSString *)insiderID {
+    @try {
+        if (insiderID == nil) return;
+
+        NSString *data = [NSString stringWithFormat:@"{""insiderID"":""'%@'""}", insiderID];
+        NSString *js = [NSString stringWithFormat:@"cordova.fireDocumentEvent('ins_insider_id_listener',%@);", data];
+
+        [self.commandDelegate evalJs:js];
+    } @catch (NSException *e){
+        [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+    }
+}
+
+- (void)disableInAppMessages:(CDVInvokedUrlCommand *)command {
+    @try {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [Insider disableInAppMessages];
+
+            [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
+        });
+    } @catch (NSException *exception) {
+        [Insider sendError:exception desc:@"Insider.m - tagEvent"];
+    }
+}
+
+- (void)enableInAppMessages:(CDVInvokedUrlCommand *)command {
+    @try {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [Insider enableInAppMessages];
+
+            [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
+        });
+    } @catch (NSException *exception) {
+        [Insider sendError:exception desc:@"Insider.m - tagEvent"];
+    }
+}
+
+- (void)itemAddedToWishlist:(CDVInvokedUrlCommand *)command {
+    @try {
+        [self.commandDelegate runInBackground:^{
+            if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1]) return;
+
+            InsiderProduct *product = (InsiderProduct *)[InsiderHybrid createProduct:[command.arguments objectAtIndex:0] productOptMap:[command.arguments objectAtIndex:1]];
+
+            [Insider itemAddedToWishlistWithProduct:product];
+
+            [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
+        }];
+    } @catch (NSException *e) {
+        [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+    }
+}
+
+- (void)itemRemovedFromWishlist:(CDVInvokedUrlCommand *)command {
+    @try {
+        [self.commandDelegate runInBackground:^{
+            if (![command.arguments objectAtIndex:0]) return;
+
+            [Insider itemRemovedFromWishlistWithProductID:[command.arguments objectAtIndex:0]];
+            [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
+        }];
+    } @catch (NSException *e) {
+        [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+    }
+}
+
+- (void)wishlistCleared:(CDVInvokedUrlCommand *)command {
+    @try {
+        [self.commandDelegate runInBackground:^{
+            [Insider wishlistCleared];
+
+            [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
+        }];
+    } @catch (NSException *e) {
+        [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+    }
+}
+
+- (void)visitWishlistPage:(CDVInvokedUrlCommand *)command {
+    @try {
+        [self.commandDelegate runInBackground:^{
+            if (![command.arguments objectAtIndex:0]) return;
+            [Insider visitWishlistWithProducts:[InsiderHybrid convertArrayToInsiderProductArray:[command.arguments objectAtIndex:0]]];
+            [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
+        }];
+    } @catch (NSException *e) {
+        [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+    }
+}
+
 - (void)putException:(CDVInvokedUrlCommand *)command {
     @try {
         if (![command.arguments objectAtIndex:0]) return;
@@ -757,6 +986,12 @@
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+- (void) sendSuccessResultWithBool:(BOOL)resultMessage andCommand:(CDVInvokedUrlCommand *)command {
+    CDVPluginResult *pluginResult = nil;
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:resultMessage];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
 - (void) sendSuccessResultWithArray:(NSArray *)resultMessage andCommand:(CDVInvokedUrlCommand *)command {
     CDVPluginResult *pluginResult = nil;
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:resultMessage];
@@ -767,6 +1002,30 @@
     CDVPluginResult *pluginResult = nil;
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:resultMessage];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+- (NSArray<InsiderIdentifiers *> *)convertArrayToInsiderIdentifiersArray:(NSArray *)identifiersArray {
+    if (identifiersArray == nil || identifiersArray.count == 0) {
+        return nil;
+    }
+
+    NSMutableArray<InsiderIdentifiers *> *identifiers = [NSMutableArray array];
+    for (NSDictionary *identifierDict in identifiersArray) {
+        InsiderIdentifiers *insiderIdentifiers = [[InsiderIdentifiers alloc] init];
+        for (NSString *key in identifierDict.allKeys) {
+            if ([key isEqualToString:@"addEmail"]) {
+                insiderIdentifiers.addEmail([identifierDict objectForKey:key]);
+            } else if ([key isEqualToString:@"addPhoneNumber"]) {
+                insiderIdentifiers.addPhoneNumber([identifierDict objectForKey:key]);
+            } else if ([key isEqualToString:@"addUserID"]) {
+                insiderIdentifiers.addUserID([identifierDict objectForKey:key]);
+            } else {
+                insiderIdentifiers.addCustomIdentifier(key, [identifierDict objectForKey:key]);
+            }
+        }
+        [identifiers addObject:insiderIdentifiers];
+    }
+    return identifiers;
 }
 
 @end
