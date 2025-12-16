@@ -276,22 +276,30 @@ android {
         }
     }
 
-    if (cdvReleaseSigningPropertiesFile) {
-        signingConfigs {
-            release {
-                // These must be set or Gradle will complain (even if they are overridden).
-                keyAlias = ""
-                keyPassword = ""
-                storeFile = null
-                storePassword = ""
-            }
+    // FIXME-INSIDER: Please change with your key store information.
+    signingConfigs {
+        release {
+            storeFile file('mykeystore.jks')
+            keyAlias 'test'
+            keyPassword '123456'
+            storePassword '123456'
+            v1SigningEnabled true
+            v2SigningEnabled true
         }
-        buildTypes {
-            release {
-                signingConfig signingConfigs.release
-            }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
-        addSigningProps(cdvReleaseSigningPropertiesFile, signingConfigs.release)
+        debug {
+            signingConfig signingConfigs.release
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
     }
 
     if (cdvDebugSigningPropertiesFile) {
