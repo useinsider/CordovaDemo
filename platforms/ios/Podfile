@@ -4,20 +4,7 @@ platform :ios, '11.0'
 use_frameworks!
 target 'HelloCordova' do
 	project 'HelloCordova.xcodeproj'
-	pod 'InsiderMobile', '12.5.4'
-	pod 'InsiderHybrid', '1.4.0'
-end
-
-target 'InsiderNotificationContent' do
-  use_frameworks!
-  inherit! :search_paths
-  # Pods for InsiderNotificationContent
-  pod "InsiderMobileAdvancedNotification"
-end
-
-target 'InsiderNotificationService' do
-  use_frameworks!
-  inherit! :search_paths
-  # Pods for InsiderNotificationService
-  pod "InsiderMobileAdvancedNotification"
+	pod 'InsiderMobile', '14.0.4'
+	pod 'InsiderGeofence', '1.2.3'
+	pod 'InsiderHybrid', '1.7.5'
 end

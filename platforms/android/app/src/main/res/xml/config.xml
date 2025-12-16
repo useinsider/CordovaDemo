@@ -11,5 +11,5 @@
     <allow-intent href="https://*/*" />
     <preference name="loglevel" value="DEBUG" />
     <preference name="GradlePluginGoogleServicesEnabled" value="true" />
-    <preference name="GradlePluginGoogleServicesVersion" value="4.3.10" />
+    <preference name="GradlePluginGoogleServicesVersion" value="4.4.2" />
 </widget>

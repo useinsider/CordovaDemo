@@ -1,0 +1,17 @@
+Copyright © 2016 Insider. All rights reserved.
+
+This Insider iOS SDK ("Software") is the proprietary and confidential property of Insider and is protected by copyright and other intellectual property laws.
+
+Permission is hereby granted to the licensee ("You") to use the Software solely for the purpose of integrating Insider's services into your mobile application(s), subject to the following conditions:
+
+1. You may use, integrate, and distribute the compiled binaries of this Software as part of your mobile applications.
+2. You may not modify, decompile, reverse engineer, or otherwise attempt to derive the source code of the Software.
+3. You may not distribute, sublicense, sell, lease, or otherwise make the Software available to third parties except as part of your compiled mobile application that integrates the Software.
+4. All usage of the Software must comply with Insider’s terms of service and any applicable agreements between You and Insider.
+5. Insider retains all right, title, and interest in and to the Software, including all intellectual property rights.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT.
+
+IN NO EVENT SHALL INSIDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+For any inquiries, please contact: mobile-sdk@useinsider.com

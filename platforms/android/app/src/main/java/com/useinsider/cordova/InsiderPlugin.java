@@ -11,7 +11,6 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.firebase.messaging.RemoteMessage;
@@ -28,6 +27,7 @@ import com.useinsider.insider.RecommendationEngine;
 import com.useinsider.insiderhybrid.InsiderHybrid;
 import com.useinsider.insiderhybrid.InsiderHybridUtils;
 import com.useinsider.insiderhybrid.constants.InsiderHybridMethods;
+import com.useinsider.insider.InsiderIDListener;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
@@ -49,6 +49,8 @@ import java.util.Map;
 public class InsiderPlugin extends CordovaPlugin {
     private boolean isCoreInitialized = false;
 
+    private InsiderIDListener insiderIDListener;
+
     @Override
     protected void pluginInitialize() {
         super.initialize(cordova, webView);
@@ -62,18 +64,6 @@ public class InsiderPlugin extends CordovaPlugin {
             cordova.getActivity().runOnUiThread(new Runnable()  {
                 @Override
                 public void run() {
-                    InsiderHybrid.initWithActivity(cordova.getActivity(), partnerName);
-
-                    Insider.Instance.setSDKType("cordova");
-                    Insider.Instance.setHybridSDKVersion(sdkVersion);
-                    Insider.Instance.resumeSessionHybridConfig(cordova.getActivity());
-
-                    if (isCoreInitialized) {
-                        Insider.Instance.resumeSessionHybridRequestConfig();
-                    }
-
-                    isCoreInitialized = true;
-
                     Insider.Instance.registerInsiderCallback(new InsiderCallback() {
                         @Override
                         public void doAction(JSONObject jsonObject, InsiderCallbackType insiderCallbackType) {
@@ -86,8 +76,19 @@ public class InsiderPlugin extends CordovaPlugin {
                             }
                         }
                     });
+                    
+                    InsiderHybrid.initWithActivity(cordova.getActivity(), partnerName);
 
-                    Insider.Instance.handleHybridIntent();
+                    Insider.Instance.setSDKType("cordova");
+                    Insider.Instance.setHybridSDKVersion(sdkVersion);
+                    Insider.Instance.resumeSessionHybridConfig(cordova.getActivity());
+
+                    if (isCoreInitialized) {
+                        Insider.Instance.resumeSessionHybridRequestConfig();
+                    }
+
+                    isCoreInitialized = true;
+
                     Insider.Instance.storePartnerName(partnerName);
                 }
             });
@@ -98,6 +99,23 @@ public class InsiderPlugin extends CordovaPlugin {
 
     public void loadHandleUrl(String json) {
         webView.loadUrl("javascript:cordova.fireDocumentEvent('ins_notification_handle'," + json + ");");
+    }
+
+    public void sendInsiderIDToJS(String insiderIDObject) {
+        try {
+            cordova.getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        webView.loadUrl("javascript:cordova.fireDocumentEvent('ins_insider_id_listener'," + insiderIDObject + ");");
+                    } catch (Exception e) {
+                        Insider.Instance.putException(e);
+                    }
+                }
+            });
+        } catch (Exception e) {
+            Insider.Instance.putException(e);
+        }
     }
 
     @Override
@@ -113,10 +131,12 @@ public class InsiderPlugin extends CordovaPlugin {
                 Insider.Instance.setCustomEndpoint(args.getString(3));
 
                 init(args.getString(0), args.getString(1));
+            } else if (action.equals("reinitWithPartnerName")) {
+                Insider.Instance.reinitWithPartnerName(args.getString(0));
             } else if (action.equals("setGDPRConsent")) {
                 Insider.Instance.setGDPRConsent(Boolean.parseBoolean(args.getString(0)));
-            } else if (action.equals("enableIDFACollection")) {
-                Insider.Instance.enableIDFACollection(Boolean.parseBoolean(args.getString(0)));
+            } else if (action.equals("setMobileAppAccess")) {
+                Insider.Instance.setMobileAppAccess(Boolean.parseBoolean(args.getString(0)));
             } else if (action.equals("startTrackingGeofence")) {
                 cordova.getThreadPool().execute(new Runnable() {
                     @Override
@@ -142,6 +162,26 @@ public class InsiderPlugin extends CordovaPlugin {
                 ContentOptimizerDataType boolVariableDataType = getDataType(args.getString(2));
 
                 boolean optimizedBoolean = Insider.Instance.getContentBoolWithName(args.getString(0), args.getBoolean(1), boolVariableDataType);
+
+                callbackSuccess(callbackContext, optimizedBoolean);
+            }  else if (action.equals("getContentStringWithoutCache")) {
+                ContentOptimizerDataType stringVariableDataType = getDataType(args.getString(2));
+
+                String optimizedString = Insider.Instance.getContentStringWithoutCache(args.getString(0), args.getString(1), stringVariableDataType);
+
+                if (optimizedString != null && optimizedString.length() > 0) {
+                    callbackSuccess(callbackContext, optimizedString);
+                }
+            } else if (action.equals("getContentIntWithoutCache")) {
+                ContentOptimizerDataType intVariableDataType = getDataType(args.getString(2));
+
+                int optimizedInteger = Insider.Instance.getContentIntWithoutCache(args.getString(0), args.getInt(1), intVariableDataType);
+
+                callbackSuccess(callbackContext, optimizedInteger);
+            } else if (action.equals("getContentBoolWithoutCache")) {
+                ContentOptimizerDataType boolVariableDataType = getDataType(args.getString(2));
+
+                boolean optimizedBoolean = Insider.Instance.getContentBoolWithoutCache(args.getString(0), args.getBoolean(1), boolVariableDataType);
 
                 callbackSuccess(callbackContext, optimizedBoolean);
             } else if (action.equals("removeInapp")) {
@@ -212,11 +252,11 @@ public class InsiderPlugin extends CordovaPlugin {
 
                 cordova.getThreadPool().execute(() -> {
                     try {
-                        int limit =args.getInt(0);
-                        String startDate  = args.getString(1);
-                        String endDate = args.getString(2);
+                        int limit = args.getInt(0);
+                        long startDateEpoch = Long.parseLong(args.getString(1));
+                        long endDateEpoch = Long.parseLong(args.getString(2));
 
-                        InsiderHybrid.getMessageCenterData(limit,startDate,endDate, new MessageCenterData() {
+                        InsiderHybrid.getMessageCenterData(limit, startDateEpoch, endDateEpoch, new MessageCenterData() {
                             @Override
                             public void loadMessageCenterData(JSONArray jsonArray) {
                                 callbackSuccess(callbackContext, jsonArray.toString());
@@ -638,6 +678,118 @@ public class InsiderPlugin extends CordovaPlugin {
                 return true;
             } else if (action.equals("signUpConfirmation")) {
                 Insider.Instance.signUpConfirmation();
+            } else if (action.equals("setPushToken")) {
+                Insider.Instance.setPushToken(args.getString(0));
+            } else if (action.equals("setEmail")) {
+                if (args.get(0) == null)
+                    return false;
+
+                Insider.Instance.getCurrentUser().setEmail(args.getString(0));
+            } else if (action.equals("setPhoneNumber")) {
+                if (args.get(0) == null)
+                    return false;
+
+                Insider.Instance.getCurrentUser().setPhoneNumber(args.getString(0));
+            } else if (action.equals("getInsiderID")) {
+                callbackSuccess(callbackContext, Insider.Instance.getInsiderID());
+            } else if (action.equals("registerInsiderIDListener")) {
+                if (insiderIDListener == null) {
+                    insiderIDListener = new InsiderIDListener() {
+                        @Override
+                        public void onUpdated(String insiderID) {
+                            String insiderIDJSONObject = "{ 'insiderID':'" + insiderID + "' }";
+
+                            sendInsiderIDToJS(insiderIDJSONObject);
+                        }
+                    };
+
+
+                    Insider.Instance.registerInsiderIDListener(insiderIDListener);
+                }
+            } else if (action.equals("disableInAppMessages")) {
+                cordova.getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Insider.Instance.disableInAppMessages();
+                            callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK));
+                        } catch (Exception e) {
+                            Insider.Instance.putException(e);
+                        }
+                    }
+                });
+            } else if (action.equals("enableInAppMessages")) {
+                cordova.getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Insider.Instance.enableInAppMessages();
+                            callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK));
+                        } catch (Exception e) {
+                            Insider.Instance.putException(e);
+                        }
+                    }
+                });
+            } else if (action.equals("itemAddedToWishlist")) {
+                if (args.get(0) == null || args.getString(1) == null)
+                    return false;
+
+                Map<String, Object> mustMap = CDVUtils.convertJSONToMap(args.getString(0));
+                Map<String, Object> optMap = CDVUtils.convertJSONToMap(args.getString(1));
+
+                cordova.getThreadPool().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        InsiderProduct product = createProduct(mustMap, optMap);
+                        Insider.Instance.itemAddedToWishlist(product);
+                        callbackSuccess(callbackContext, "SUCCESS");
+                    }
+                });
+            } else if (action.equals("itemRemovedFromWishlist")) {
+                if (args.get(0) == null)
+                    return false;
+
+                cordova.getThreadPool().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Insider.Instance.itemRemovedFromWishlist(args.getString(0));
+                            callbackSuccess(callbackContext, "SUCCESS");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            } else if (action.equals("wishlistCleared")) {
+                cordova.getThreadPool().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        Insider.Instance.wishlistCleared();
+                        callbackSuccess(callbackContext, "SUCCESS");
+                    }
+                });
+            } else if (action.equals("visitWishlistPage")) {
+                if (args.get(0) == null)
+                    return false;
+
+                String json = args.getString(0);
+                ArrayList products = new ObjectMapper().readValue(json, ArrayList.class);
+                InsiderProduct[] ips = new InsiderProduct[products.size()];
+
+                cordova.getThreadPool().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        for (int i = 0; i < products.size(); i++) {
+                            HashMap mustMap = (HashMap)(((LinkedHashMap)products.get(i)).get("productMustMap"));
+                            HashMap optMap = (HashMap)(((LinkedHashMap)products.get(i)).get("productOptMap"));
+                            InsiderProduct product = createProduct(mustMap, optMap);
+                            ips[i] = product;
+                        }
+
+                        Insider.Instance.visitWishlistPage(ips);
+                        callbackSuccess(callbackContext, "SUCCESS");
+                    }
+                });
             } else {
                 return false;
             }
@@ -799,6 +951,41 @@ public class InsiderPlugin extends CordovaPlugin {
                     case Constants.GROUP_CODE:
                         product.setGroupCode((String) value);
                         break;
+                    case Constants.BRAND:
+                        product.setBrand((String) value);
+                        break;
+                    case Constants.SKU:
+                        product.setSku((String) value);
+                        break;
+                    case Constants.PRODUCT_GENDER:
+                        product.setGender((String) value);
+                        break;
+                    case Constants.MULTIPACK:
+                        product.setMultipack((String) value);
+                        break;
+                    case Constants.PRODUCT_TYPE:
+                        product.setProductType((String) value);
+                        break;
+                    case Constants.GTIN:
+                        product.setGtin((String) value);
+                        break;
+                    case Constants.DESCRIPTION:
+                        product.setDescription((String) value);
+                        break;
+                    case Constants.TAGS:
+                        String[] tags;
+
+                        if (value.getClass().isArray()) {
+                            tags = (String[]) value;
+                        } else {
+                            tags = ((ArrayList<String>) value).toArray(new String[0]);
+                        }
+
+                        product.setTags(tags);
+                        break;
+                    case Constants.IS_IN_STOCK:
+                        product.setInStock((boolean) value);
+                        break;    
                     default:
                         setProductCustomAttribute(product, entry.getKey(), value);
                         break;
@@ -831,7 +1018,10 @@ public class InsiderPlugin extends CordovaPlugin {
                     product.setCustomAttributeWithDate(key, (Date) value);
                     break;
                 case "String[]":
-                    product.setCustomAttributeWithArray(key, (String[]) value);
+                    product.setCustomAttributeWithStringArray(key, (String[]) value);
+                    break;
+                case "Number[]":
+                    product.setCustomAttributeWithNumericArray(key, (Number[]) value);
                     break;
                 default:
                     break;
