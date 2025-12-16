@@ -1,0 +1,15 @@
+{
+  "LABEL": {
+    "name": "",
+    "color": ""
+  },
+  "CHECKS": {
+    "regexp": "^MOB-[0-9]+",
+    "regexpFlags": "i",
+    "alwaysPassCI": false
+  },
+  "MESSAGES": {
+    "success": "PR title OK ✅",
+    "failure": "Title must start with MOB-<number>, e.g. MOB-24511 ..."
+  }
+}

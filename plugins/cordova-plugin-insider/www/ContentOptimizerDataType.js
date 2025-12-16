@@ -1,4 +1,6 @@
+"use strict";
+
 module.exports = {
-    CONTENT: 0,
-    ELEMENT: 1,
+  CONTENT: 0,
+  ELEMENT: 1
 };

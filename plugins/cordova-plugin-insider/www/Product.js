@@ -1,223 +1,507 @@
 "use strict";
 
-const InsiderConstants = require("./Constants");
-const Utils = require("./Utils");
-
-class Product {
-    productMustMap = {};
-    productOptMap = {};
-
-    constructor(productID, name, taxonomy, imageURL, price, currency) {
-        this.productMustMap = {
-            product_id: productID,
-            name: name,
-            taxonomy: taxonomy,
-            image_url: imageURL,
-            unit_price: price,
-            currency: currency,
-        };
-    }
-
-    setColor(color) {
-        if (color === null|| Utils.isEmpty(color)){ Utils.showWarning(this.constructor.name + '-color'); return this;}
-
-        try {
-            this.productOptMap[InsiderConstants.COLOR] = color;
-        } catch (error) {
-            Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
-        }
-
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
+function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
+function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
+function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+var InsiderConstants = require("./Constants");
+var Utils = require("./Utils");
+var Product = /*#__PURE__*/function () {
+  function Product(productID, name, taxonomy, imageURL, price, currency) {
+    _classCallCheck(this, Product);
+    _defineProperty(this, "productMustMap", {});
+    _defineProperty(this, "productOptMap", {});
+    this.productMustMap = {
+      product_id: productID,
+      name: name,
+      taxonomy: taxonomy,
+      image_url: imageURL,
+      unit_price: price,
+      currency: currency
+    };
+  }
+  return _createClass(Product, [{
+    key: "setColor",
+    value: function setColor(color) {
+      if (Utils.checkParameters([{
+        type: 'string',
+        value: color
+      }])) {
+        Utils.showParameterWarningLog(this.constructor.name + '-color');
         return this;
+      }
+      try {
+        this.productOptMap[InsiderConstants.COLOR] = color;
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
     }
-
-    setVoucherName(voucherName) {
-        if (voucherName === null|| Utils.isEmpty(voucherName)){ Utils.showWarning(this.constructor.name + '-voucherName'); return this;}
-
-        try {
-            this.productOptMap[InsiderConstants.VOUCHER_NAME] = voucherName;
-        } catch (error) {
-            Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
-        }
-
+  }, {
+    key: "setVoucherName",
+    value: function setVoucherName(voucherName) {
+      if (Utils.checkParameters([{
+        type: 'string',
+        value: voucherName
+      }])) {
+        Utils.showParameterWarningLog(this.constructor.name + '-voucherName');
         return this;
+      }
+      try {
+        this.productOptMap[InsiderConstants.VOUCHER_NAME] = voucherName;
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
     }
-
-    setPromotionName(promotionName) {
-        if (promotionName === null|| Utils.isEmpty(promotionName)){ Utils.showWarning(this.constructor.name + '-promotionName'); return this;}
-
-        try {
-            this.productOptMap[InsiderConstants.PROMOTION_NAME] = promotionName;
-        } catch (error) {
-            Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
-        }
-        
+  }, {
+    key: "setPromotionName",
+    value: function setPromotionName(promotionName) {
+      if (Utils.checkParameters([{
+        type: 'string',
+        value: promotionName
+      }])) {
+        Utils.showParameterWarningLog(this.constructor.name + '-promotionName');
         return this;
+      }
+      try {
+        this.productOptMap[InsiderConstants.PROMOTION_NAME] = promotionName;
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
     }
-
-    setSize(size) {
-        if (size === null|| Utils.isEmpty(size)){ Utils.showWarning(this.constructor.name + '-size'); return this;}
-
-        try {
-            this.productOptMap[InsiderConstants.SIZE] = size;
-        } catch (error) {
-            Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
-        }
-
+  }, {
+    key: "setSize",
+    value: function setSize(size) {
+      if (Utils.checkParameters([{
+        type: 'string',
+        value: size
+      }])) {
+        Utils.showParameterWarningLog(this.constructor.name + '-size');
         return this;
+      }
+      try {
+        this.productOptMap[InsiderConstants.SIZE] = size;
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
     }
-
-    setGroupCode(groupCode) {
-        if (!groupCode) { Utils.showWarning(this.constructor.name + '-groupCode'); return this; }
-
-        try {
-            this.productOptMap[InsiderConstants.GROUP_CODE] = groupCode;
-        } catch (error) {
-            Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
-        }
-
+  }, {
+    key: "setGroupCode",
+    value: function setGroupCode(groupCode) {
+      if (Utils.checkParameters([{
+        type: 'string',
+        value: groupCode
+      }])) {
+        Utils.showParameterWarningLog(this.constructor.name + '-groupCode');
         return this;
+      }
+      try {
+        this.productOptMap[InsiderConstants.GROUP_CODE] = groupCode;
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
     }
-
-    setSalePrice(salePrice) {
-        if (salePrice === null|| Utils.isEmpty(salePrice)){ Utils.showWarning(this.constructor.name + '-salePrice'); return this;}
-
-        try {
-            this.productOptMap[InsiderConstants.SALE_PRICE] = salePrice;
-        } catch (error) {
-            Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
-        }
+  }, {
+    key: "setSalePrice",
+    value: function setSalePrice(salePrice) {
+      if (Utils.checkParameters([{
+        type: 'number',
+        value: salePrice
+      }])) {
+        Utils.showParameterWarningLog(this.constructor.name + '-salePrice');
         return this;
+      }
+      try {
+        this.productOptMap[InsiderConstants.SALE_PRICE] = salePrice;
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
     }
-
-    setShippingCost(shippingCost) {
-        if (shippingCost === null|| Utils.isEmpty(shippingCost)){ Utils.showWarning(this.constructor.name + '-shippingCost'); return this;}
-
-        try {
-            this.productOptMap[InsiderConstants.SHIPPING_COST] = shippingCost;
-        } catch (error) {
-            Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
-        }
-
+  }, {
+    key: "setShippingCost",
+    value: function setShippingCost(shippingCost) {
+      if (Utils.checkParameters([{
+        type: 'number',
+        value: shippingCost
+      }])) {
+        Utils.showParameterWarningLog(this.constructor.name + '-shippingCost');
         return this;
+      }
+      try {
+        this.productOptMap[InsiderConstants.SHIPPING_COST] = shippingCost;
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
     }
-
-    setVoucherDiscount(voucherDiscount) {
-        if (voucherDiscount === null|| Utils.isEmpty(voucherDiscount)){ Utils.showWarning(this.constructor.name + '-voucherDiscount'); return this;}
-
-        try {
-            this.productOptMap[InsiderConstants.VOUCHER_DISCOUNT] = voucherDiscount;
-        } catch (error) {
-            Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
-        }
-
+  }, {
+    key: "setVoucherDiscount",
+    value: function setVoucherDiscount(voucherDiscount) {
+      if (Utils.checkParameters([{
+        type: 'number',
+        value: voucherDiscount
+      }])) {
+        Utils.showParameterWarningLog(this.constructor.name + '-voucherDiscount');
         return this;
+      }
+      try {
+        this.productOptMap[InsiderConstants.VOUCHER_DISCOUNT] = voucherDiscount;
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
     }
-
-    setPromotionDiscount(promotionDiscount) {
-        if (promotionDiscount === null|| Utils.isEmpty(promotionDiscount)){ Utils.showWarning(this.constructor.name + '-promotionDiscount'); return this;}
-
-        try {
-            this.productOptMap[InsiderConstants.PROMOTION_DISCOUNT] = promotionDiscount;
-        } catch (error) {
-            Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
-        }
-
+  }, {
+    key: "setPromotionDiscount",
+    value: function setPromotionDiscount(promotionDiscount) {
+      if (Utils.checkParameters([{
+        type: 'number',
+        value: promotionDiscount
+      }])) {
+        Utils.showParameterWarningLog(this.constructor.name + '-promotionDiscount');
         return this;
+      }
+      try {
+        this.productOptMap[InsiderConstants.PROMOTION_DISCOUNT] = promotionDiscount;
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
     }
-
-    setStock(stock) {
-        if (stock === null|| Utils.isEmpty(stock)){ Utils.showWarning(this.constructor.name + '-stock'); return this;}
-
-        try {
-            this.productOptMap[InsiderConstants.STOCK] = stock;
-        } catch (error) {
-            Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
-        }
-
+  }, {
+    key: "setStock",
+    value: function setStock(stock) {
+      if (Utils.checkParameters([{
+        type: 'number',
+        value: stock
+      }])) {
+        Utils.showParameterWarningLog(this.constructor.name + '-stock');
         return this;
+      }
+      try {
+        this.productOptMap[InsiderConstants.STOCK] = stock;
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
     }
-
-    setQuantity(quantity) {
-        if (quantity === null|| Utils.isEmpty(quantity)|| Utils.isEmpty(quantity)){ Utils.showWarning(this.constructor.name + '-quantity'); return this;}
-
-        try {
-            this.productOptMap[InsiderConstants.QUANTITY] = quantity;
-        } catch (error) {
-            Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
-        }
-
+  }, {
+    key: "setQuantity",
+    value: function setQuantity(quantity) {
+      if (Utils.checkParameters([{
+        type: 'number',
+        value: quantity
+      }])) {
+        Utils.showParameterWarningLog(this.constructor.name + '-quantity');
         return this;
+      }
+      try {
+        this.productOptMap[InsiderConstants.QUANTITY] = quantity;
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
     }
-
-    setCustomAttributeWithString(key, value) {
-        if (key === null || value === null || Utils.isEmpty(key)|| Utils.isEmpty(value)){ Utils.showWarning(this.constructor.name + '-setCustomAttributeWithString key or value'); return this;}
-
-        try {
-            this.productOptMap[key] = value;
-        } catch (error) {
-            Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
-        }
-
+  }, {
+    key: "setBrand",
+    value: function setBrand(brand) {
+      if (Utils.checkParameters([{
+        type: 'string',
+        value: brand
+      }]) || !brand) {
+        Utils.showParameterWarningLog(this.constructor.name + '-brand');
         return this;
+      }
+      try {
+        this.productOptMap[InsiderConstants.BRAND] = brand;
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
     }
-
-    setCustomAttributeWithInt(key, value) {
-        if (key === null || value === null || Utils.isEmpty(key)|| Utils.isEmpty(value)){ Utils.showWarning(this.constructor.name + '-setCustomAttributeWithInt key or value'); return this;}
-
-        try {
-            this.productOptMap[key] = value;
-        } catch (error) {
-            Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
-        }
+  }, {
+    key: "setGender",
+    value: function setGender(gender) {
+      if (Utils.checkParameters([{
+        type: 'string',
+        value: gender
+      }]) || !gender) {
+        Utils.showParameterWarningLog(this.constructor.name + '-gender');
         return this;
+      }
+      try {
+        this.productOptMap[InsiderConstants.PRODUCT_GENDER] = gender;
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
     }
-
-    setCustomAttributeWithBoolean(key, value) {
-        if (key === null || value === null || Utils.isEmpty(key) || Utils.isEmpty(value)){ Utils.showWarning(this.constructor.name + '-setCustomAttributeWithBoolean key or value'); return this;}
-
-        try {
-            this.productOptMap[key] = value;
-        } catch (error) {
-            Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
-        }
+  }, {
+    key: "setDescription",
+    value: function setDescription(description) {
+      if (description == null) {
+        Utils.showParameterWarningLog(this.constructor.name + '-description');
         return this;
+      }
+      try {
+        this.productOptMap[InsiderConstants.DESCRIPTION] = description;
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
     }
-
-    setCustomAttributeWithDouble(key, value) {
-        if (key === null || value === null || Utils.isEmpty(key)|| Utils.isEmpty(value)){ Utils.showWarning(this.constructor.name + '-setCustomAttributeWithDouble key or value'); return this;}
-
-        try {
-            this.productOptMap[key] = value;
-        } catch (error) {
-            Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
-        }
-
+  }, {
+    key: "setSku",
+    value: function setSku(sku) {
+      if (sku == null) {
+        Utils.showParameterWarningLog(this.constructor.name + '-sku');
         return this;
+      }
+      try {
+        this.productOptMap[InsiderConstants.SKU] = sku;
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
     }
-
-    setCustomAttributeWithDate(key, value) {
-        if (key === null || value === null || Utils.isEmpty(key) || Utils.isEmpty(value)){ Utils.showWarning(this.constructor.name + '-setCustomAttributeWithDate key or value'); return this;}
-
-        try {
-            this.productOptMap[key] = value.toISOString();
-        } catch (error) {
-            Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
-        }
-
+  }, {
+    key: "setMultipack",
+    value: function setMultipack(multipack) {
+      if (multipack == null) {
+        Utils.showParameterWarningLog(this.constructor.name + '-multipack');
         return this;
+      }
+      try {
+        this.productOptMap[InsiderConstants.MULTIPACK] = multipack;
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
     }
-
-    setCustomAttributeWithArray(key, value) {
-        if (key === null || value === null || Utils.isEmpty(key)|| Utils.isEmpty(value)){ Utils.showWarning(this.constructor.name + '-setCustomAttributeWithArray key or value'); return this;}
-
-        try {
-            this.productOptMap[key] = value;
-        } catch (error) {
-            Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
-        }
-
+  }, {
+    key: "setProductType",
+    value: function setProductType(productType) {
+      if (productType == null) {
+        Utils.showParameterWarningLog(this.constructor.name + '-productType');
         return this;
+      }
+      try {
+        this.productOptMap[InsiderConstants.PRODUCT_TYPE] = productType;
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
     }
-}
-
+  }, {
+    key: "setGtin",
+    value: function setGtin(gtin) {
+      if (gtin == null) {
+        Utils.showParameterWarningLog(this.constructor.name + '-gtin');
+        return this;
+      }
+      try {
+        this.productOptMap[InsiderConstants.GTIN] = gtin;
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
+    }
+  }, {
+    key: "setTags",
+    value: function setTags(tags) {
+      if (tags == null || !Array.isArray(tags)) {
+        Utils.showParameterWarningLog(this.constructor.name + '-tags');
+        return this;
+      }
+      try {
+        this.productOptMap[InsiderConstants.TAGS] = tags;
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
+    }
+  }, {
+    key: "setInStock",
+    value: function setInStock(isInStock) {
+      if (typeof isInStock !== 'boolean') {
+        Utils.showParameterWarningLog(this.constructor.name + '-isInStock');
+        return this;
+      }
+      try {
+        this.productOptMap[InsiderConstants.IS_IN_STOCK] = isInStock;
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
+    }
+  }, {
+    key: "setCustomAttributeWithString",
+    value: function setCustomAttributeWithString(key, value) {
+      if (Utils.checkParameters([{
+        type: 'string',
+        value: key
+      }, {
+        type: 'string',
+        value: value
+      }])) {
+        Utils.showParameterWarningLog(this.constructor.name + '-setCustomAttributeWithString');
+        return this;
+      }
+      try {
+        this.productOptMap[key] = value;
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
+    }
+  }, {
+    key: "setCustomAttributeWithInt",
+    value: function setCustomAttributeWithInt(key, value) {
+      if (Utils.checkParameters([{
+        type: 'string',
+        value: key
+      }, {
+        type: 'number',
+        value: value
+      }])) {
+        Utils.showParameterWarningLog(this.constructor.name + '-setCustomAttributeWithInt');
+        return this;
+      }
+      try {
+        this.productOptMap[key] = value;
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
+    }
+  }, {
+    key: "setCustomAttributeWithBoolean",
+    value: function setCustomAttributeWithBoolean(key, value) {
+      if (Utils.checkParameters([{
+        type: 'string',
+        value: key
+      }, {
+        type: 'boolean',
+        value: value
+      }])) {
+        Utils.showParameterWarningLog(this.constructor.name + '-setCustomAttributeWithBoolean');
+        return this;
+      }
+      try {
+        this.productOptMap[key] = value;
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
+    }
+  }, {
+    key: "setCustomAttributeWithDouble",
+    value: function setCustomAttributeWithDouble(key, value) {
+      if (Utils.checkParameters([{
+        type: 'string',
+        value: key
+      }, {
+        type: 'number',
+        value: value
+      }])) {
+        Utils.showParameterWarningLog(this.constructor.name + '-setCustomAttributeWithDouble');
+        return this;
+      }
+      try {
+        this.productOptMap[key] = value;
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
+    }
+  }, {
+    key: "setCustomAttributeWithDate",
+    value: function setCustomAttributeWithDate(key, value) {
+      if (Utils.checkParameters([{
+        type: 'string',
+        value: key
+      }, {
+        type: 'object',
+        value: value
+      }])) {
+        Utils.showParameterWarningLog(this.constructor.name + '-setCustomAttributeWithDate');
+        return this;
+      }
+      try {
+        this.productOptMap[key] = value.toISOString();
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
+    }
+  }, {
+    key: "setCustomAttributeWithArray",
+    value: function setCustomAttributeWithArray(key, value) {
+      if (Utils.checkParameters([{
+        type: 'string',
+        value: key
+      }, {
+        type: 'object',
+        value: value
+      }])) {
+        Utils.showParameterWarningLog(this.constructor.name + '-setCustomAttributeWithArray');
+        return this;
+      }
+      try {
+        this.productOptMap[key] = value;
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
+    }
+  }, {
+    key: "setCustomAttributeWithStringArray",
+    value: function setCustomAttributeWithStringArray(key, value) {
+      if (Utils.checkParameters([{
+        type: 'string',
+        value: key
+      }, {
+        type: 'string_array',
+        value: value
+      }])) {
+        Utils.showParameterWarningLog(this.constructor.name + '-setCustomAttributeWithStringArray');
+        return this;
+      }
+      try {
+        this.productOptMap[key] = value;
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
+    }
+  }, {
+    key: "setCustomAttributeWithNumericArray",
+    value: function setCustomAttributeWithNumericArray(key, value) {
+      if (Utils.checkParameters([{
+        type: 'string',
+        value: key
+      }, {
+        type: 'numeric_array',
+        value: value
+      }])) {
+        Utils.showParameterWarningLog(this.constructor.name + '-setCustomAttributeWithNumericArray');
+        return this;
+      }
+      try {
+        this.productOptMap[key] = value;
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
+    }
+  }]);
+}();
 module.exports = Product;

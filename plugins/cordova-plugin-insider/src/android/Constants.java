@@ -39,4 +39,13 @@ class Constants {
     static final String PROMOTION_NAME = "promotion_name";
     static final String PROMOTION_DISCOUNT = "promotion_discount";
     static final String GROUP_CODE = "groupcode";
+    static final String BRAND = "brnd";
+    static final String SKU = "sku";
+    static final String PRODUCT_GENDER = "ge";
+    static final String MULTIPACK = "mlt";
+    static final String PRODUCT_TYPE = "pt";
+    static final String GTIN = "gt";
+    static final String DESCRIPTION = "desc";
+    static final String TAGS = "tags";
+    static final String IS_IN_STOCK = "iis";
 }

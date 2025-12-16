@@ -1,5 +1,7 @@
+"use strict";
+
 module.exports = {
-    MALE: 0,
-    FEMALE: 1,
-    OTHER: 2,
+  MALE: 0,
+  FEMALE: 1,
+  OTHER: 2
 };

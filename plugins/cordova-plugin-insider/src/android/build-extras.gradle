@@ -5,34 +5,33 @@ repositories {
 }
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion project.hasProperty('compileSdkVersion') ? rootProject.ext.compileSdkVersion : 36
     useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
-        minSdkVersion 21
-        targetSdkVersion 31
-        versionCode 1
-        versionName "1.0"
-        manifestPlaceholders = [ partner: "partner_name" ]
+        minSdkVersion project.hasProperty('minSdkVersion') ? rootProject.ext.minSdkVersion : 24
+        targetSdkVersion project.hasProperty('targetSdkVersion') ? rootProject.ext.targetSdkVersion : 36
         multiDexEnabled true
     }
 }
 
 dependencies {
-    implementation 'com.useinsider:insider:13.6.0'
-    implementation 'com.useinsider:insiderhybrid:1.1.6'
+    implementation 'com.useinsider:insider:15.2.1'
+    implementation 'com.useinsider:insiderhybrid:1.3.4'
 
     implementation 'com.fasterxml.jackson.core:jackson-core:2.12.4'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.4'
 
+    implementation "androidx.work:work-runtime:2.9.1"
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.lifecycle:lifecycle-process:2.3.1'
+    implementation 'androidx.lifecycle:lifecycle-process:2.7.0'
+    implementation 'androidx.security:security-crypto:1.1.0-alpha06'
 
-    implementation 'com.google.android.gms:play-services-location:20.0.0'
-    implementation 'com.google.firebase:firebase-messaging:23.0.5'
-    implementation 'com.google.android.gms:play-services-ads:16.0.0'
+    implementation 'com.google.android.gms:play-services-location:21.3.0'
+    implementation 'com.google.firebase:firebase-messaging:24.0.0'
+    implementation 'com.google.android.play:review:2.0.1'
 
-    implementation 'com.huawei.hms:push:6.5.0.300'
-    implementation 'com.huawei.hms:ads-identifier:3.4.39.302'
-    implementation 'com.huawei.hms:location:6.4.0.300'
+    implementation 'com.huawei.hms:push:6.13.0.300'
+    implementation 'com.huawei.hms:ads-identifier:3.4.62.300'
+    implementation 'com.huawei.hms:location:6.16.0.302'
 }

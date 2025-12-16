@@ -1,11 +1,17 @@
 {
   "name": "cordova-plugin-insider",
-  "version": "1.4.0",
+  "version": "3.0.2",
   "description": "A plugin that you can use Insider SDK with Cordova and Ionic",
   "cordova_name": "Insider Cordova Plugin",
   "cordova": {
     "id": "cordova-plugin-insider",
-    "platforms": ["android","ios"]
+    "platforms": [
+      "android",
+      "ios"
+    ]
+  },
+  "scripts": {
+    "build": "babel js --out-dir www --copy-files"
   },
   "keywords": [
     "cordova-plugin-insider",
@@ -15,5 +21,13 @@
   "main": "www/InsiderPlugin.js",
   "typings": "types/InsiderPlugin.d.ts",
   "author": "useinsider",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/cli": "^7.27.2",
+    "@babel/core": "^7.27.4",
+    "@babel/preset-env": "^7.27.2"
+  },
+  "dependencies": {
+    "babel": "^6.23.0"
+  }
 }
