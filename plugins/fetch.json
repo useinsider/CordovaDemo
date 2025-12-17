@@ -2,7 +2,7 @@
   "cordova-plugin-insider": {
     "source": {
       "type": "registry",
-      "id": "cordova-plugin-insider"
+      "id": "cordova-plugin-insider@3.0.2"
     },
     "is_top_level": true,
     "variables": {}
