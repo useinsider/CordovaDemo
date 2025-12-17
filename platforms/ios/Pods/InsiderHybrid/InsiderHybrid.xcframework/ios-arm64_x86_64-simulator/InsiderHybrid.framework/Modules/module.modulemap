@@ -1,6 +1,0 @@
-framework module InsiderHybrid {
-  umbrella header "InsiderHybrid.h"
-  export *
-
-  module * { export * }
-}
