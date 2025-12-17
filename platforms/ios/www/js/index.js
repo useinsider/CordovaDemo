@@ -50,7 +50,7 @@ let app = {
 
 async function initInsider() {
     // FIXME-INSIDER: Please change with your partner name and app group.
-    await window.Insider.init('orkunbites', 'group.com.useinsider.mobile-ios',
+    await window.Insider.init('your_partner_name', 'group.com.useinsider.CordovaDemo',
         (callback) => {
             switch ((callback.result || {}).type) {
                 case window.Insider.callbackType.NOTIFICATION_OPEN:
