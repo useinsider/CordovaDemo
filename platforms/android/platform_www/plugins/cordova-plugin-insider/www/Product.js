@@ -13,9 +13,10 @@ var Utils = require("./Utils");
 var Product = /*#__PURE__*/function () {
   function Product(productID, name, taxonomy, imageURL, price, currency) {
     _classCallCheck(this, Product);
-    _defineProperty(this, "productMustMap", {});
-    _defineProperty(this, "productOptMap", {});
-    this.productMustMap = {
+    _defineProperty(this, "requiredFields", {});
+    _defineProperty(this, "optionalFields", {});
+    _defineProperty(this, "customParameters", []);
+    this.requiredFields = {
       product_id: productID,
       name: name,
       taxonomy: taxonomy,
@@ -35,7 +36,7 @@ var Product = /*#__PURE__*/function () {
         return this;
       }
       try {
-        this.productOptMap[InsiderConstants.COLOR] = color;
+        this.optionalFields[InsiderConstants.COLOR] = color;
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }
@@ -52,7 +53,7 @@ var Product = /*#__PURE__*/function () {
         return this;
       }
       try {
-        this.productOptMap[InsiderConstants.VOUCHER_NAME] = voucherName;
+        this.optionalFields[InsiderConstants.VOUCHER_NAME] = voucherName;
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }
@@ -69,7 +70,7 @@ var Product = /*#__PURE__*/function () {
         return this;
       }
       try {
-        this.productOptMap[InsiderConstants.PROMOTION_NAME] = promotionName;
+        this.optionalFields[InsiderConstants.PROMOTION_NAME] = promotionName;
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }
@@ -86,7 +87,7 @@ var Product = /*#__PURE__*/function () {
         return this;
       }
       try {
-        this.productOptMap[InsiderConstants.SIZE] = size;
+        this.optionalFields[InsiderConstants.SIZE] = size;
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }
@@ -103,7 +104,7 @@ var Product = /*#__PURE__*/function () {
         return this;
       }
       try {
-        this.productOptMap[InsiderConstants.GROUP_CODE] = groupCode;
+        this.optionalFields[InsiderConstants.GROUP_CODE] = groupCode;
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }
@@ -120,7 +121,7 @@ var Product = /*#__PURE__*/function () {
         return this;
       }
       try {
-        this.productOptMap[InsiderConstants.SALE_PRICE] = salePrice;
+        this.optionalFields[InsiderConstants.SALE_PRICE] = salePrice;
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }
@@ -137,7 +138,7 @@ var Product = /*#__PURE__*/function () {
         return this;
       }
       try {
-        this.productOptMap[InsiderConstants.SHIPPING_COST] = shippingCost;
+        this.optionalFields[InsiderConstants.SHIPPING_COST] = shippingCost;
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }
@@ -154,7 +155,7 @@ var Product = /*#__PURE__*/function () {
         return this;
       }
       try {
-        this.productOptMap[InsiderConstants.VOUCHER_DISCOUNT] = voucherDiscount;
+        this.optionalFields[InsiderConstants.VOUCHER_DISCOUNT] = voucherDiscount;
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }
@@ -171,7 +172,7 @@ var Product = /*#__PURE__*/function () {
         return this;
       }
       try {
-        this.productOptMap[InsiderConstants.PROMOTION_DISCOUNT] = promotionDiscount;
+        this.optionalFields[InsiderConstants.PROMOTION_DISCOUNT] = promotionDiscount;
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }
@@ -188,7 +189,7 @@ var Product = /*#__PURE__*/function () {
         return this;
       }
       try {
-        this.productOptMap[InsiderConstants.STOCK] = stock;
+        this.optionalFields[InsiderConstants.STOCK] = stock;
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }
@@ -205,7 +206,7 @@ var Product = /*#__PURE__*/function () {
         return this;
       }
       try {
-        this.productOptMap[InsiderConstants.QUANTITY] = quantity;
+        this.optionalFields[InsiderConstants.QUANTITY] = quantity;
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }
@@ -222,7 +223,7 @@ var Product = /*#__PURE__*/function () {
         return this;
       }
       try {
-        this.productOptMap[InsiderConstants.BRAND] = brand;
+        this.optionalFields[InsiderConstants.BRAND] = brand;
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }
@@ -239,7 +240,7 @@ var Product = /*#__PURE__*/function () {
         return this;
       }
       try {
-        this.productOptMap[InsiderConstants.PRODUCT_GENDER] = gender;
+        this.optionalFields[InsiderConstants.PRODUCT_GENDER] = gender;
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }
@@ -253,7 +254,7 @@ var Product = /*#__PURE__*/function () {
         return this;
       }
       try {
-        this.productOptMap[InsiderConstants.DESCRIPTION] = description;
+        this.optionalFields[InsiderConstants.DESCRIPTION] = description;
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }
@@ -267,7 +268,7 @@ var Product = /*#__PURE__*/function () {
         return this;
       }
       try {
-        this.productOptMap[InsiderConstants.SKU] = sku;
+        this.optionalFields[InsiderConstants.SKU] = sku;
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }
@@ -281,7 +282,7 @@ var Product = /*#__PURE__*/function () {
         return this;
       }
       try {
-        this.productOptMap[InsiderConstants.MULTIPACK] = multipack;
+        this.optionalFields[InsiderConstants.MULTIPACK] = multipack;
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }
@@ -295,7 +296,7 @@ var Product = /*#__PURE__*/function () {
         return this;
       }
       try {
-        this.productOptMap[InsiderConstants.PRODUCT_TYPE] = productType;
+        this.optionalFields[InsiderConstants.PRODUCT_TYPE] = productType;
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }
@@ -309,7 +310,7 @@ var Product = /*#__PURE__*/function () {
         return this;
       }
       try {
-        this.productOptMap[InsiderConstants.GTIN] = gtin;
+        this.optionalFields[InsiderConstants.GTIN] = gtin;
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }
@@ -323,7 +324,7 @@ var Product = /*#__PURE__*/function () {
         return this;
       }
       try {
-        this.productOptMap[InsiderConstants.TAGS] = tags;
+        this.optionalFields[InsiderConstants.TAGS] = tags;
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }
@@ -337,7 +338,24 @@ var Product = /*#__PURE__*/function () {
         return this;
       }
       try {
-        this.productOptMap[InsiderConstants.IS_IN_STOCK] = isInStock;
+        this.optionalFields[InsiderConstants.IS_IN_STOCK] = isInStock;
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
+    }
+  }, {
+    key: "setProductURL",
+    value: function setProductURL(productURL) {
+      if (Utils.checkParameters([{
+        type: 'string',
+        value: productURL
+      }])) {
+        Utils.showParameterWarningLog(this.constructor.name + '-productURL');
+        return this;
+      }
+      try {
+        this.optionalFields[InsiderConstants.PRODUCT_URL] = productURL;
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }
@@ -357,7 +375,11 @@ var Product = /*#__PURE__*/function () {
         return this;
       }
       try {
-        this.productOptMap[key] = value;
+        this.customParameters.push({
+          type: 'string',
+          key: key,
+          value: value
+        });
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }
@@ -377,7 +399,11 @@ var Product = /*#__PURE__*/function () {
         return this;
       }
       try {
-        this.productOptMap[key] = value;
+        this.customParameters.push({
+          type: 'integer',
+          key: key,
+          value: value
+        });
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }
@@ -397,7 +423,11 @@ var Product = /*#__PURE__*/function () {
         return this;
       }
       try {
-        this.productOptMap[key] = value;
+        this.customParameters.push({
+          type: 'boolean',
+          key: key,
+          value: value
+        });
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }
@@ -417,7 +447,11 @@ var Product = /*#__PURE__*/function () {
         return this;
       }
       try {
-        this.productOptMap[key] = value;
+        this.customParameters.push({
+          type: 'double',
+          key: key,
+          value: value
+        });
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }
@@ -437,7 +471,12 @@ var Product = /*#__PURE__*/function () {
         return this;
       }
       try {
-        this.productOptMap[key] = value.toISOString();
+        // Use epoch milliseconds as string instead of ISO string
+        this.customParameters.push({
+          type: 'date',
+          key: key,
+          value: value.getTime().toString()
+        });
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }
@@ -457,7 +496,12 @@ var Product = /*#__PURE__*/function () {
         return this;
       }
       try {
-        this.productOptMap[key] = value;
+        // Default to strings array for backward compatibility
+        this.customParameters.push({
+          type: 'strings',
+          key: key,
+          value: value
+        });
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }
@@ -477,7 +521,11 @@ var Product = /*#__PURE__*/function () {
         return this;
       }
       try {
-        this.productOptMap[key] = value;
+        this.customParameters.push({
+          type: 'strings',
+          key: key,
+          value: value
+        });
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }
@@ -497,7 +545,11 @@ var Product = /*#__PURE__*/function () {
         return this;
       }
       try {
-        this.productOptMap[key] = value;
+        this.customParameters.push({
+          type: 'numbers',
+          key: key,
+          value: value
+        });
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }

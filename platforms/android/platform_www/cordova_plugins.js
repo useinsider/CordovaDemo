@@ -14,6 +14,11 @@ cordova.define('cordova/plugin_list', function(require, exports, module) {
       "pluginId": "cordova-plugin-insider"
     },
     {
+      "id": "cordova-plugin-insider.CloseButtonPosition",
+      "file": "plugins/cordova-plugin-insider/www/CloseButtonPosition.js",
+      "pluginId": "cordova-plugin-insider"
+    },
+    {
       "id": "cordova-plugin-insider.ContentOptimizerDataType",
       "file": "plugins/cordova-plugin-insider/www/ContentOptimizerDataType.js",
       "pluginId": "cordova-plugin-insider"
@@ -55,6 +60,6 @@ cordova.define('cordova/plugin_list', function(require, exports, module) {
     }
   ];
   module.exports.metadata = {
-    "cordova-plugin-insider": "3.0.1"
+    "cordova-plugin-insider": "3.1.1"
   };
 });

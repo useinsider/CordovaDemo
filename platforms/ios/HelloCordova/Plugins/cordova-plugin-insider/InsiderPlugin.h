@@ -61,6 +61,7 @@
 - (void) unsetCustomAttribute:(CDVInvokedUrlCommand *)command;
 - (void) login:(CDVInvokedUrlCommand *)command;
 - (void) logout:(CDVInvokedUrlCommand *)command;
+- (void) logoutResettingInsiderID:(CDVInvokedUrlCommand *)command;
 - (void) signUpConfirmation:(CDVInvokedUrlCommand *)command;
 - (void) putException:(CDVInvokedUrlCommand *)command;
 - (void) handleNotification:(CDVInvokedUrlCommand *)command;

@@ -13,7 +13,7 @@ var Event = /*#__PURE__*/function () {
   function Event(name) {
     _classCallCheck(this, Event);
     _defineProperty(this, "name", '');
-    _defineProperty(this, "parameters", {});
+    _defineProperty(this, "parameters", []);
     this.name = name;
   }
   return _createClass(Event, [{
@@ -30,7 +30,11 @@ var Event = /*#__PURE__*/function () {
         return this;
       }
       try {
-        this.parameters[key] = value;
+        this.parameters.push({
+          type: 'string',
+          key: key,
+          value: value
+        });
         return this;
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
@@ -50,7 +54,11 @@ var Event = /*#__PURE__*/function () {
         return this;
       }
       try {
-        this.parameters[key] = value;
+        this.parameters.push({
+          type: 'integer',
+          key: key,
+          value: value
+        });
         return this;
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
@@ -70,7 +78,11 @@ var Event = /*#__PURE__*/function () {
         return this;
       }
       try {
-        this.parameters[key] = value;
+        this.parameters.push({
+          type: 'double',
+          key: key,
+          value: value
+        });
         return this;
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
@@ -90,7 +102,11 @@ var Event = /*#__PURE__*/function () {
         return this;
       }
       try {
-        this.parameters[key] = value;
+        this.parameters.push({
+          type: 'boolean',
+          key: key,
+          value: value
+        });
         return this;
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
@@ -110,7 +126,12 @@ var Event = /*#__PURE__*/function () {
         return this;
       }
       try {
-        this.parameters[key] = value.toISOString();
+        // Use epoch milliseconds as string instead of ISO string
+        this.parameters.push({
+          type: 'date',
+          key: key,
+          value: value.getTime().toString()
+        });
         return this;
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
@@ -130,7 +151,12 @@ var Event = /*#__PURE__*/function () {
         return this;
       }
       try {
-        this.parameters[key] = value;
+        // Default to strings array for backward compatibility
+        this.parameters.push({
+          type: 'strings',
+          key: key,
+          value: value
+        });
         return this;
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
@@ -150,7 +176,11 @@ var Event = /*#__PURE__*/function () {
         return this;
       }
       try {
-        this.parameters[key] = value;
+        this.parameters.push({
+          type: 'strings',
+          key: key,
+          value: value
+        });
         return this;
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
@@ -170,7 +200,11 @@ var Event = /*#__PURE__*/function () {
         return this;
       }
       try {
-        this.parameters[key] = value;
+        this.parameters.push({
+          type: 'numbers',
+          key: key,
+          value: value
+        });
         return this;
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);

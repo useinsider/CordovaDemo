@@ -1,5 +1,6 @@
 #import <Cordova/CDV.h>
 #import "InsiderPlugin.h"
+#import "CDVUtils.h"
 
 @interface InsiderPlugin (){
 }
@@ -238,8 +239,12 @@
     @try {
         dispatch_async(dispatch_get_main_queue(), ^{
             NSString* eventName = [[command arguments] objectAtIndex:0];
-            NSDictionary* parameters = [[command arguments] objectAtIndex:1];
-            [[Insider tagEvent:eventName].addParameters(parameters) build];
+            NSArray* parameters = [[command arguments] objectAtIndex:1];
+            
+            InsiderEvent *event = [CDVUtils parseEventFromEventName:eventName andParameters:parameters];
+            if (event) {
+                [event build];
+            }
             [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
         });
     } @catch (NSException *exception) {
@@ -367,8 +372,11 @@
 - (void)visitProductDetailPage:(CDVInvokedUrlCommand *)command {
     @try {
         dispatch_async(dispatch_get_main_queue(), ^{
-            if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1]) return;
-            InsiderProduct* product =  (InsiderProduct *)[InsiderHybrid createProduct:[command.arguments objectAtIndex:0] productOptMap:[command.arguments objectAtIndex:1]];
+            if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1] || ![command.arguments objectAtIndex:2]) return;
+            NSDictionary *requiredFields = [command.arguments objectAtIndex:0];
+            NSDictionary *optionalFields = [command.arguments objectAtIndex:1];
+            NSArray *customParameters = [command.arguments objectAtIndex:2];
+            InsiderProduct* product = [CDVUtils parseProductFromRequiredFields:requiredFields andOptionalFields:optionalFields andCustomParameters:customParameters];
             [Insider visitProductDetailPageWithProduct:product];
             [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
         });
@@ -381,7 +389,24 @@
     @try {
         dispatch_async(dispatch_get_main_queue(), ^{
             if (![command.arguments objectAtIndex:0]) return;
-            [InsiderHybrid visitCartPage:[command.arguments objectAtIndex:0]];
+            NSArray *productsArray = [command.arguments objectAtIndex:0];
+            NSMutableArray *insiderProducts = [NSMutableArray array];
+            
+            for (NSDictionary *productDict in productsArray) {
+                if (![productDict isKindOfClass:[NSDictionary class]]) continue;
+                NSDictionary *requiredFields = [productDict objectForKey:@"requiredFields"];
+                NSDictionary *optionalFields = [productDict objectForKey:@"optionalFields"];
+                NSArray *customParameters = [productDict objectForKey:@"customParameters"];
+                
+                if (requiredFields) {
+                    InsiderProduct *product = [CDVUtils parseProductFromRequiredFields:requiredFields andOptionalFields:optionalFields andCustomParameters:customParameters];
+                    if (product) {
+                        [insiderProducts addObject:product];
+                    }
+                }
+            }
+            
+            [InsiderHybrid visitCartPage:insiderProducts];
             [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
         });
     } @catch (NSException *e) {
@@ -392,8 +417,11 @@
 - (void)itemPurchased:(CDVInvokedUrlCommand *)command {
     @try {
         dispatch_async(dispatch_get_main_queue(), ^{
-            if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1] || ![command.arguments objectAtIndex:2]) return;
-            InsiderProduct *product = (InsiderProduct *)[InsiderHybrid createProduct:[command.arguments objectAtIndex:1] productOptMap:[command.arguments objectAtIndex:2]];
+            if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1] || ![command.arguments objectAtIndex:2] || ![command.arguments objectAtIndex:3]) return;
+            NSDictionary *requiredFields = [command.arguments objectAtIndex:1];
+            NSDictionary *optionalFields = [command.arguments objectAtIndex:2];
+            NSArray *customParameters = [command.arguments objectAtIndex:3];
+            InsiderProduct *product = [CDVUtils parseProductFromRequiredFields:requiredFields andOptionalFields:optionalFields andCustomParameters:customParameters];
             [Insider itemPurchasedWithSaleID:[command.arguments objectAtIndex:0] product:product];
             [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
         });
@@ -405,8 +433,11 @@
 - (void)itemAddedToCart:(CDVInvokedUrlCommand *)command {
     @try {
         dispatch_async(dispatch_get_main_queue(), ^{
-            if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1]) return;
-            InsiderProduct *product = (InsiderProduct *)[InsiderHybrid createProduct:[command.arguments objectAtIndex:0] productOptMap:[command.arguments objectAtIndex:1]];
+            if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1] || ![command.arguments objectAtIndex:2]) return;
+            NSDictionary *requiredFields = [command.arguments objectAtIndex:0];
+            NSDictionary *optionalFields = [command.arguments objectAtIndex:1];
+            NSArray *customParameters = [command.arguments objectAtIndex:2];
+            InsiderProduct *product = [CDVUtils parseProductFromRequiredFields:requiredFields andOptionalFields:optionalFields andCustomParameters:customParameters];
             [Insider itemAddedToCartWithProduct:product];
             [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
         });
@@ -454,9 +485,12 @@
 - (void)getSmartRecommendationWithProduct:(CDVInvokedUrlCommand *)command {
     @try {
         [self.commandDelegate runInBackground:^{
-            if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1] || ![command.arguments objectAtIndex:2] || ![command.arguments objectAtIndex:3]) return;
-            InsiderProduct *product = (InsiderProduct *)[InsiderHybrid createProduct:[command.arguments objectAtIndex:0] productOptMap:[command.arguments objectAtIndex:1]];
-            [Insider getSmartRecommendationWithProduct:product recommendationID:[[command.arguments objectAtIndex:2] intValue] locale:[command.arguments objectAtIndex:3] smartRecommendation:^(NSDictionary *recommendation) {
+            if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1] || ![command.arguments objectAtIndex:2] || ![command.arguments objectAtIndex:3] || ![command.arguments objectAtIndex:4]) return;
+            NSDictionary *requiredFields = [command.arguments objectAtIndex:0];
+            NSDictionary *optionalFields = [command.arguments objectAtIndex:1];
+            NSArray *customParameters = [command.arguments objectAtIndex:2];
+            InsiderProduct *product = [CDVUtils parseProductFromRequiredFields:requiredFields andOptionalFields:optionalFields andCustomParameters:customParameters];
+            [Insider getSmartRecommendationWithProduct:product recommendationID:[[command.arguments objectAtIndex:3] intValue] locale:[command.arguments objectAtIndex:4] smartRecommendation:^(NSDictionary *recommendation) {
                 [self sendSuccessResultWithDictionary:recommendation andCommand:command];
             }];
         }];
@@ -482,9 +516,12 @@
 - (void)clickSmartRecommendationProduct:(CDVInvokedUrlCommand *)command {
     @try {
         dispatch_async(dispatch_get_main_queue(), ^{
-            if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1] || ![command.arguments objectAtIndex:2]) return;
-            InsiderProduct *product = (InsiderProduct *)[InsiderHybrid createProduct:[command.arguments objectAtIndex:0] productOptMap:[command.arguments objectAtIndex:1]];
-            [Insider clickSmartRecommendationProductWithID:[[command.arguments objectAtIndex:2] intValue] product:product];
+            if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1] || ![command.arguments objectAtIndex:2] || ![command.arguments objectAtIndex:3]) return;
+            NSDictionary *requiredFields = [command.arguments objectAtIndex:0];
+            NSDictionary *optionalFields = [command.arguments objectAtIndex:1];
+            NSArray *customParameters = [command.arguments objectAtIndex:2];
+            InsiderProduct *product = [CDVUtils parseProductFromRequiredFields:requiredFields andOptionalFields:optionalFields andCustomParameters:customParameters];
+            [Insider clickSmartRecommendationProductWithID:[[command.arguments objectAtIndex:3] intValue] product:product];
         });
     } @catch (NSException *e) {
         [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
@@ -522,7 +559,13 @@
 - (void)setBirthday:(CDVInvokedUrlCommand *)command {
     @try {
         if (![command.arguments objectAtIndex:0]) return;
-        [InsiderHybrid setBirthday:[command.arguments objectAtIndex:0]];
+        // value is epoch milliseconds as string
+        NSString *epochString = [command.arguments objectAtIndex:0];
+        long long epochMillis = [epochString longLongValue];
+        NSTimeInterval seconds = ((NSTimeInterval)epochMillis) / 1000.0;
+        NSDate *birthday = [NSDate dateWithTimeIntervalSince1970:seconds];
+        
+        [Insider getCurrentUser].setBirthday(birthday);
     } @catch (NSException *e) {
         [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
     }
@@ -702,7 +745,12 @@
 - (void)setCustomAttributeWithDate:(CDVInvokedUrlCommand *)command {
     @try {
         if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1]) return;
-        [InsiderHybrid setCustomAttributeWithDate:[command.arguments objectAtIndex:0] value:[command.arguments objectAtIndex:1]];
+        // value is epoch milliseconds as string
+        NSString *epochString = [command.arguments objectAtIndex:1];
+        long long epochMillis = [epochString longLongValue];
+        NSTimeInterval seconds = ((NSTimeInterval)epochMillis) / 1000.0;
+        NSDate *dateValue = [NSDate dateWithTimeIntervalSince1970:seconds];
+        [Insider getCurrentUser].setCustomAttributeWithDate([command.arguments objectAtIndex:0], dateValue);
 
     } @catch (NSException *e) {
         [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
@@ -909,9 +957,12 @@
 - (void)itemAddedToWishlist:(CDVInvokedUrlCommand *)command {
     @try {
         [self.commandDelegate runInBackground:^{
-            if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1]) return;
+            if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1] || ![command.arguments objectAtIndex:2]) return;
 
-            InsiderProduct *product = (InsiderProduct *)[InsiderHybrid createProduct:[command.arguments objectAtIndex:0] productOptMap:[command.arguments objectAtIndex:1]];
+            NSDictionary *requiredFields = [command.arguments objectAtIndex:0];
+            NSDictionary *optionalFields = [command.arguments objectAtIndex:1];
+            NSArray *customParameters = [command.arguments objectAtIndex:2];
+            InsiderProduct *product = [CDVUtils parseProductFromRequiredFields:requiredFields andOptionalFields:optionalFields andCustomParameters:customParameters];
 
             [Insider itemAddedToWishlistWithProduct:product];
 
@@ -951,7 +1002,24 @@
     @try {
         [self.commandDelegate runInBackground:^{
             if (![command.arguments objectAtIndex:0]) return;
-            [Insider visitWishlistWithProducts:[InsiderHybrid convertArrayToInsiderProductArray:[command.arguments objectAtIndex:0]]];
+            NSArray *productsArray = [command.arguments objectAtIndex:0];
+            NSMutableArray *insiderProducts = [NSMutableArray array];
+            
+            for (NSDictionary *productDict in productsArray) {
+                if (![productDict isKindOfClass:[NSDictionary class]]) continue;
+                NSDictionary *requiredFields = [productDict objectForKey:@"requiredFields"];
+                NSDictionary *optionalFields = [productDict objectForKey:@"optionalFields"];
+                NSArray *customParameters = [productDict objectForKey:@"customParameters"];
+                
+                if (requiredFields) {
+                    InsiderProduct *product = [CDVUtils parseProductFromRequiredFields:requiredFields andOptionalFields:optionalFields andCustomParameters:customParameters];
+                    if (product) {
+                        [insiderProducts addObject:product];
+                    }
+                }
+            }
+            
+            [Insider visitWishlistWithProducts:insiderProducts];
             [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
         }];
     } @catch (NSException *e) {

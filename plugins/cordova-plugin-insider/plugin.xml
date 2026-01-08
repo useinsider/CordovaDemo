@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<plugin id="cordova-plugin-insider" version="3.0.2" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+<plugin id="cordova-plugin-insider" version="3.1.1" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
     <name>Insider</name>
     <description>Insider Cordova Plugin</description>
     <keywords>insider,cordova,cordova-ios,cordova-android</keywords>
@@ -10,6 +10,7 @@
     </js-module>
 
     <js-module name="CallbackType" src="www/CallbackType.js"/>
+    <js-module name="CloseButtonPosition" src="www/CloseButtonPosition.js"/>
     <js-module name="ContentOptimizerDataType" src="www/ContentOptimizerDataType.js" />
     <js-module name="Gender" src="www/Gender.js" />
     <js-module name="Identifier" src="www/Identifier.js"/>
@@ -70,7 +71,7 @@
                 <source url="https://cdn.cocoapods.org/" />
             </config>
             <pods use-frameworks="true">
-                <pod name="InsiderMobile" spec="14.2.2" />
+                <pod name="InsiderMobile" spec="14.2.4" />
                 <pod name="InsiderGeofence" spec="1.2.4" />
                 <pod name="InsiderHybrid" spec="1.7.6" />
             </pods>
@@ -84,6 +85,9 @@
 
         <source-file src="src/ios/InsiderPlugin.m" />
         <header-file src="src/ios/InsiderPlugin.h" />
+
+        <source-file src="src/ios/CDVUtils.m" />
+        <header-file src="src/ios/CDVUtils.h" />
 
         <source-file src="src/ios/IDFAHelper.m" />
         <header-file src="src/ios/IDFAHelper.h" />

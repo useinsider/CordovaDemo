@@ -14,6 +14,7 @@ var InsiderIdentifier = require('./Identifier');
 var InsiderCallbackType = require('./CallbackType');
 var InsiderGender = require('./Gender');
 var InsiderContentOptimizerDataType = require('./ContentOptimizerDataType');
+var InsiderCloseButtonPosition = require('./CloseButtonPosition');
 var Utils = require("./Utils");
 var InsiderConstants = require("./Constants");
 var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
@@ -23,6 +24,7 @@ var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
   _defineProperty(this, "gender", InsiderGender);
   _defineProperty(this, "callbackType", InsiderCallbackType);
   _defineProperty(this, "contentOptimizerDataType", InsiderContentOptimizerDataType);
+  _defineProperty(this, "closeButtonPosition", InsiderCloseButtonPosition);
   _defineProperty(this, "initCordovaBase", function (partnerName, appGroup, customEndpoint, handleNotificationCallback) {
     try {
       var sdkVersion = InsiderConstants.SDK_VERSION;
@@ -147,7 +149,7 @@ var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
       return;
     }
     try {
-      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.ITEM_PURCHASED, [uniqueSaleID, product.productMustMap, product.productOptMap]);
+      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.ITEM_PURCHASED, [uniqueSaleID, product.requiredFields, product.optionalFields, product.customParameters]);
     } catch (error) {
       Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
     }
@@ -161,7 +163,7 @@ var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
       return;
     }
     try {
-      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.ITEM_ADDED_TO_CART, [product.productMustMap, product.productOptMap]);
+      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.ITEM_ADDED_TO_CART, [product.requiredFields, product.optionalFields, product.customParameters]);
     } catch (error) {
       Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
     }
@@ -242,7 +244,7 @@ var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
       return;
     }
     try {
-      return Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.GET_SMART_RECOMMENDATION_WITH_PRODUCT, [product.productMustMap, product.productOptMap, recommendationID, locale]);
+      return Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.GET_SMART_RECOMMENDATION_WITH_PRODUCT, [product.requiredFields, product.optionalFields, product.customParameters, recommendationID, locale]);
     } catch (error) {
       Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
     }
@@ -285,7 +287,7 @@ var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
       return;
     }
     try {
-      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.CLICK_SMART_RECOMMENDATION_PRODUCT, [product.productMustMap, product.productOptMap, recommendationID]);
+      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.CLICK_SMART_RECOMMENDATION_PRODUCT, [product.requiredFields, product.optionalFields, product.customParameters, recommendationID]);
     } catch (error) {
       Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
     }
@@ -440,7 +442,7 @@ var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
       return;
     }
     try {
-      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.VISIT_PRODUCT_DETAIL_PAGE, [product.productMustMap, product.productOptMap]);
+      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.VISIT_PRODUCT_DETAIL_PAGE, [product.requiredFields, product.optionalFields, product.customParameters]);
     } catch (error) {
       Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
     }
@@ -454,12 +456,12 @@ var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
       return;
     }
     try {
-      var productMap = {};
-      var mappedProducts = new Array(products.length);
-      products.forEach(function (product, i) {
-        productMap['productMustMap'] = product.productMustMap;
-        productMap['productOptMap'] = product.productOptMap;
-        mappedProducts[i] = productMap;
+      var mappedProducts = products.map(function (product) {
+        return {
+          requiredFields: product.requiredFields,
+          optionalFields: product.optionalFields,
+          customParameters: product.customParameters
+        };
       });
       Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.VISIT_CART_PAGE, [mappedProducts]);
     } catch (error) {
@@ -614,6 +616,20 @@ var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
       Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
     }
   });
+  _defineProperty(this, "setInternalBrowserCloseButtonPosition", function (position) {
+    if (Utils.checkParameters([{
+      type: 'string',
+      value: position
+    }])) {
+      Utils.showParameterWarningLog(_this.constructor.name + '-setInternalBrowserCloseButtonPosition');
+      return;
+    }
+    try {
+      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.SET_INTERNAL_BROWSER_CLOSE_BUTTON_POSITION, [position]);
+    } catch (error) {
+      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+    }
+  });
   _defineProperty(this, "setForegroundPushCallback", function (callback) {
     if (Utils.checkParameters([{
       type: 'function',
@@ -690,7 +706,7 @@ var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
       return;
     }
     try {
-      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.ITEM_ADDED_TO_WISHLIST, [product.productMustMap, product.productOptMap]);
+      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.ITEM_ADDED_TO_WISHLIST, [product.requiredFields, product.optionalFields, product.customParameters]);
     } catch (error) {
       Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
     }
@@ -725,12 +741,12 @@ var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
       return;
     }
     try {
-      var productMap = {};
-      var mappedProducts = new Array(products.length);
-      products.forEach(function (product, i) {
-        productMap['productMustMap'] = product.productMustMap;
-        productMap['productOptMap'] = product.productOptMap;
-        mappedProducts[i] = productMap;
+      var mappedProducts = products.map(function (product) {
+        return {
+          requiredFields: product.requiredFields,
+          optionalFields: product.optionalFields,
+          customParameters: product.customParameters
+        };
       });
       Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.VISIT_WISHLIST_PAGE, [mappedProducts]);
     } catch (error) {

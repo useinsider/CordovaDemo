@@ -69,6 +69,7 @@ module.exports = {
   ENABLE_IP_COLLECTION: 'enableIpCollection',
   ENABLE_CARRIER_COLLECTION: 'enableCarrierCollection',
   SIGN_UP_CONFIRMATION: 'signUpConfirmation',
+  SET_INTERNAL_BROWSER_CLOSE_BUTTON_POSITION: 'setInternalBrowserCloseButtonPosition',
   SET_ACTIVE_FOREGROUND_PUSH_VIEW: 'setActiveForegroundPushView',
   SET_FOREGROUND_PUSH_CALLBACK: 'setForegroundPushCallback',
   HANDLE_NOTIFICATION: 'handleNotification',
@@ -103,6 +104,7 @@ module.exports = {
   DESCRIPTION: "desc",
   TAGS: "tags",
   IS_IN_STOCK: "iis",
+  PRODUCT_URL: "product_url",
   // Error
   PUT_ERROR_LOG: 'putErrorLog',
   // Platform
@@ -111,6 +113,6 @@ module.exports = {
   // Reinit
   REINIT_WITH_PARTNER_NAME: 'reinitWithPartnerName',
   // SDK Version
-  SDK_VERSION: 'CDV-3.0.2'
+  SDK_VERSION: 'CDV-3.1.1'
 };
 });

@@ -19,7 +19,7 @@
   },
   "installed_plugins": {
     "cordova-plugin-insider": {
-      "PACKAGE_NAME": "com.useinsider.cordovademo"
+      "PACKAGE_NAME": "com.useinsider.cordovademo.InsiderNotificationService"
     }
   },
   "dependent_plugins": {},
@@ -35,6 +35,11 @@
     {
       "id": "cordova-plugin-insider.CallbackType",
       "file": "plugins/cordova-plugin-insider/www/CallbackType.js",
+      "pluginId": "cordova-plugin-insider"
+    },
+    {
+      "id": "cordova-plugin-insider.CloseButtonPosition",
+      "file": "plugins/cordova-plugin-insider/www/CloseButtonPosition.js",
       "pluginId": "cordova-plugin-insider"
     },
     {
@@ -79,6 +84,6 @@
     }
   ],
   "plugin_metadata": {
-    "cordova-plugin-insider": "3.0.1"
+    "cordova-plugin-insider": "3.1.1"
   }
 }

@@ -10,12 +10,12 @@
   "keywords": [
     "ecosystem:cordova"
   ],
-  "author": "Apache Cordova Team",
-  "license": "Apache-2.0",
+  "author": "Insider",
+  "license": "MIT",
   "devDependencies": {
     "cordova-android": "^14.0.1",
     "cordova-ios": "^6.2.0",
-    "cordova-plugin-insider": "^3.0.2"
+    "cordova-plugin-insider": "^3.1.1"
   },
   "cordova": {
     "platforms": [

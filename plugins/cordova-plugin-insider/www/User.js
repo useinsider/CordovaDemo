@@ -29,10 +29,16 @@ var User = /*#__PURE__*/function () {
       }
       return this;
     }
+
+    // Sets the user's birthday. Accepts both string (ISO format) and Date object types for backward compatibility.
+    // String values are automatically converted to Date objects. Internally uses epoch milliseconds to prevent timezone drifting issues.
   }, {
     key: "setBirthday",
     value: function setBirthday(birthday) {
       if (Utils.checkParameters([{
+        type: 'object',
+        value: birthday
+      }]) && Utils.checkParameters([{
         type: 'string',
         value: birthday
       }])) {
@@ -40,7 +46,12 @@ var User = /*#__PURE__*/function () {
         return this;
       }
       try {
-        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.SET_BIRTDAY, [birthday.toISOString()]);
+        if (typeof birthday === 'string') {
+          birthday = new Date(birthday);
+        }
+
+        // Use epoch milliseconds as string instead of ISO string
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.SET_BIRTDAY, [birthday.getTime().toString()]);
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }
@@ -80,17 +91,25 @@ var User = /*#__PURE__*/function () {
       }
       return this;
     }
+
+    // Sets the user's age. Accepts both string and number types for backward compatibility. String values are automatically converted to numbers.
   }, {
     key: "setAge",
     value: function setAge(age) {
       if (Utils.checkParameters([{
         type: 'string',
         value: age
+      }]) && Utils.checkParameters([{
+        type: 'number',
+        value: age
       }])) {
         Utils.showParameterWarningLog(this.constructor.name + '-setAge');
         return this;
       }
       try {
+        if (typeof age === 'string') {
+          age = parseInt(age);
+        }
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.SET_AGE, [age]);
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
@@ -420,6 +439,15 @@ var User = /*#__PURE__*/function () {
       }
       return this;
     }
+
+    /**
+     * Sets a custom date attribute for the user.
+     * Uses epoch milliseconds internally to prevent timezone drifting issues.
+     * 
+     * @param {string} key - The attribute key
+     * @param {Date} value - The date value as a Date object
+     * @returns {User} Returns this instance for method chaining
+     */
   }, {
     key: "setCustomAttributeWithDate",
     value: function setCustomAttributeWithDate(key, value) {
@@ -434,7 +462,8 @@ var User = /*#__PURE__*/function () {
         return this;
       }
       try {
-        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.SET_CUSTOM_ATTRIBUTE_WITH_DATE, [key, value.toISOString()]);
+        // Use epoch milliseconds as string instead of ISO string
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.SET_CUSTOM_ATTRIBUTE_WITH_DATE, [key, value.getTime().toString()]);
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }

@@ -6,6 +6,7 @@ class Constants {
     }
     
     static final String HANDLE_NOTIFICATION = "handleNotification";
+    static final String SET_INTERNAL_BROWSER_CLOSE_BUTTON_POSITION = "setInternalBrowserCloseButtonPosition";
     static final String ERROR = "error";
     static final String DEFAULT_VALUE = "defaultValue";
     static final String VARIABLE_NAME = "variableName";
@@ -48,4 +49,5 @@ class Constants {
     static final String DESCRIPTION = "desc";
     static final String TAGS = "tags";
     static final String IS_IN_STOCK = "iis";
+    static final String PRODUCT_URL = "product_url";
 }
