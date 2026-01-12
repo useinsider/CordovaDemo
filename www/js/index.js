@@ -39,6 +39,13 @@ let app = {
         document.getElementById('mobileAppAccessFalse').addEventListener('click', mobileAppAccess.disable);
 
         document.getElementById('messageCenter').addEventListener('click', getMessageCenterData);
+        document.getElementById('openMessageCenter').addEventListener('click', openMessageCenter);
+
+        // Back button for Message Center with iOS compatibility
+        const backBtn = document.getElementById('backFromMC');
+        backBtn.addEventListener('click', closeMessageCenter);
+        backBtn.addEventListener('touchstart', closeMessageCenter);
+
         document.getElementById('contentOptimizer').addEventListener('click', contentOptimizer);
         document.getElementById('contentOptimizerNoCache').addEventListener('click', contentOptimizerNoCache);
 
@@ -286,6 +293,100 @@ async function getMessageCenterData() {
     const data = await window.Insider.getMessageCenterData(100, startDate, endDate);
 
     console.log("[INSIDER][messageCenter]: ", data);
+}
+
+function openMessageCenter() {
+    console.log('[INSIDER][openMessageCenter]: Button clicked!');
+
+    // Open Message Center page with getInbox
+    const page = document.getElementById('messageCenterPage');
+    const container = document.getElementById('messageCenterContainer');
+
+    console.log('[INSIDER][openMessageCenter]: Page element:', page);
+    console.log('[INSIDER][openMessageCenter]: Container element:', container);
+
+    // Show page
+    page.classList.add('active');
+
+    // Show loading state
+    container.innerHTML = '<div class="mc-loading">Loading...</div>';
+
+    console.log('[INSIDER][getInbox]: Calling getInbox...');
+
+    window.Insider.messageCenter.getInbox((error, inbox) => {
+        if (error) {
+            console.error('[INSIDER][getInbox] Error:', error);
+            container.innerHTML = `<div class="mc-error">Error: ${error.message || 'Failed to load messages'}</div>`;
+            return;
+        }
+
+        console.log('[INSIDER][getInbox] Success! Message count:', inbox.messages.length);
+
+        if (!inbox.messages || inbox.messages.length === 0) {
+            container.innerHTML = '<div class="mc-empty">No messages</div>';
+            return;
+        }
+
+        renderMessageList(inbox.messages, container);
+    });
+}
+
+function closeMessageCenter() {
+    console.log('[INSIDER][closeMessageCenter]: Back button clicked!');
+    const page = document.getElementById('messageCenterPage');
+    page.classList.remove('active');
+    console.log('[INSIDER][closeMessageCenter]: Message Center closed');
+}
+
+function renderMessageList(messages, container) {
+    let html = '';
+
+    messages.forEach((msg) => {
+        console.log(`[INSIDER][Message] ID: ${msg.messageId}, Type: ${msg.type}, IsRead: ${msg.isRead}, Title: ${msg.content?.title}, Images: ${msg.images?.length || 0}, Buttons: ${msg.buttons?.length || 0}, Action: ${msg.action?.actionType || 'none'}`);
+
+        const unreadClass = !msg.isRead ? 'unread' : '';
+        const unreadIndicator = !msg.isRead ? '<div class="mc-unread-indicator"></div>' : '';
+        const title = msg.content?.title || 'No Title';
+        const description = msg.content?.description || 'No Description';
+        const toggleText = msg.isRead ? 'Mark As Unread' : 'Mark As Read';
+
+        html += `
+            <div class="mc-message-item ${unreadClass}" onclick="handleMessageClick('${msg.messageId}')">
+                <div class="mc-message-header">
+                    ${unreadIndicator}
+                    <div class="mc-message-title">${title}</div>
+                    <button class="mc-toggle-btn" onclick="event.stopPropagation(); handleToggleRead('${msg.messageId}')">${toggleText}</button>
+                </div>
+                <div class="mc-message-body">${description}</div>
+        `;
+
+        if (msg.buttons && msg.buttons.length > 0) {
+            html += '<div class="mc-buttons-container">';
+            msg.buttons.forEach((button) => {
+                html += `<button class="mc-action-button" onclick="event.stopPropagation(); handleButtonClick('${button.buttonId}')">${button.text}</button>`;
+            });
+            html += '</div>';
+        }
+
+        html += '</div>';
+    });
+
+    container.innerHTML = html;
+}
+
+function handleMessageClick(messageId) {
+    console.log('[INSIDER][MessageClick]:', messageId);
+    // TODO: Will implement msg.click() in another task
+}
+
+function handleToggleRead(messageId) {
+    console.log('[INSIDER][ToggleRead]:', messageId);
+    // TODO: Will implement msg.markAsRead()/markAsUnread() in another task
+}
+
+function handleButtonClick(buttonId) {
+    console.log('[INSIDER][ButtonClick]:', buttonId);
+    // TODO: Will implement button.click() in another task
 }
 
 async function contentOptimizer() {

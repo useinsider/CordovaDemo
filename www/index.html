@@ -107,6 +107,7 @@
 
             <div class="insider-title">Message Center</div>
             <input class="insider-button" type="submit" id="messageCenter" value="Get Message Center Data" />
+            <input class="insider-button" type="submit" id="openMessageCenter" value="Open Message Center" />
 
             <div class="insider-title">Content Optimizer</div>
             <input class="insider-button" type="submit" id="contentOptimizer" value="Get Variable With Content Optimizer" />
@@ -114,6 +115,22 @@
 
             <div class="insider-title">In-App Messages</div>
             <input class="insider-button" type="submit" id="removeInapp" value="Remove In-App" />
+        </div>
+
+        <!-- Message Center Page -->
+        <div id="messageCenterPage" class="mc-page">
+            <div class="mc-header">
+                <button class="mc-back-btn" id="backFromMC">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <h2 class="mc-title">Message Center</h2>
+                <div class="mc-spacer"></div>
+            </div>
+            <div id="messageCenterContainer" class="mc-container">
+                <div class="mc-loading">Loading...</div>
+            </div>
         </div>
 
         <script src="cordova.js"></script>
