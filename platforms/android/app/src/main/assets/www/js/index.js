@@ -9,6 +9,8 @@ let app = {
 
         document.getElementById('login').addEventListener('click', userIdentifiers.login);
         document.getElementById('logout').addEventListener('click', userIdentifiers.logout);
+        document.getElementById('logoutResettingInsiderID').addEventListener('click', userIdentifiers.logoutResettingInsiderID);
+        document.getElementById('signUpConfirmation').addEventListener('click', signUpConfirmation);
 
         document.getElementById('triggerEvents').addEventListener('click', triggerEvents);
 
@@ -19,7 +21,9 @@ let app = {
         document.getElementById('itemPurchase').addEventListener('click', purchase.itemPurchase);
         document.getElementById('cartClear').addEventListener('click', purchase.cartClear);
 
-        document.getElementById('smartRecommender').addEventListener('click', getSmartRecommendation);
+        document.getElementById('smartRecommender').addEventListener('click', smartRecommendation.getData);
+        document.getElementById('smartRecommenderWithIDs').addEventListener('click', smartRecommendation.withProductIDs);
+        document.getElementById('clickSmartRecommendationProduct').addEventListener('click', smartRecommendation.clickProduct);
 
         document.getElementById('socialProof').addEventListener('click', pageVisit.productPage);
 
@@ -31,8 +35,14 @@ let app = {
         document.getElementById('gdprTrue').addEventListener('click', gdpr.true);
         document.getElementById('gdprFalse').addEventListener('click', gdpr.false);
 
+        document.getElementById('mobileAppAccessTrue').addEventListener('click', mobileAppAccess.enable);
+        document.getElementById('mobileAppAccessFalse').addEventListener('click', mobileAppAccess.disable);
+
         document.getElementById('messageCenter').addEventListener('click', getMessageCenterData);
         document.getElementById('contentOptimizer').addEventListener('click', contentOptimizer);
+        document.getElementById('contentOptimizerNoCache').addEventListener('click', contentOptimizerNoCache);
+
+        document.getElementById('removeInapp').addEventListener('click', removeInapp);
 
         initInsider();
     }
@@ -54,6 +64,7 @@ async function initInsider() {
     );
 
     await window.Insider.registerWithQuietPermission(false);
+    window.Insider.setActiveForegroundPushView();
     window.Insider.startTrackingGeofence();
     window.Insider.enableIDFACollection(true);
     window.Insider.enableLocationCollection(true);
@@ -114,6 +125,16 @@ const userIdentifiers = {
         currentUser.logout();
 
         console.log("[INSIDER][logout]: Method is triggered.");
+    },
+    logoutResettingInsiderID: async function() {
+        let currentUser = window.Insider.getCurrentUser();
+
+        currentUser.logoutResettingInsiderID(null, (newInsiderID) => {
+            console.log("[INSIDER][logoutResettingInsiderID]: New Insider ID:", newInsiderID);
+            alert("Logout successful! New Insider ID: " + newInsiderID);
+        });
+
+        console.log("[INSIDER][logoutResettingInsiderID]: Method triggered");
     }
 }
 
@@ -189,8 +210,32 @@ const gdpr = {
     }
 }
 
+const mobileAppAccess = {
+    enable: function() {
+        window.Insider.setMobileAppAccess(true);
+        console.log("[INSIDER][setMobileAppAccess]: true");
+    },
+    disable: function() {
+        window.Insider.setMobileAppAccess(false);
+        console.log("[INSIDER][setMobileAppAccess]: false");
+    }
+};
+
+async function signUpConfirmation() {
+    await window.Insider.signUpConfirmation();
+    console.log("[INSIDER][signUpConfirmation]: Method triggered");
+}
+
+function removeInapp() {
+    window.Insider.removeInapp();
+    console.log("[INSIDER][removeInapp]: Method triggered");
+}
+
 async function triggerEvents() {
     // --- EVENT --- //
+
+    const stringArray = ['value1', 'value2', 'value3'];
+    const numericArray = [1, 2, 3];
 
     // You can create an event without parameters and call the build method;
     const event = await window.Insider.tagEvent("event_name").build();
@@ -202,6 +247,8 @@ async function triggerEvents() {
         .addParameterWithDouble('double_parameter', 10.5)
         .addParameterWithBoolean('bool_parameter', true)
         .addParameterWithString('string_parameter', 'This is Insider.')
+        .addParameterWithStringArray('string_array_parameter', stringArray)
+        .addParameterWithNumericArray('numeric_array_parameter', numericArray)
         .build();
 
     const event3 = await window.Insider
@@ -212,16 +259,22 @@ async function triggerEvents() {
     console.log("[INSIDER][triggerEvents]: Method is triggered.");
 }
 
-async function getSmartRecommendation() {
-    // --- RECOMMENDATION ENGINE --- //
-
-    let product = createNewProduct("product1", "Pear", taxonomy, "ImageURL", 1000, "TRY");
-
-    const smartData = await window.Insider.getSmartRecommendation(1, 'tr_TR', 'TRY');
-    console.log("[INSIDER][getSmartRecommendation]: ", smartData);
-
-    const smartDataWithProduct = await window.Insider.getSmartRecommendationWithProduct(product, 1, 'tr_TR');
-    console.log("[INSIDER][getSmartRecommendationWithProduct]: ", smartDataWithProduct);
+const smartRecommendation = {
+    getData: async function() {
+        // --- RECOMMENDATION ENGINE --- //
+        const smartData = await window.Insider.getSmartRecommendation(1, 'tr_TR', 'TRY');
+        console.log("[INSIDER][getSmartRecommendation]: ", smartData);
+    },
+    withProductIDs: async function() {
+        const productIDs = ['product1', 'product2', 'product3'];
+        const smartData = await window.Insider.getSmartRecommendationWithProductIDs(productIDs, 1, 'tr_TR', 'TRY');
+        console.log("[INSIDER][getSmartRecommendationWithProductIDs]: ", smartData);
+    },
+    clickProduct: async function() {
+        let product = createNewProduct("product1", "Pear", taxonomy, "ImageURL", 1000, "TRY");
+        await window.Insider.clickSmartRecommendationProduct(1, product);
+        console.log("[INSIDER][clickSmartRecommendationProduct]: Method is triggered.");
+    }
 }
 
 async function getMessageCenterData() {
@@ -251,6 +304,22 @@ async function contentOptimizer() {
     console.log("[INSIDER][getContentBoolWithName]: ", contentOptimizerBool);
 }
 
+async function contentOptimizerNoCache() {
+    // --- CONTENT OPTIMIZER WITHOUT CACHE --- //
+
+    // Integer
+    const contentOptimizerInt = await window.Insider.getContentIntWithNameWithoutCache('int_variable_name', 10, Insider.contentOptimizerDataType.ELEMENT);
+    console.log("[INSIDER][getContentIntWithNameWithoutCache]: ", contentOptimizerInt);
+
+    // String
+    const contentOptimizerString = await window.Insider.getContentStringWithNameWithoutCache('string_variable_name', 'defaultValue', Insider.contentOptimizerDataType.ELEMENT);
+    console.log("[INSIDER][getContentStringWithNameWithoutCache]: ", contentOptimizerString);
+
+    // Boolean
+    const contentOptimizerBool = await window.Insider.getContentBoolWithNameWithoutCache('bool_variable_name', true, Insider.contentOptimizerDataType.ELEMENT);
+    console.log("[INSIDER][getContentBoolWithNameWithoutCache]: ", contentOptimizerBool);
+}
+
 function createProduct() {
     let product = createNewProduct("product1", "Pear", taxonomy, "ImageURL", 1000, "TRY");
 
@@ -259,6 +328,7 @@ function createProduct() {
 
 function createNewProduct(productId, productName, taxonomy, imageURL, price, currency) {
     const stringArray = ['value1', 'value2', 'value3'];
+    const numericArray = [1, 2, 3];
     let product = window.Insider.createNewProduct(productId,
         productName,
         taxonomy,
@@ -283,7 +353,9 @@ function createNewProduct(productId, productName, taxonomy, imageURL, price, cur
         .setCustomAttributeWithInt('int_parameter', 10)
         .setCustomAttributeWithDouble('double_parameter', 10.5)
         .setCustomAttributeWithBoolean('bool_parameter', true)
-        .setCustomAttributeWithDate('date_parameter', new Date());
+        .setCustomAttributeWithDate('date_parameter', new Date())
+        .setCustomAttributeWithStringArray('string_array_parameter', stringArray)
+        .setCustomAttributeWithNumericArray('numeric_array_parameter', numericArray);
 
     product.setCustomAttributeWithArray('array_parameter', stringArray);
 

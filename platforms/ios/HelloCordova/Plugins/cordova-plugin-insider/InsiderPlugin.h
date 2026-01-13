@@ -1,6 +1,7 @@
 #import <InsiderMobile/Insider.h>
 #import <InsiderHybrid/InsiderHybrid.h>
 #import <InsiderMobile/InsiderCallbackTypeEnum.h>
+#import <InsiderGeofence/InsiderGeofence.h>
 #import "IDFAHelper.h"
 #import <UserNotifications/UserNotifications.h>
 
@@ -8,9 +9,11 @@
 
 - (void) init:(CDVInvokedUrlCommand *)command;
 - (void) initWithLaunchOptions:(CDVInvokedUrlCommand *)command;
+- (void) reinitWithPartnerName:(CDVInvokedUrlCommand *)command;
 - (void) registerWithQuietPermission:(CDVInvokedUrlCommand *)command;
 - (void) enableIDFACollection:(CDVInvokedUrlCommand *)command;
 - (void) setGDPRConsent:(CDVInvokedUrlCommand *)command;
+- (void) setMobileAppAccess:(CDVInvokedUrlCommand *)command;
 - (void) startTrackingGeofence:(CDVInvokedUrlCommand *)command;
 - (void) tagEvent:(CDVInvokedUrlCommand *)command;
 - (void) enableLocationCollection:(CDVInvokedUrlCommand *)command;
@@ -20,6 +23,9 @@
 - (void) getContentStringWithName:(CDVInvokedUrlCommand *)command;
 - (void) getContentIntWithName:(CDVInvokedUrlCommand *)command;
 - (void) getContentBoolWithName:(CDVInvokedUrlCommand *)command;
+- (void) getContentStringWithoutCache:(CDVInvokedUrlCommand *)command;
+- (void) getContentIntWithoutCache:(CDVInvokedUrlCommand *)command;
+- (void) getContentBoolWithoutCache:(CDVInvokedUrlCommand *)command;
 - (void) visitHomePage:(CDVInvokedUrlCommand *)command;
 - (void) visitListingPage:(CDVInvokedUrlCommand *)command;
 - (void) visitProductDetailPage:(CDVInvokedUrlCommand *)command;
@@ -38,7 +44,9 @@
 - (void) setAge:(CDVInvokedUrlCommand *)command;
 - (void) setSMSOptin:(CDVInvokedUrlCommand *)command;
 - (void) setEmailOptin:(CDVInvokedUrlCommand *)command;
+- (void) setEmail:(CDVInvokedUrlCommand *)command;
 - (void) setPushOptin:(CDVInvokedUrlCommand *)command;
+- (void) setPhoneNumber:(CDVInvokedUrlCommand *)command;
 - (void) setLocationOptin:(CDVInvokedUrlCommand *)command;
 - (void) setWhatsappOptin:(CDVInvokedUrlCommand *)command;
 - (void) setLocale:(CDVInvokedUrlCommand *)command;
@@ -53,7 +61,16 @@
 - (void) unsetCustomAttribute:(CDVInvokedUrlCommand *)command;
 - (void) login:(CDVInvokedUrlCommand *)command;
 - (void) logout:(CDVInvokedUrlCommand *)command;
+- (void) logoutResettingInsiderID:(CDVInvokedUrlCommand *)command;
 - (void) signUpConfirmation:(CDVInvokedUrlCommand *)command;
 - (void) putException:(CDVInvokedUrlCommand *)command;
 - (void) handleNotification:(CDVInvokedUrlCommand *)command;
+- (void) getInsiderID:(CDVInvokedUrlCommand *)command;
+- (void) registerInsiderIDListener:(CDVInvokedUrlCommand *)command;
+- (void) disableInAppMessages:(CDVInvokedUrlCommand *)command;
+- (void) enableInAppMessages:(CDVInvokedUrlCommand *)command;
+- (void) itemAddedToWishlist:(CDVInvokedUrlCommand *)command;
+- (void) itemRemovedFromWishlist:(CDVInvokedUrlCommand *)command;
+- (void) wishlistCleared:(CDVInvokedUrlCommand *)command;
+- (void) visitWishlistPage:(CDVInvokedUrlCommand *)command;
 @end

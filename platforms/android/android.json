@@ -13,7 +13,7 @@
               "count": 1
             },
             {
-              "xml": "<preference name=\"GradlePluginGoogleServicesVersion\" value=\"4.3.10\" />",
+              "xml": "<preference name=\"GradlePluginGoogleServicesVersion\" value=\"4.4.2\" />",
               "count": 1
             }
           ]
@@ -70,6 +70,11 @@
       "pluginId": "cordova-plugin-insider"
     },
     {
+      "id": "cordova-plugin-insider.CloseButtonPosition",
+      "file": "plugins/cordova-plugin-insider/www/CloseButtonPosition.js",
+      "pluginId": "cordova-plugin-insider"
+    },
+    {
       "id": "cordova-plugin-insider.ContentOptimizerDataType",
       "file": "plugins/cordova-plugin-insider/www/ContentOptimizerDataType.js",
       "pluginId": "cordova-plugin-insider"
@@ -111,6 +116,6 @@
     }
   ],
   "plugin_metadata": {
-    "cordova-plugin-insider": "1.4.0"
+    "cordova-plugin-insider": "3.1.1"
   }
 }

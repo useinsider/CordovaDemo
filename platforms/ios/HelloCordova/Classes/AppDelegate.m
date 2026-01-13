@@ -27,11 +27,11 @@
 
 #import "AppDelegate.h"
 #import "MainViewController.h"
-#import <UserNotifications/UserNotifications.h>
 
 @implementation AppDelegate
 
-- (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions {
+- (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions
+{
     UNUserNotificationCenter.currentNotificationCenter.delegate = self;
     self.viewController = [[MainViewController alloc] init];
     return [super application:application didFinishLaunchingWithOptions:launchOptions];

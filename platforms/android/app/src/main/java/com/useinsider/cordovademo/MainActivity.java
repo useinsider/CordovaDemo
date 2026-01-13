@@ -20,6 +20,7 @@
 package com.useinsider.cordovademo;
 
 import android.os.Bundle;
+
 import org.apache.cordova.*;
 
 public class MainActivity extends CordovaActivity

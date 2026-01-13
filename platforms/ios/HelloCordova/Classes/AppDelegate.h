@@ -25,9 +25,9 @@
 //  Copyright ___ORGANIZATIONNAME___ ___YEAR___. All rights reserved.
 //
 
-#import <UserNotifications/UserNotifications.h>
 #import <Cordova/CDVViewController.h>
 #import <Cordova/CDVAppDelegate.h>
+#import <UserNotifications/UserNotifications.h>
 
 @interface AppDelegate : CDVAppDelegate <UNUserNotificationCenterDelegate> {}
 

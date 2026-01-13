@@ -17,6 +17,7 @@ export interface User {
     setWhatsappOptin(whatsappOptin: boolean): User;
     login(identifiers:object, insiderIDResult: Function): void;
     logout(): void;
+    logoutResettingInsiderID(identifiers?: object[] | null, insiderIDResult?: (insiderID: string) => void): void;
     setCustomAttributeWithString(key: string, value: string): User;
     setCustomAttributeWithInt(key: string, value: number): User;
     setCustomAttributeWithDouble(key: string, value: number): User;

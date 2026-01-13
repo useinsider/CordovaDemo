@@ -6,6 +6,7 @@ class Constants {
     }
     
     static final String HANDLE_NOTIFICATION = "handleNotification";
+    static final String SET_INTERNAL_BROWSER_CLOSE_BUTTON_POSITION = "setInternalBrowserCloseButtonPosition";
     static final String ERROR = "error";
     static final String DEFAULT_VALUE = "defaultValue";
     static final String VARIABLE_NAME = "variableName";
@@ -39,4 +40,14 @@ class Constants {
     static final String PROMOTION_NAME = "promotion_name";
     static final String PROMOTION_DISCOUNT = "promotion_discount";
     static final String GROUP_CODE = "groupcode";
+    static final String BRAND = "brnd";
+    static final String SKU = "sku";
+    static final String PRODUCT_GENDER = "ge";
+    static final String MULTIPACK = "mlt";
+    static final String PRODUCT_TYPE = "pt";
+    static final String GTIN = "gt";
+    static final String DESCRIPTION = "desc";
+    static final String TAGS = "tags";
+    static final String IS_IN_STOCK = "iis";
+    static final String PRODUCT_URL = "product_url";
 }

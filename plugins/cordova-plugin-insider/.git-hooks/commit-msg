@@ -1,0 +1,83 @@
+#!/bin/sh
+
+COMMIT_MSG_FILE="$1"
+COMMIT_MSG_FIRST_LINE=$(head -n1 "$COMMIT_MSG_FILE")
+
+# 1. Skip "Merge branch ..." commits
+if echo "$COMMIT_MSG_FIRST_LINE" | grep -qE "^Merge branch "; then
+  exit 0
+fi
+
+# 2. Skip interactive rebase auto-commits
+if echo "$COMMIT_MSG_FIRST_LINE" | grep -qE "^(pick|reword|edit|squash|fixup|exec) "; then
+  exit 0
+fi
+
+# Allowed Conventional Commit types (v1.0.0 + release)
+ALLOWED_TYPES="feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert|release"
+
+# Regex – type(scope)!?: description (description required)
+FIRST_LINE_REGEX="^(${ALLOWED_TYPES})(\([^\)]+\))?(!)?: [^ ].+$"
+
+error() {
+  echo "⛔ Error: $1"
+}
+
+warn() {
+  echo "⚠️ Warning: $1"
+}
+
+# 3. Validate header format
+if ! echo "$COMMIT_MSG_FIRST_LINE" | grep -qE "${FIRST_LINE_REGEX}"; then
+  error "Commit mesajı başlığı Conventional Commits v1.0.0 formatına uymuyor."
+  echo "Mevcut mesaj: \"$COMMIT_MSG_FIRST_LINE\""
+  echo ""
+  echo "Beklenen format: <tip>[<scope>][!]: <açıklama>"
+  echo "Geçerli tipler: ${ALLOWED_TYPES}"
+  exit 1
+fi
+
+# 4. Header length check (max 120 chars)
+HEADER_LENGTH=${#COMMIT_MSG_FIRST_LINE}
+if [ "$HEADER_LENGTH" -gt 120 ]; then
+  error "İlk satır 120 karakteri aşıyor. (Mevcut uzunluk: $HEADER_LENGTH)"
+  exit 1
+elif [ "$HEADER_LENGTH" -gt 72 ]; then
+  warn "İlk satır 72 karakterden uzun. (Mevcut uzunluk: $HEADER_LENGTH)"
+fi
+
+# 5. Body check (optional)
+LINE_NO=0
+while IFS= read -r line; do
+  LINE_NO=$((LINE_NO + 1))
+  # Second line should be empty if body exists
+  if [ "$LINE_NO" -eq 2 ] && [ -n "$line" ]; then
+    warn "İkinci satır boş olmalı (body varsa)."
+  fi
+done < "$COMMIT_MSG_FILE"
+
+# 6. BREAKING CHANGE footer check
+if grep -qE '^BREAKING CHANGE: ' "$COMMIT_MSG_FILE"; then
+  if ! grep -qE '^BREAKING CHANGE: .{1,}' "$COMMIT_MSG_FILE"; then
+    error "BREAKING CHANGE açıklaması boş olamaz."
+    exit 1
+  fi
+fi
+
+# 7. Append JIRA ID from branch name
+BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
+JIRA_ID=$(echo "$BRANCH_NAME" | grep -oE 'MOB-[0-9]+')
+
+if [ -n "$JIRA_ID" ]; then
+  if ! grep -q "$JIRA_ID" "$COMMIT_MSG_FILE"; then
+    {
+      echo ""
+      echo "#Ref: $JIRA_ID"
+    } >> "$COMMIT_MSG_FILE"
+    echo "ℹ️ Task ID referans olarak eklendi: $JIRA_ID"
+  fi
+fi
+
+echo "✅ Commit mesajı Conventional Commits v1.0.0 kurallarına uygun."
+exit 0
+
