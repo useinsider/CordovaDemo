@@ -44,6 +44,14 @@ module.exports = {
   ITEM_REMOVED_FROM_CART: 'itemRemovedFromCart',
   CART_CLEARED: 'cartCleared',
   GET_MESSAGE_CENTER_DATA: 'getMessageCenterData',
+  GET_MESSAGE_CENTER_DATA_WITH_IDENTIFIERS: 'getMessageCenterDataWithIdentifiers',
+  GET_APP_CARDS_CAMPAIGNS: 'getAppCardsCampaigns',
+  MARK_APP_CARD_AS_READ: 'markAppCardAsRead',
+  MARK_APP_CARD_AS_UNREAD: 'markAppCardAsUnread',
+  VIEW_APP_CARD: 'viewAppCard',
+  CLICK_APP_CARD: 'clickAppCard',
+  CLICK_APP_CARD_BUTTON: 'clickAppCardButton',
+  DELETE_APP_CARDS: 'deleteAppCards',
   GET_SMART_RECOMMENDATION: 'getSmartRecommendation',
   GET_SMART_RECOMMENDATION_WITH_PRODUCT: 'getSmartRecommendationWithProduct',
   GET_SMART_RECOMMENDATION_WITH_PRODUCT_IDS: 'getSmartRecommendationWithProductIDs',
@@ -77,6 +85,9 @@ module.exports = {
   REGISTER_INSIDER_ID_LISTENER: 'registerInsiderIDListener',
   DISABLE_IN_APP_MESSAGES: 'disableInAppMessages',
   ENABLE_IN_APP_MESSAGES: 'enableInAppMessages',
+  SHOW_NATIVE_APP_REVIEW: 'showNativeAppReview',
+  HANDLE_UNIVERSAL_LINK: 'handleUniversalLink',
+  HANDLE_URL: 'handleURL',
   ITEM_ADDED_TO_WISHLIST: 'itemAddedToWishlist',
   ITEM_REMOVED_FROM_WISHLIST: 'itemRemovedFromWishlist',
   WISHLIST_CLEARED: 'wishlistCleared',
@@ -113,6 +124,6 @@ module.exports = {
   // Reinit
   REINIT_WITH_PARTNER_NAME: 'reinitWithPartnerName',
   // SDK Version
-  SDK_VERSION: 'CDV-3.1.1'
+  SDK_VERSION: 'CDV-4.0.0'
 };
 });

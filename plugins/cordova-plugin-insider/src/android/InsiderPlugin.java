@@ -9,6 +9,8 @@ import static com.useinsider.insider.InsiderCallbackType.TEMP_STORE_PURCHASE;
 import android.app.Application;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -30,6 +32,8 @@ import com.useinsider.insiderhybrid.InsiderHybrid;
 import com.useinsider.insiderhybrid.InsiderHybridUtils;
 import com.useinsider.insiderhybrid.constants.InsiderHybridMethods;
 import com.useinsider.insider.InsiderIDListener;
+import com.useinsider.insider.InsiderAppCardButton;
+import com.useinsider.insider.InsiderAppCard;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
@@ -49,6 +53,8 @@ import java.util.List;
 import java.util.Map;
 
 public class InsiderPlugin extends CordovaPlugin {
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+    
     private boolean isCoreInitialized = false;
 
     private InsiderIDListener insiderIDListener;
@@ -191,23 +197,26 @@ public class InsiderPlugin extends CordovaPlugin {
             } else if (action.equals(InsiderHybridMethods.ITEM_PURCHASED)) {
                 if (args.get(0) == null || args.getString(1) == null || args.getString(2) == null || args.get(3) == null)
                     return false;
-               cordova.getThreadPool().execute(new Runnable() {
+
+                cordova.getThreadPool().execute(new Runnable() {
                     @Override
                     public void run() {
-                        Map<String, Object> requiredFields = null;
-                        Map<String, Object> optionalFields = null;
-                        JSONArray customParameters = null;
                         try {
-                            requiredFields = CDVUtils.convertJSONToMap(args.getString(1));
-                            optionalFields = CDVUtils.convertJSONToMap(args.getString(2));
-                            customParameters = args.getJSONArray(3);
-
+                            Map<String, Object> requiredFields = CDVUtils.convertJSONToMap(args.getString(1));
+                            Map<String, Object> optionalFields = CDVUtils.convertJSONToMap(args.getString(2));
+                            JSONArray customParameters = args.getJSONArray(3);
                             InsiderProduct product = CDVUtils.parseProduct(requiredFields, optionalFields, customParameters);
-                
-                            Insider.Instance.itemPurchased(String.valueOf(args.get(0)), product);
+                            Map<String, Object> mappedCustomParameters = CDVUtils.parseCustomParameters(args.getJSONArray(4));
+
+                            if (mappedCustomParameters.size() > 0) {
+                                Insider.Instance.itemPurchased(String.valueOf(args.get(0)), product, mappedCustomParameters);
+                            } else {
+                                Insider.Instance.itemPurchased(String.valueOf(args.get(0)), product);
+                            }
+
                             callbackSuccess(callbackContext, "SUCCESS");
-                        } catch (JSONException e) {
-                            callbackFailure(callbackContext, e.toString());
+                        } catch (Exception exception) {
+                            callbackFailure(callbackContext, exception.getMessage());
                         }
                     }
                 });
@@ -215,19 +224,25 @@ public class InsiderPlugin extends CordovaPlugin {
                 if (args.get(0) == null || args.getString(1) == null || args.get(2) == null)
                     return false;
 
-                Map<String, Object> requiredFields = CDVUtils.convertJSONToMap(args.getString(0));
-                Map<String, Object> optionalFields = CDVUtils.convertJSONToMap(args.getString(1));
-                JSONArray customParameters = args.getJSONArray(2);
-
                 cordova.getThreadPool().execute(new Runnable() {
                     @Override
                     public void run() {
                         try {
+                            Map<String, Object> requiredFields = CDVUtils.convertJSONToMap(args.getString(0));
+                            Map<String, Object> optionalFields = CDVUtils.convertJSONToMap(args.getString(1));
+                            JSONArray customParameters = args.getJSONArray(2);
                             InsiderProduct product = CDVUtils.parseProduct(requiredFields, optionalFields, customParameters);
-                            Insider.Instance.itemAddedToCart(product);
+                            Map<String, Object> mappedCustomParameters = CDVUtils.parseCustomParameters(args.getJSONArray(3));
+
+                            if (mappedCustomParameters.size() > 0) {
+                                Insider.Instance.itemAddedToCart(product, mappedCustomParameters);
+                            } else {
+                                Insider.Instance.itemAddedToCart(product);
+                            }
+
                             callbackSuccess(callbackContext, "SUCCESS");
-                        } catch (Exception e) {
-                            callbackFailure(callbackContext, e.toString());
+                        } catch (Exception exception) {
+                            callbackFailure(callbackContext, exception.getMessage());
                         }
                     }
                 });
@@ -239,10 +254,21 @@ public class InsiderPlugin extends CordovaPlugin {
                     @Override
                     public void run() {
                         try {
-                            Insider.Instance.itemRemovedFromCart(args.getString(0));
+                            String productID = args.getString(0);
+                            String saleID = args.length() > 1 && !args.isNull(1) ? args.getString(1) : null;
+                            JSONArray customParams = args.length() > 2 && !args.isNull(2) ? args.getJSONArray(2) : null;
+                            Map<String, Object> mappedCustomParameters = CDVUtils.parseCustomParameters(customParams);
+
+                            if (saleID != null && !saleID.isEmpty()) {
+                                Insider.Instance.itemRemovedFromCart(productID, saleID, mappedCustomParameters);
+                            } else if (!mappedCustomParameters.isEmpty()) {
+                                Insider.Instance.itemRemovedFromCart(productID, mappedCustomParameters);
+                            } else {
+                                Insider.Instance.itemRemovedFromCart(productID);
+                            }
                             callbackSuccess(callbackContext, "SUCCESS");
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+                        } catch (Exception exception) {
+                            callbackFailure(callbackContext, exception.getMessage());
                         }
                     }
                 });
@@ -250,8 +276,19 @@ public class InsiderPlugin extends CordovaPlugin {
                 cordova.getThreadPool().execute(new Runnable() {
                     @Override
                     public void run() {
-                        Insider.Instance.cartCleared();
-                        callbackSuccess(callbackContext, "SUCCESS");
+                        try {
+                            Map<String, Object> mappedCustomParameters = CDVUtils.parseCustomParameters(args.getJSONArray(0));
+
+                            if (mappedCustomParameters.size() > 0) {
+                                Insider.Instance.cartCleared(mappedCustomParameters);
+                            } else {
+                                Insider.Instance.cartCleared();
+                            }
+
+                            callbackSuccess(callbackContext, "SUCCESS");
+                        } catch (Exception exception) {
+                            callbackFailure(callbackContext, exception.getMessage());
+                        }
                     }
                 });
             } else if (action.equals(InsiderHybridMethods.GET_MESSAGE_CENTER_DATA)) {
@@ -272,6 +309,176 @@ public class InsiderPlugin extends CordovaPlugin {
                         });
                     } catch (JSONException e) {
                         callbackFailure(callbackContext, e.toString());
+                        Insider.Instance.putException(e);
+                    }
+                });
+            } else if (action.equals("getMessageCenterDataWithIdentifiers")) {
+                if (args.get(0) == null || args.get(1) == null || args.get(2) == null || args.get(3) == null)
+                    return false;
+
+                cordova.getThreadPool().execute(() -> {
+                    try {
+                        int limit = args.getInt(0);
+                        long startDateEpoch = Long.parseLong(args.getString(1));
+                        long endDateEpoch = Long.parseLong(args.getString(2));
+
+                        InsiderIdentifiers insiderIdentifiers = buildInsiderIdentifiers(CDVUtils.convertJSONToMap(args.getString(3)));
+
+                        Insider.Instance.getMessageCenterData(
+                                limit,
+                                new Date(startDateEpoch),
+                                new Date(endDateEpoch),
+                                insiderIdentifiers,
+                                new MessageCenterData() {
+                                    @Override
+                                    public void loadMessageCenterData(JSONArray jsonArray) {
+                                        callbackSuccess(callbackContext, jsonArray.toString());
+                                    }
+                                });
+                    } catch (JSONException e) {
+                        callbackFailure(callbackContext, e.toString());
+                    }
+                });
+            } else if (action.equals("getAppCardsCampaigns")) {
+                cordova.getThreadPool().execute(() -> {
+                    try {
+                        Insider.Instance.appCards().getCampaigns((responseObject, error) -> {
+                            if (error != null || responseObject == null) {
+                                callbackFailure(callbackContext, CDVUtils.appCardsErrorToJSON(error != null ? error : new Exception("Unknown error.")));
+                            } else {
+                                JSONObject jsonObject = responseObject.toJSONObject();
+                                callbackSuccess(callbackContext, jsonObject);
+                            }
+                        });
+                    } catch (Exception e) {
+                        callbackFailure(callbackContext, CDVUtils.appCardsErrorToJSON(e));
+                        Insider.Instance.putException(e);
+                    }
+                });
+            } else if (action.equals("markAppCardAsRead")) {
+                cordova.getThreadPool().execute(() -> {
+                    try {
+                        if (args.get(0) == null) {
+                            callbackFailure(callbackContext, "appCardIds argument is required");
+                            return;
+                        }
+
+                        String[] appCardIds = (CDVUtils.convertJSONToArrayList(args.get(0).toString())).toArray(new String[0]);
+
+                        Insider.Instance.appCards().markAsRead(appCardIds, error -> {
+                            if (error != null) {
+                                callbackFailure(callbackContext, CDVUtils.appCardsErrorToJSON(error));
+                            } else {
+                                callbackSuccess(callbackContext, "SUCCESS");
+                            }
+                        });
+                    } catch (Exception e) {
+                        callbackFailure(callbackContext, CDVUtils.appCardsErrorToJSON(e));
+                        Insider.Instance.putException(e);
+                    }
+                });
+            } else if (action.equals("markAppCardAsUnread")) {
+                cordova.getThreadPool().execute(() -> {
+                    try {
+                        if (args.get(0) == null) {
+                            callbackFailure(callbackContext, "appCardIds argument is required");
+                            return;
+                        }
+
+                        String[] appCardIds = (CDVUtils.convertJSONToArrayList(args.get(0).toString())).toArray(new String[0]);
+
+                        Insider.Instance.appCards().markAsUnread(appCardIds, error -> {
+                            if (error != null) {
+                                callbackFailure(callbackContext, CDVUtils.appCardsErrorToJSON(error));
+                            } else {
+                                callbackSuccess(callbackContext, "SUCCESS");
+                            }
+                        });
+                    } catch (Exception e) {
+                        callbackFailure(callbackContext, CDVUtils.appCardsErrorToJSON(e));
+                        Insider.Instance.putException(e);
+                    }
+                });
+            } else if (action.equals("viewAppCard")) {
+                cordova.getThreadPool().execute(() -> {
+                    try {
+                        if (args.get(0) == null) {
+                            callbackFailure(callbackContext, "app card data argument is required");
+                            return;
+                        }
+
+                        new InsiderAppCard(
+                            new JSONObject(args.getString(0))
+                        ).view();
+                        callbackSuccess(callbackContext, "SUCCESS");
+                    } catch (JSONException e) {
+                        callbackFailure(callbackContext, "Invalid app card data JSON: " + e.getMessage());
+                        Insider.Instance.putException(e);
+                    } catch (Exception e) {
+                        callbackFailure(callbackContext, "Exception: " + e.toString());
+                        Insider.Instance.putException(e);
+                    }
+                });
+            } else if (action.equals("clickAppCard")) {
+                cordova.getThreadPool().execute(() -> {
+                    try {
+                        if (args.get(0) == null) {
+                            callbackFailure(callbackContext, "app card data argument is required");
+                            return;
+                        }
+
+                        new InsiderAppCard(
+                            new JSONObject(args.getString(0))
+                        ).click();
+                        callbackSuccess(callbackContext, "SUCCESS");
+                    } catch (JSONException e) {
+                        callbackFailure(callbackContext, "Invalid app card data JSON: " + e.getMessage());
+                        Insider.Instance.putException(e);
+                    } catch (Exception e) {
+                        callbackFailure(callbackContext, "Exception: " + e.toString());
+                        Insider.Instance.putException(e);
+                    }
+                });
+            } else if (action.equals("clickAppCardButton")) {
+                cordova.getThreadPool().execute(() -> {
+                    try {
+                        if (args.get(0) == null || args.get(1) == null) {
+                            callbackFailure(callbackContext, "appCardId and button data arguments are required");
+                            return;
+                        }
+
+                        new InsiderAppCardButton(
+                            args.getString(0),
+                            new JSONObject(args.getString(1))
+                        ).click();
+                        callbackSuccess(callbackContext, "SUCCESS");
+                    } catch (JSONException e) {
+                        callbackFailure(callbackContext, "Invalid button data JSON: " + e.getMessage());
+                        Insider.Instance.putException(e);
+                    } catch (Exception e) {
+                        callbackFailure(callbackContext, "Exception: " + e.toString());
+                        Insider.Instance.putException(e);
+                    }
+                });
+            } else if (action.equals("deleteAppCards")) {
+                cordova.getThreadPool().execute(() -> {
+                    try {
+                        if (args.get(0) == null) {
+                            callbackFailure(callbackContext, "appCardIds argument is required");
+                            return;
+                        }
+
+                        String[] appCardIds = (CDVUtils.convertJSONToArrayList(args.get(0).toString())).toArray(new String[0]);
+
+                        Insider.Instance.appCards().delete(appCardIds, error -> {
+                            if (error != null) {
+                                callbackFailure(callbackContext, CDVUtils.appCardsErrorToJSON(error));
+                            } else {
+                                callbackSuccess(callbackContext, "SUCCESS");
+                            }
+                        });
+                    } catch (Exception e) {
+                        callbackFailure(callbackContext, CDVUtils.appCardsErrorToJSON(e));
                         Insider.Instance.putException(e);
                     }
                 });
@@ -395,41 +602,67 @@ public class InsiderPlugin extends CordovaPlugin {
                 cordova.getThreadPool().execute(new Runnable() {
                     @Override
                     public void run() {
-                        Insider.Instance.visitHomePage();
+                        try {
+                            Map<String, Object> mappedCustomParameters = CDVUtils.parseCustomParameters(args.getJSONArray(0));
 
-                        callbackSuccess(callbackContext, "SUCCESS");
+                            if (mappedCustomParameters.size() > 0) {
+                                Insider.Instance.visitHomePage(mappedCustomParameters);
+                            } else {
+                                Insider.Instance.visitHomePage();
+                            }
+
+                            callbackSuccess(callbackContext, "SUCCESS");
+                        } catch (Exception exception) {
+                            callbackFailure(callbackContext, exception.getMessage());
+                        }
                     }
                 });
             } else if (action.equals(InsiderHybridMethods.VISIT_LISTING_PAGE)) {
                 if (args.get(0) == null)
                     return false;
 
-                String[] taxonomy = (CDVUtils.convertJSONToArrayList(args.get(0).toString())).toArray(new String[0]);
-
                 cordova.getThreadPool().execute(new Runnable() {
                     @Override
                     public void run() {
-                        Insider.Instance.visitListingPage(taxonomy);
-                        callbackSuccess(callbackContext, "SUCCESS");
+                        try {
+                            String[] taxonomy = (CDVUtils.convertJSONToArrayList(args.get(0).toString())).toArray(new String[0]);
+                            Map<String, Object> mappedCustomParameters = CDVUtils.parseCustomParameters(args.getJSONArray(1));
+
+                            if (mappedCustomParameters.size() > 0) {
+                                Insider.Instance.visitListingPage(taxonomy, mappedCustomParameters);
+                            } else {
+                                Insider.Instance.visitListingPage(taxonomy);
+                            }
+
+                            callbackSuccess(callbackContext, "SUCCESS");
+                        } catch (Exception exception) {
+                            callbackFailure(callbackContext, exception.getMessage());
+                        }
                     }
                 });
             } else if (action.equals(InsiderHybridMethods.VISIT_PRODUCT_DETAIL_PAGE)) {
                 if (args.get(0) == null || args.get(1) == null || args.get(2) == null)
                     return false;
 
-                Map<String, Object> requiredFields = CDVUtils.convertJSONToMap(args.getString(0));
-                Map<String, Object> optionalFields = CDVUtils.convertJSONToMap(args.getString(1));
-                JSONArray customParameters = args.getJSONArray(2);
-
                 cordova.getThreadPool().execute(new Runnable() {
                     @Override
                     public void run() {
                         try {
-                            InsiderProduct recommendationProduct = CDVUtils.parseProduct(requiredFields, optionalFields, customParameters);
-                            Insider.Instance.visitProductDetailPage(recommendationProduct);
+                            Map<String, Object> requiredFields = CDVUtils.convertJSONToMap(args.getString(0));
+                            Map<String, Object> optionalFields = CDVUtils.convertJSONToMap(args.getString(1));
+                            JSONArray customParameters = args.getJSONArray(2);
+                            InsiderProduct product = CDVUtils.parseProduct(requiredFields, optionalFields, customParameters);
+                            Map<String, Object> mappedCustomParameters = CDVUtils.parseCustomParameters(args.getJSONArray(3));
+
+                            if (mappedCustomParameters.size() > 0) {
+                                Insider.Instance.visitProductDetailPage(product, mappedCustomParameters);
+                            } else {
+                                Insider.Instance.visitProductDetailPage(product);
+                            }
+
                             callbackSuccess(callbackContext, "SUCCESS");
-                        } catch (Exception e) {
-                            callbackFailure(callbackContext, e.toString());
+                        } catch (Exception exception) {
+                            callbackFailure(callbackContext, exception.getMessage());
                         }
                     }
                 });
@@ -437,30 +670,46 @@ public class InsiderPlugin extends CordovaPlugin {
                 if (args.get(0) == null)
                     return false;
 
-                String json = args.getString(0);
-                ArrayList products = new ObjectMapper().readValue(json, ArrayList.class);
-                InsiderProduct[] ips = new InsiderProduct[products.size()];
-
                 cordova.getThreadPool().execute(new Runnable() {
                     @Override
                     public void run() {
                         try {
+                            String json = args.getString(0);
+                            ArrayList products = objectMapper.readValue(json, ArrayList.class);
+                            InsiderProduct[] ips = new InsiderProduct[products.size()];
+
                             for (int i = 0; i < products.size(); i++) {
                                 HashMap requiredFields = (HashMap)(((LinkedHashMap)products.get(i)).get("requiredFields"));
                                 HashMap optionalFields = (HashMap)(((LinkedHashMap)products.get(i)).get("optionalFields"));
                                 JSONArray customParameters = null;
                                 Object customParamsObj = ((LinkedHashMap)products.get(i)).get("customParameters");
                                 if (customParamsObj != null) {
-                                    customParameters = new JSONArray(customParamsObj.toString());
+                                    try {
+                                        // Convert Object (Map/ArrayList/etc.) to JSON string using ObjectMapper, then parse to JSONArray
+                                        String jsonString = objectMapper.writeValueAsString(customParamsObj);
+                                        customParameters = new JSONArray(jsonString);
+                                    } catch (Exception e) {
+                                        Insider.Instance.putException(e);
+                                    }
                                 }
                                 InsiderProduct product = CDVUtils.parseProduct(requiredFields, optionalFields, customParameters);
                                 ips[i] = product;
                             }
 
-                            Insider.Instance.visitCartPage(ips);
+                            String cartSaleID = args.length() > 1 && !args.isNull(1) ? args.getString(1) : null;
+                            JSONArray cartCustomParams = args.length() > 2 && !args.isNull(2) ? args.getJSONArray(2) : null;
+                            Map<String, Object> mappedCartCustomParameters = CDVUtils.parseCustomParameters(cartCustomParams);
+
+                            if (cartSaleID != null && !cartSaleID.isEmpty()) {
+                                Insider.Instance.visitCartPage(ips, cartSaleID, mappedCartCustomParameters);
+                            } else if (!mappedCartCustomParameters.isEmpty()) {
+                                Insider.Instance.visitCartPage(ips, mappedCartCustomParameters);
+                            } else {
+                                Insider.Instance.visitCartPage(ips);
+                            }
                             callbackSuccess(callbackContext, "SUCCESS");
-                        } catch (Exception e) {
-                            callbackFailure(callbackContext, e.toString());
+                        } catch (Exception exception) {
+                            callbackFailure(callbackContext, exception.getMessage());
                         }
                     }
                 });
@@ -737,7 +986,24 @@ public class InsiderPlugin extends CordovaPlugin {
             } else if (action.equals(InsiderHybridMethods.REGISTER_WITH_QUIET_PERMISSION)) {
                 return true;
             } else if (action.equals("signUpConfirmation")) {
-                Insider.Instance.signUpConfirmation();
+                cordova.getThreadPool().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Map<String, Object> mappedCustomParameters = CDVUtils.parseCustomParameters(args.getJSONArray(0));
+            
+                            if (mappedCustomParameters.size() > 0) {
+                                Insider.Instance.signUpConfirmation(mappedCustomParameters);
+                            } else {
+                                Insider.Instance.signUpConfirmation();
+                            }
+
+                            callbackSuccess(callbackContext, "SUCCESS");
+                        } catch (Exception exception) {
+                            callbackFailure(callbackContext, exception.getMessage());
+                        }
+                    }
+                });
             } else if (action.equals(Constants.SET_INTERNAL_BROWSER_CLOSE_BUTTON_POSITION)) {
                 if (args.get(0) == null)
                     return false;
@@ -802,23 +1068,39 @@ public class InsiderPlugin extends CordovaPlugin {
                         }
                     }
                 });
+            } else if (action.equals("showNativeAppReview")) {
+                Insider.Instance.showNativeRating();
+            } else if (action.equals("handleUniversalLink")) {
+                if (args.get(0) == null)
+                    return false;
+
+                Intent universalLinkIntent = new Intent();
+                Uri data = Uri.parse(args.getString(0));
+                universalLinkIntent.setData(data);
+                Insider.Instance.handleUniversalLink(universalLinkIntent);
             } else if (action.equals("itemAddedToWishlist")) {
                 if (args.get(0) == null || args.getString(1) == null || args.get(2) == null)
                     return false;
-
-                Map<String, Object> requiredFields = CDVUtils.convertJSONToMap(args.getString(0));
-                Map<String, Object> optionalFields = CDVUtils.convertJSONToMap(args.getString(1));
-                JSONArray customParameters = args.getJSONArray(2);
 
                 cordova.getThreadPool().execute(new Runnable() {
                     @Override
                     public void run() {
                         try {
+                            Map<String, Object> requiredFields = CDVUtils.convertJSONToMap(args.getString(0));
+                            Map<String, Object> optionalFields = CDVUtils.convertJSONToMap(args.getString(1));
+                            JSONArray customParameters = args.getJSONArray(2);
                             InsiderProduct product = CDVUtils.parseProduct(requiredFields, optionalFields, customParameters);
-                            Insider.Instance.itemAddedToWishlist(product);
+                            Map<String, Object> mappedCustomParameters = CDVUtils.parseCustomParameters(args.getJSONArray(3));
+
+                            if (mappedCustomParameters.size() > 0) {
+                                Insider.Instance.itemAddedToWishlist(product, mappedCustomParameters);
+                            } else {
+                                Insider.Instance.itemAddedToWishlist(product);
+                            }
+
                             callbackSuccess(callbackContext, "SUCCESS");
-                        } catch (Exception e) {
-                            callbackFailure(callbackContext, e.toString());
+                        } catch (Exception exception) {
+                            callbackFailure(callbackContext, exception.getMessage());
                         }
                     }
                 });
@@ -830,10 +1112,17 @@ public class InsiderPlugin extends CordovaPlugin {
                     @Override
                     public void run() {
                         try {
-                            Insider.Instance.itemRemovedFromWishlist(args.getString(0));
+                            Map<String, Object> mappedCustomParameters = CDVUtils.parseCustomParameters(args.getJSONArray(1));
+
+                            if (mappedCustomParameters.size() > 0) {
+                                Insider.Instance.itemRemovedFromWishlist(args.getString(0), mappedCustomParameters);
+                            } else {
+                                Insider.Instance.itemRemovedFromWishlist(args.getString(0));
+                            }
+
                             callbackSuccess(callbackContext, "SUCCESS");
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+                        } catch (Exception exception) {
+                            callbackFailure(callbackContext, exception.getMessage());
                         }
                     }
                 });
@@ -841,38 +1130,62 @@ public class InsiderPlugin extends CordovaPlugin {
                 cordova.getThreadPool().execute(new Runnable() {
                     @Override
                     public void run() {
-                        Insider.Instance.wishlistCleared();
-                        callbackSuccess(callbackContext, "SUCCESS");
+                        try {
+                            Map<String, Object> mappedCustomParameters = CDVUtils.parseCustomParameters(args.getJSONArray(0));
+
+                            if (mappedCustomParameters.size() > 0) {
+                                Insider.Instance.wishlistCleared(mappedCustomParameters);
+                            } else {
+                                Insider.Instance.wishlistCleared();
+                            }
+
+                            callbackSuccess(callbackContext, "SUCCESS");
+                        } catch (Exception exception) {
+                            callbackFailure(callbackContext, exception.getMessage());
+                        }
                     }
                 });
             } else if (action.equals("visitWishlistPage")) {
                 if (args.get(0) == null)
                     return false;
 
-                String json = args.getString(0);
-                ArrayList products = new ObjectMapper().readValue(json, ArrayList.class);
-                InsiderProduct[] ips = new InsiderProduct[products.size()];
-
                 cordova.getThreadPool().execute(new Runnable() {
                     @Override
                     public void run() {
                         try {
+                            String json = args.getString(0);
+                            ArrayList products = objectMapper.readValue(json, ArrayList.class);
+                            InsiderProduct[] ips = new InsiderProduct[products.size()];
+
                             for (int i = 0; i < products.size(); i++) {
                                 HashMap requiredFields = (HashMap)(((LinkedHashMap)products.get(i)).get("requiredFields"));
                                 HashMap optionalFields = (HashMap)(((LinkedHashMap)products.get(i)).get("optionalFields"));
                                 JSONArray customParameters = null;
                                 Object customParamsObj = ((LinkedHashMap)products.get(i)).get("customParameters");
+
                                 if (customParamsObj != null) {
-                                    customParameters = new JSONArray(customParamsObj.toString());
+                                    try {
+                                        // Convert Object (Map/ArrayList/etc.) to JSON string using ObjectMapper, then parse to JSONArray
+                                        String jsonString = objectMapper.writeValueAsString(customParamsObj);
+                                        customParameters = new JSONArray(jsonString);
+                                    } catch (Exception e) {
+                                        Insider.Instance.putException(e);
+                                    }
                                 }
                                 InsiderProduct product = CDVUtils.parseProduct(requiredFields, optionalFields, customParameters);
                                 ips[i] = product;
                             }
 
-                            Insider.Instance.visitWishlistPage(ips);
+                            Map<String, Object> mappedCustomParameters = CDVUtils.parseCustomParameters(args.getJSONArray(1));
+
+                            if (mappedCustomParameters.size() > 0) {
+                                Insider.Instance.visitWishlistPage(ips, mappedCustomParameters);
+                            } else {
+                                Insider.Instance.visitWishlistPage(ips);
+                            }
                             callbackSuccess(callbackContext, "SUCCESS");
-                        } catch (Exception e) {
-                            callbackFailure(callbackContext, e.toString());
+                        } catch (Exception exception) {
+                            callbackFailure(callbackContext, exception.getMessage());
                         }
                     }
                 });
@@ -957,19 +1270,53 @@ public class InsiderPlugin extends CordovaPlugin {
         }
     }
 
+    private static void callbackFailure(CallbackContext callbackContext, JSONObject callbackValue) {
+        try {
+            PluginResult pluginResult = new PluginResult(PluginResult.Status.ERROR, callbackValue);
+
+            pluginResult.setKeepCallback(true);
+
+            callbackContext.sendPluginResult(pluginResult);
+        } catch (Exception e) {
+            Insider.Instance.putException(e);
+        }
+    }
+
+
+
+    private InsiderIdentifiers buildInsiderIdentifiers(Map<String, Object> identifiersMap) {
+        InsiderIdentifiers insiderIdentifiers = new InsiderIdentifiers();
+        for (String key : identifiersMap.keySet()) {
+            switch (key) {
+                case InsiderHybridMethods.ADD_EMAIL:
+                    insiderIdentifiers.addEmail(String.valueOf(identifiersMap.get(key)));
+                    break;
+                case InsiderHybridMethods.ADD_PHONE_NUMBER:
+                    insiderIdentifiers.addPhoneNumber(String.valueOf(identifiersMap.get(key)));
+                    break;
+                case InsiderHybridMethods.ADD_USER_ID:
+                    insiderIdentifiers.addUserID(String.valueOf(identifiersMap.get(key)));
+                    break;
+                default:
+                    insiderIdentifiers.addCustomIdentifier(key, String.valueOf(identifiersMap.get(key)));
+                    break;
+            }
+        }
+        return insiderIdentifiers;
+    }
 
     private InsiderIdentifiers[] convertJSONArrayToInsiderIdentifiersArray(JSONArray identifiersArray) {
         try {
             if (identifiersArray == null || identifiersArray.length() == 0) {
                 return null;
             }
-    
+
             InsiderIdentifiers[] identifiers = new InsiderIdentifiers[identifiersArray.length()];
-    
+
             for (int i = 0; i < identifiersArray.length(); i++) {
                 JSONObject identifierMap = identifiersArray.getJSONObject(i);
                 InsiderIdentifiers insiderIdentifiers = new InsiderIdentifiers();
-    
+
                 Map<String, Object> identifierData = CDVUtils.convertJSONToMap(identifierMap.toString());
                 for (String key : identifierData.keySet()) {
                     switch (key) {
@@ -989,7 +1336,7 @@ public class InsiderPlugin extends CordovaPlugin {
                 }
                 identifiers[i] = insiderIdentifiers;
             }
-            
+
             return identifiers;
         } catch (Exception e) {
             Insider.Instance.putException(e);

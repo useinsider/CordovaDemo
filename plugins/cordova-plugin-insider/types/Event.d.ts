@@ -3,7 +3,7 @@ export interface Event {
     addParameterWithInt(key: string, value: number): Event;
     addParameterWithDouble(key: string, value: number): Event;
     addParameterWithBoolean(key: string, value: boolean): Event;
-    addParameterWithDate(key: string, value: string): Event;
+    addParameterWithDate(key: string, value: Date): Event;
     /**
      * @deprecated Use `addParameterWithStringArray` instead.
      */

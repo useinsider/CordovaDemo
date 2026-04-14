@@ -16,12 +16,12 @@
     @try {
         if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1] || ![command.arguments objectAtIndex:2])
             return;
-
+        
         NSString* partnerName = [[command arguments] objectAtIndex:0];
         NSString* appGroup = [[command arguments] objectAtIndex:1];
-
+        
         [Insider initWithLaunchOptions:nil partnerName:partnerName appGroup:appGroup];
-
+        
         [self sendSuccessResultWithString:@"Insider Cordova Plugin: Initialized" andCommand:command];
     } @catch (NSException *exception) {
         [Insider sendError:exception desc:@"Insider.m - init"];
@@ -33,12 +33,12 @@
     @try{
         if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1] || ![command.arguments objectAtIndex:2])
             return;
-
+        
         [Insider registerInsiderCallbackWithSelector:@selector(registerCallback:) sender:self];
         [Insider setHybridSDKVersion:[command.arguments objectAtIndex:1]];
         [Insider initWithLaunchOptions:nil partnerName:[command.arguments objectAtIndex:0] appGroup:[command.arguments objectAtIndex:2]];
         [Insider applicationDidBecomeActive];
-
+        
         [self sendSuccessResultWithString:@"Insider Cordova Plugin: initWithLaunchOptions" andCommand:command];
     } @catch (NSException *exception){
         [Insider sendError:exception desc:@"Insider Cordova Plugin - initWithLaunchOptions"];
@@ -50,12 +50,12 @@
         if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1] || ![command.arguments objectAtIndex:2] || ![command.arguments objectAtIndex:3]) {
             return;
         }
-
+        
         [Insider registerInsiderCallbackWithSelector:@selector(registerCallback:) sender:self];
         [Insider setHybridSDKVersion:[command.arguments objectAtIndex:1]];
         [Insider initWithLaunchOptions:nil partnerName:[command.arguments objectAtIndex:0] appGroup:[command.arguments objectAtIndex:2] customEndpoint:[command.arguments objectAtIndex:3]];
         [Insider applicationDidBecomeActive];
-
+        
         [self sendSuccessResultWithString:@"Insider Cordova Plugin: initWithCustomEndpoint" andCommand:command];
     } @catch (NSException *exception){
         [Insider sendError:exception desc:@"Insider Cordova Plugin.m - initWithCustomEndpoint"];
@@ -66,12 +66,12 @@
     @try {
         if (![command.arguments objectAtIndex:0])
             return;
-
+        
         [self.commandDelegate runInBackground:^{
             NSString* partnerName = [[command arguments] objectAtIndex:0];
-
+            
             [Insider reinitWithPartnerName:partnerName];
-
+            
             [self sendSuccessResultWithString:@"Insider Cordova Plugin: Re-Initialized." andCommand:command];
         }];
     } @catch (NSException *exception) {
@@ -85,7 +85,7 @@
             return;
         InsiderCallbackType type = (InsiderCallbackType)[[callbackDictionary objectForKey:@"type"] intValue];
         NSString* callbackData = [InsiderHybrid dictToJson:callbackDictionary];
-
+        
         NSString *js;
         switch (type) {
             case InsiderCallbackTypeNotificationOpen:{
@@ -349,55 +349,91 @@
 - (void)visitHomePage:(CDVInvokedUrlCommand *)command {
     @try {
         dispatch_async(dispatch_get_main_queue(), ^{
-            [Insider visitHomepage];
+            NSDictionary *mappedCustomParameters = [CDVUtils parseCustomParameters:[command.arguments objectAtIndex:0]];
+            
+            if (mappedCustomParameters.count > 0) {
+                [Insider visitHomepageWithCustomParameters:mappedCustomParameters];
+            } else {
+                [Insider visitHomepage];
+            }
+            
             [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
         });
     } @catch (NSException *e) {
         [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+        [self sendErrorResultWithString:[NSString stringWithFormat:@"Exception: %@", e.reason] andCommand:command];
     }
 }
 
 - (void)visitListingPage:(CDVInvokedUrlCommand *)command {
     @try {
         dispatch_async(dispatch_get_main_queue(), ^{
-            if (![command.arguments objectAtIndex:0]) return;
-            [Insider visitListingPageWithTaxonomy:[command.arguments objectAtIndex:0]];
+            if (![command.arguments objectAtIndex:0]) {
+                [self sendErrorResultWithString:@"Taxonomy is required" andCommand:command];
+                return;
+            };
+            
+            NSDictionary *mappedCustomParameters = [CDVUtils parseCustomParameters:[command.arguments objectAtIndex:1]];
+            
+            if (mappedCustomParameters.count > 0) {
+                [Insider visitListingPageWithTaxonomy:[command.arguments objectAtIndex:0] customParameters:mappedCustomParameters];
+            } else {
+                [Insider visitListingPageWithTaxonomy:[command.arguments objectAtIndex:0]];
+            }
+            
             [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
         });
     } @catch (NSException *e) {
         [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+        [self sendErrorResultWithString:[NSString stringWithFormat:@"Exception: %@", e.reason] andCommand:command];
     }
 }
 
 - (void)visitProductDetailPage:(CDVInvokedUrlCommand *)command {
     @try {
         dispatch_async(dispatch_get_main_queue(), ^{
-            if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1] || ![command.arguments objectAtIndex:2]) return;
+            if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1] || ![command.arguments objectAtIndex:2]) {
+                [self sendErrorResultWithString:@"Required fields, optional fields and custom product parameters are required" andCommand:command];
+                return;
+            };
+            
             NSDictionary *requiredFields = [command.arguments objectAtIndex:0];
             NSDictionary *optionalFields = [command.arguments objectAtIndex:1];
             NSArray *customParameters = [command.arguments objectAtIndex:2];
+            NSDictionary *mappedCustomParameters = [CDVUtils parseCustomParameters:[command.arguments objectAtIndex:3]];
             InsiderProduct* product = [CDVUtils parseProductFromRequiredFields:requiredFields andOptionalFields:optionalFields andCustomParameters:customParameters];
-            [Insider visitProductDetailPageWithProduct:product];
+            
+            if (mappedCustomParameters.count > 0) {
+                [Insider visitProductDetailPageWithProduct:product customParameters:mappedCustomParameters];
+            } else {
+                [Insider visitProductDetailPageWithProduct:product];
+            }
+            
             [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
         });
     } @catch (NSException *e) {
         [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+        [self sendErrorResultWithString:[NSString stringWithFormat:@"Exception: %@", e.reason] andCommand:command];
     }
 }
 
 - (void)visitCartPage:(CDVInvokedUrlCommand *)command {
     @try {
         dispatch_async(dispatch_get_main_queue(), ^{
-            if (![command.arguments objectAtIndex:0]) return;
+            if (![command.arguments objectAtIndex:0]) {
+                [self sendErrorResultWithString:@"Products array is required" andCommand:command];
+                return;
+            };
+            
             NSArray *productsArray = [command.arguments objectAtIndex:0];
             NSMutableArray *insiderProducts = [NSMutableArray array];
-            
+
             for (NSDictionary *productDict in productsArray) {
                 if (![productDict isKindOfClass:[NSDictionary class]]) continue;
                 NSDictionary *requiredFields = [productDict objectForKey:@"requiredFields"];
                 NSDictionary *optionalFields = [productDict objectForKey:@"optionalFields"];
                 NSArray *customParameters = [productDict objectForKey:@"customParameters"];
-                
+
                 if (requiredFields) {
                     InsiderProduct *product = [CDVUtils parseProductFromRequiredFields:requiredFields andOptionalFields:optionalFields andCustomParameters:customParameters];
                     if (product) {
@@ -405,44 +441,79 @@
                     }
                 }
             }
-            
-            [InsiderHybrid visitCartPage:insiderProducts];
+
+            NSString *saleID = (command.arguments.count > 1 && ![[command.arguments objectAtIndex:1] isKindOfClass:[NSNull class]]) ? [command.arguments objectAtIndex:1] : nil;
+            NSArray *customParamsArray = (command.arguments.count > 2 && ![[command.arguments objectAtIndex:2] isKindOfClass:[NSNull class]]) ? [command.arguments objectAtIndex:2] : @[];
+            NSDictionary *mappedCustomParameters = [CDVUtils parseCustomParameters:customParamsArray];
+
+            if (saleID.length > 0) {
+                [Insider visitCartPageWithProducts:[insiderProducts copy] saleID:saleID customParameters:mappedCustomParameters];
+            } else if (mappedCustomParameters.count > 0) {
+                [Insider visitCartPageWithProducts:[insiderProducts copy] customParameters:mappedCustomParameters];
+            } else {
+                [InsiderHybrid visitCartPage:insiderProducts];
+            }
             [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
         });
     } @catch (NSException *e) {
         [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+        [self sendErrorResultWithString:[NSString stringWithFormat:@"Exception: %@", e.reason] andCommand:command];
     }
 }
 
 - (void)itemPurchased:(CDVInvokedUrlCommand *)command {
     @try {
         dispatch_async(dispatch_get_main_queue(), ^{
-            if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1] || ![command.arguments objectAtIndex:2] || ![command.arguments objectAtIndex:3]) return;
+            if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1] || ![command.arguments objectAtIndex:2] || ![command.arguments objectAtIndex:3]) {
+                [self sendErrorResultWithString:@"Required fields, optional fields, custom product parameters and custom parameters are required" andCommand:command];
+                return;
+            };
+            
             NSDictionary *requiredFields = [command.arguments objectAtIndex:1];
             NSDictionary *optionalFields = [command.arguments objectAtIndex:2];
             NSArray *customParameters = [command.arguments objectAtIndex:3];
             InsiderProduct *product = [CDVUtils parseProductFromRequiredFields:requiredFields andOptionalFields:optionalFields andCustomParameters:customParameters];
-            [Insider itemPurchasedWithSaleID:[command.arguments objectAtIndex:0] product:product];
+            NSDictionary *mappedCustomParameters = [CDVUtils parseCustomParameters:[command.arguments objectAtIndex:4]];
+            
+            if (mappedCustomParameters.count > 0) {
+                [Insider itemPurchasedWithSaleID:[command.arguments objectAtIndex:0] product:product customParameters:mappedCustomParameters];
+            } else {
+                [Insider itemPurchasedWithSaleID:[command.arguments objectAtIndex:0] product:product];
+            }
+            
             [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
         });
     } @catch (NSException *e) {
         [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+        [self sendErrorResultWithString:[NSString stringWithFormat:@"Exception: %@", e.reason] andCommand:command];
     }
 }
 
 - (void)itemAddedToCart:(CDVInvokedUrlCommand *)command {
     @try {
         dispatch_async(dispatch_get_main_queue(), ^{
-            if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1] || ![command.arguments objectAtIndex:2]) return;
+            if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1] || ![command.arguments objectAtIndex:2]) {
+                [self sendErrorResultWithString:@"Required fields, optional fields and custom product parameters are required" andCommand:command];
+                return;
+            };
+            
             NSDictionary *requiredFields = [command.arguments objectAtIndex:0];
             NSDictionary *optionalFields = [command.arguments objectAtIndex:1];
             NSArray *customParameters = [command.arguments objectAtIndex:2];
             InsiderProduct *product = [CDVUtils parseProductFromRequiredFields:requiredFields andOptionalFields:optionalFields andCustomParameters:customParameters];
-            [Insider itemAddedToCartWithProduct:product];
+            NSDictionary *mappedCustomParameters = [CDVUtils parseCustomParameters:[command.arguments objectAtIndex:3]];
+            
+            if (mappedCustomParameters.count > 0) {
+                [Insider itemAddedToCartWithProduct:product customParameters:mappedCustomParameters];
+            } else {
+                [Insider itemAddedToCartWithProduct:product];
+            }
+            
             [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
         });
     } @catch (NSException *e) {
         [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+        [self sendErrorResultWithString:[NSString stringWithFormat:@"Exception: %@", e.reason] andCommand:command];
     }
 }
 
@@ -450,22 +521,42 @@
     @try {
         dispatch_async(dispatch_get_main_queue(), ^{
             if (![command.arguments objectAtIndex:0]) return;
-            [Insider itemRemovedFromCartWithProductID:[command.arguments objectAtIndex:0]];
+            NSString *productID = [command.arguments objectAtIndex:0];
+            NSString *saleID = (command.arguments.count > 1 && ![[command.arguments objectAtIndex:1] isKindOfClass:[NSNull class]]) ? [command.arguments objectAtIndex:1] : nil;
+            NSArray *customParamsArray = (command.arguments.count > 2 && ![[command.arguments objectAtIndex:2] isKindOfClass:[NSNull class]]) ? [command.arguments objectAtIndex:2] : @[];
+            NSDictionary *mappedCustomParameters = [CDVUtils parseCustomParameters:customParamsArray];
+
+            if (saleID.length > 0) {
+                [Insider itemRemovedFromCartWithProductID:productID saleID:saleID customParameters:mappedCustomParameters];
+            } else if (mappedCustomParameters.count > 0) {
+                [Insider itemRemovedFromCartWithProductID:productID customParameters:mappedCustomParameters];
+            } else {
+                [Insider itemRemovedFromCartWithProductID:productID];
+            }
             [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
         });
     } @catch (NSException *e) {
         [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+        [self sendErrorResultWithString:[NSString stringWithFormat:@"Exception: %@", e.reason] andCommand:command];
     }
 }
 
 - (void)cartCleared:(CDVInvokedUrlCommand *)command {
     @try {
         dispatch_async(dispatch_get_main_queue(), ^{
-            [Insider cartCleared];
+            NSDictionary *mappedCustomParameters = [CDVUtils parseCustomParameters:[command.arguments objectAtIndex:0]];
+            
+            if (mappedCustomParameters.count > 0) {
+                [Insider cartClearedWithCustomParameters:mappedCustomParameters];
+            } else {
+                [Insider cartCleared];
+            }
+            
             [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
         });
     } @catch (NSException *e) {
         [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+        [self sendErrorResultWithString:[NSString stringWithFormat:@"Exception: %@", e.reason] andCommand:command];
     }
 }
 
@@ -503,7 +594,7 @@
     @try {
         [self.commandDelegate runInBackground:^{
             if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1] || ![command.arguments objectAtIndex:2] || ![command.arguments objectAtIndex:3]) return;
-
+            
             [Insider getSmartRecommendationWithProductIDs:[command.arguments objectAtIndex:0] recommendationID:[[command.arguments objectAtIndex:1] intValue] locale:[command.arguments objectAtIndex:2]  currency:[command.arguments objectAtIndex:3] smartRecommendation:^(NSDictionary *recommendation) {
                 [self sendSuccessResultWithDictionary:recommendation andCommand:command];
             }];
@@ -532,16 +623,216 @@
     @try {
         [self.commandDelegate runInBackground:^{
             if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1] || ![command.arguments objectAtIndex:2]) return;
-
+            
             NSInteger startDateEpoch = [[command.arguments objectAtIndex:1] integerValue];
             NSInteger endDateEpoch = [[command.arguments objectAtIndex:2] integerValue];
-
+            
             [InsiderHybrid getMessageCenterDataWithLimit:[[command.arguments objectAtIndex:0] intValue] startDate:startDateEpoch endDate:endDateEpoch success:^(NSArray *messageCenterData) {
                 [self sendSuccessResultWithArray:messageCenterData andCommand:command];
             }];
         }];
     } @catch (NSException *e) {
         [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+    }
+}
+
+- (void)getMessageCenterDataWithIdentifiers:(CDVInvokedUrlCommand *)command {
+    @try {
+        [self.commandDelegate runInBackground:^{
+            if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1] || ![command.arguments objectAtIndex:2] || ![command.arguments objectAtIndex:3]) return;
+
+            NSTimeInterval startDateEpoch = [[command.arguments objectAtIndex:1] doubleValue] / 1000.0;
+            NSTimeInterval endDateEpoch = [[command.arguments objectAtIndex:2] doubleValue] / 1000.0;
+            NSDate *startDate = [NSDate dateWithTimeIntervalSince1970:startDateEpoch];
+            NSDate *endDate = [NSDate dateWithTimeIntervalSince1970:endDateEpoch];
+
+            InsiderIdentifiers *insiderIdentifiers = [self buildInsiderIdentifiersFromMap:[command.arguments objectAtIndex:3]];
+
+            [Insider getMessageCenterDataWithLimit:[[command.arguments objectAtIndex:0] integerValue]
+                                         startDate:startDate
+                                           endDate:endDate
+                                       identifiers:insiderIdentifiers
+                                           success:^(NSArray *messageCenterData) {
+                [self sendSuccessResultWithArray:messageCenterData andCommand:command];
+            }];
+        }];
+    } @catch (NSException *e) {
+        [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+    }
+}
+
+- (void)getAppCardsCampaigns:(CDVInvokedUrlCommand *)command {
+    @try {
+        [self.commandDelegate runInBackground:^{
+            [[Insider appCards] getCampaigns:^(InsiderAppCardCampaignsResponseModel *inbox, NSError *error) {
+                if (error) {
+                    [self sendErrorResultWithDictionary:[CDVUtils appCardsErrorToDictionary:error] andCommand:command];
+                } else {
+                    NSDictionary *inboxDict = [inbox toDictionary] ?: @{};
+                    [self sendSuccessResultWithDictionary:inboxDict andCommand:command];
+                }
+            }];
+        }];
+    } @catch (NSException *e) {
+        [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+    }
+}
+
+- (void)markAppCardAsRead:(CDVInvokedUrlCommand *)command {
+    @try {
+        [self.commandDelegate runInBackground:^{
+            if (![command.arguments objectAtIndex:0]) {
+                [self sendErrorResultWithString:@"appCardIds argument is required" andCommand:command];
+                return;
+            }
+
+            NSArray *appCardIdsArray = [command.arguments objectAtIndex:0];
+            NSSet<NSString *> *appCardIds = [NSSet setWithArray:appCardIdsArray];
+            [[Insider appCards] markAsRead:appCardIds completion:^(NSError *error) {
+                if (error) {
+                    [self sendErrorResultWithDictionary:[CDVUtils appCardsErrorToDictionary:error] andCommand:command];
+                } else {
+                    [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
+                }
+            }];
+        }];
+    } @catch (NSException *e) {
+        [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+        [self sendErrorResultWithString:[NSString stringWithFormat:@"Exception: %@", e.reason] andCommand:command];
+    }
+}
+
+- (void)markAppCardAsUnread:(CDVInvokedUrlCommand *)command {
+    @try {
+        [self.commandDelegate runInBackground:^{
+            if (![command.arguments objectAtIndex:0]) {
+                [self sendErrorResultWithString:@"appCardIds argument is required" andCommand:command];
+                return;
+            }
+
+            NSArray *appCardIdsArray = [command.arguments objectAtIndex:0];
+            NSSet<NSString *> *appCardIds = [NSSet setWithArray:appCardIdsArray];
+            [[Insider appCards] markAsUnread:appCardIds completion:^(NSError *error) {
+                if (error) {
+                    [self sendErrorResultWithDictionary:[CDVUtils appCardsErrorToDictionary:error] andCommand:command];
+                } else {
+                    [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
+                }
+            }];
+        }];
+    } @catch (NSException *e) {
+        [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+        [self sendErrorResultWithString:[NSString stringWithFormat:@"Exception: %@", e.reason] andCommand:command];
+    }
+}
+
+- (void)viewAppCard:(CDVInvokedUrlCommand *)command {
+    @try {
+        if (![command.arguments objectAtIndex:0]) {
+            [self sendErrorResultWithString:@"app card data argument is required" andCommand:command];
+            return;
+        }
+
+        NSDictionary *data = [CDVUtils dictionaryFromJSONString:[command.arguments objectAtIndex:0]];
+
+        if (!data) {
+            [self sendErrorResultWithString:@"Invalid app card data JSON" andCommand:command];
+            return;
+        }
+
+        InsiderAppCardModel *model = [[InsiderAppCardModel alloc] initWithDictionary:data error:nil];
+
+        if (model) {
+            [model view];
+            [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
+        } else {
+            [self sendErrorResultWithString:@"Failed to create app card model" andCommand:command];
+        }
+    } @catch (NSException *e) {
+        [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+        [self sendErrorResultWithString:[NSString stringWithFormat:@"Exception: %@", e.reason] andCommand:command];
+    }
+}
+
+- (void)clickAppCard:(CDVInvokedUrlCommand *)command {
+    @try {
+        if (![command.arguments objectAtIndex:0]) {
+            [self sendErrorResultWithString:@"app card data argument is required" andCommand:command];
+            return;
+        }
+
+        NSDictionary *data = [CDVUtils dictionaryFromJSONString:[command.arguments objectAtIndex:0]];
+
+        if (!data) {
+            [self sendErrorResultWithString:@"Invalid app card data JSON" andCommand:command];
+            return;
+        }
+
+        InsiderAppCardModel *model = [[InsiderAppCardModel alloc] initWithDictionary:data error:nil];
+
+        if (model) {
+            [model click];
+            [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
+        } else {
+            [self sendErrorResultWithString:@"Failed to create app card model" andCommand:command];
+        }
+    } @catch (NSException *e) {
+        [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+        [self sendErrorResultWithString:[NSString stringWithFormat:@"Exception: %@", e.reason] andCommand:command];
+    }
+}
+
+- (void)clickAppCardButton:(CDVInvokedUrlCommand *)command {
+    @try {
+        if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1]) {
+            [self sendErrorResultWithString:@"appCardId and button data arguments are required" andCommand:command];
+            return;
+        }
+
+        NSDictionary *data = [CDVUtils dictionaryFromJSONString:[command.arguments objectAtIndex:1]];
+
+        if (!data) {
+            [self sendErrorResultWithString:@"Invalid button data JSON" andCommand:command];
+            return;
+        }
+
+        InsiderAppCardButtonModel *model = [[InsiderAppCardButtonModel alloc] initWithDictionary:data error:nil];
+
+        if (model) {
+            [model setAppCardId:[command.arguments objectAtIndex:0]];
+            [model click];
+
+            [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
+        } else {
+            [self sendErrorResultWithString:@"Failed to create button model" andCommand:command];
+        }
+    } @catch (NSException *e) {
+        [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+        [self sendErrorResultWithString:[NSString stringWithFormat:@"Exception: %@", e.reason] andCommand:command];
+    }
+}
+
+- (void)deleteAppCards:(CDVInvokedUrlCommand *)command {
+    @try {
+        [self.commandDelegate runInBackground:^{
+            if (![command.arguments objectAtIndex:0]) {
+                [self sendErrorResultWithString:@"appCardIds argument is required" andCommand:command];
+                return;
+            }
+
+            NSArray *appCardIdsArray = [command.arguments objectAtIndex:0];
+            NSSet<NSString *> *appCardIds = [NSSet setWithArray:appCardIdsArray];
+            [[Insider appCards] deleteAppCards:appCardIds completion:^(NSError *error) {
+                if (error) {
+                    [self sendErrorResultWithDictionary:[CDVUtils appCardsErrorToDictionary:error] andCommand:command];
+                } else {
+                    [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
+                }
+            }];
+        }];
+    } @catch (NSException *e) {
+        [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+        [self sendErrorResultWithString:[NSString stringWithFormat:@"Exception: %@", e.reason] andCommand:command];
     }
 }
 
@@ -610,7 +901,7 @@
 - (void)setPhoneNumber:(CDVInvokedUrlCommand *)command {
     @try {
         if (![command.arguments objectAtIndex:0]) return;
-
+        
         [Insider getCurrentUser].setPhoneNumber([command.arguments objectAtIndex:0]);
     } @catch (NSException *e) {
         [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
@@ -629,7 +920,7 @@
 - (void)setEmail:(CDVInvokedUrlCommand *)command {
     @try {
         if (![command.arguments objectAtIndex:0]) return;
-
+        
         [Insider getCurrentUser].setEmail([command.arguments objectAtIndex:0]);
     } @catch (NSException *e) {
         [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
@@ -676,7 +967,7 @@
     @try {
         if (![command.arguments objectAtIndex:0]) return;
         [Insider getCurrentUser].setLocale([command.arguments objectAtIndex:0]);
-
+        
     } @catch (NSException *e) {
         [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
     }
@@ -686,7 +977,7 @@
     @try {
         if (![command.arguments objectAtIndex:0]) return;
         [Insider getCurrentUser].setFacebookID([command.arguments objectAtIndex:0]);
-
+        
     } @catch (NSException *e) {
         [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
     }
@@ -696,7 +987,7 @@
     @try {
         if (![command.arguments objectAtIndex:0]) return;
         [Insider getCurrentUser].setTwitterID([command.arguments objectAtIndex:0]);
-
+        
     } @catch (NSException *e) {
         [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
     }
@@ -706,7 +997,7 @@
     @try {
         if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1]) return;
         [Insider getCurrentUser].setCustomAttributeWithString([command.arguments objectAtIndex:0], [command.arguments objectAtIndex:1]);
-
+        
     } @catch (NSException *e) {
         [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
     }
@@ -716,7 +1007,7 @@
     @try {
         if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1]) return;
         [Insider getCurrentUser].setCustomAttributeWithInt([command.arguments objectAtIndex:0], [[command.arguments objectAtIndex:1] intValue]);
-
+        
     } @catch (NSException *e) {
         [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
     }
@@ -726,7 +1017,7 @@
     @try {
         if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1]) return;
         [Insider getCurrentUser].setCustomAttributeWithDouble([command.arguments objectAtIndex:0], [[command.arguments objectAtIndex:1] doubleValue]);
-
+        
     } @catch (NSException *e) {
         [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
     }
@@ -736,7 +1027,7 @@
     @try {
         if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1]) return;
         [Insider getCurrentUser].setCustomAttributeWithBoolean([command.arguments objectAtIndex:0], [[command.arguments objectAtIndex:1] boolValue]);
-
+        
     } @catch (NSException *e) {
         [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
     }
@@ -751,7 +1042,7 @@
         NSTimeInterval seconds = ((NSTimeInterval)epochMillis) / 1000.0;
         NSDate *dateValue = [NSDate dateWithTimeIntervalSince1970:seconds];
         [Insider getCurrentUser].setCustomAttributeWithDate([command.arguments objectAtIndex:0], dateValue);
-
+        
     } @catch (NSException *e) {
         [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
     }
@@ -761,7 +1052,7 @@
     @try {
         if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1]) return;
         [Insider getCurrentUser].setCustomAttributeWithArray([command.arguments objectAtIndex:0], [command.arguments objectAtIndex:1]);
-
+        
     } @catch (NSException *e) {
         [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
     }
@@ -771,7 +1062,7 @@
     @try {
         if (![command.arguments objectAtIndex:0]) return;
         [Insider getCurrentUser].unsetCustomAttribute([command.arguments objectAtIndex:0]);
-
+        
     } @catch (NSException *e) {
         [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
     }
@@ -794,7 +1085,7 @@
                     insiderIdentifiers.addCustomIdentifier(key, [identifiers objectForKey:key]);
                 }
             }
-
+            
             if ([command.arguments count] > 1) {
                 [[Insider getCurrentUser] login:insiderIdentifiers insiderIDResult:^(NSString *insiderID) {
                     [self sendSuccessResultWithString:insiderID andCommand:command];
@@ -814,7 +1105,7 @@
             [[Insider getCurrentUser] logout];
             [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
         });
-
+        
     } @catch (NSException *e) {
         [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
     }
@@ -827,9 +1118,9 @@
             if ([command.arguments count] > 0 && [command.arguments objectAtIndex:0] != [NSNull null]) {
                 identifiersArray = [command.arguments objectAtIndex:0];
             }
-
+            
             NSArray<InsiderIdentifiers *> *identifiers = [self convertArrayToInsiderIdentifiersArray:identifiersArray];
-
+            
             if ([command.arguments count] > 1) {
                 [[Insider getCurrentUser] logoutResettingInsiderID:identifiers insiderIDResult:^(NSString *insiderID) {
                     NSString *insiderIDToPass = insiderID ? insiderID : @"";
@@ -848,7 +1139,14 @@
 - (void)signUpConfirmation:(CDVInvokedUrlCommand *)command {
     @try {
         dispatch_async(dispatch_get_main_queue(), ^{
-            [Insider signUpConfirmation];
+            NSDictionary *mappedCustomParameters = [CDVUtils parseCustomParameters:[command.arguments objectAtIndex:0]];
+            
+            if (mappedCustomParameters.count > 0) {
+                [Insider signUpConfirmationWithCustomParameters:mappedCustomParameters];
+            } else {
+                [Insider signUpConfirmation];
+            }
+            
             [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
         });
     } @catch (NSException *exception) {
@@ -877,7 +1175,7 @@
 - (void)foregroundPushCallback:(UNNotification *) notification {
     @try {
         NSString *jsCode = [NSString stringWithFormat:@"cordova.fireDocumentEvent('ins_foreground_push_callback',%@);", [InsiderHybrid dictToJson:notification.request.content.userInfo]];
-
+        
         [self.commandDelegate evalJs:jsCode];
     } @catch (NSException *exception) {
         [Insider sendError:exception desc:@"Insider.m - foregroundPushCallback"];
@@ -887,11 +1185,11 @@
 - (void) handleNotification:(CDVInvokedUrlCommand *) command {
     @try {
         if (![command.arguments objectAtIndex:0]) return;
-
+        
         NSMutableDictionary *mutableNotification = [[command.arguments objectAtIndex:0] mutableCopy];
-
+        
         mutableNotification[@"aps"] = @"insider";
-
+        
         [Insider handlePushLogWithUserInfo:mutableNotification];
         [Insider trackInteractiveLogWithUserInfo:mutableNotification];
     } @catch (NSException *exception){
@@ -904,7 +1202,7 @@
         [self sendSuccessResultWithString:[Insider getInsiderID] andCommand:command];
     } @catch (NSException *exception){
         [Insider sendError:exception desc:@"Insider.m - getInsiderID"];
-
+        
         [self sendSuccessResultWithString:nil andCommand:command];
     }
 }
@@ -920,10 +1218,10 @@
 -(void)insiderIDChangeListener:(NSString *)insiderID {
     @try {
         if (insiderID == nil) return;
-
+        
         NSString *data = [NSString stringWithFormat:@"{""insiderID"":""'%@'""}", insiderID];
         NSString *js = [NSString stringWithFormat:@"cordova.fireDocumentEvent('ins_insider_id_listener',%@);", data];
-
+        
         [self.commandDelegate evalJs:js];
     } @catch (NSException *e){
         [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
@@ -934,7 +1232,7 @@
     @try {
         dispatch_async(dispatch_get_main_queue(), ^{
             [Insider disableInAppMessages];
-
+            
             [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
         });
     } @catch (NSException *exception) {
@@ -946,7 +1244,7 @@
     @try {
         dispatch_async(dispatch_get_main_queue(), ^{
             [Insider enableInAppMessages];
-
+            
             [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
         });
     } @catch (NSException *exception) {
@@ -954,54 +1252,114 @@
     }
 }
 
+- (void)showNativeAppReview:(CDVInvokedUrlCommand *)command {
+    @try {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [Insider showNativeAppReview];
+            [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
+        });
+    } @catch (NSException *exception) {
+        [Insider sendError:exception desc:@"Insider.m - showNativeAppReview"];
+    }
+}
+
+- (void)handleURL:(CDVInvokedUrlCommand *)command {
+    @try {
+        if (![command.arguments objectAtIndex:0]) return;
+
+        NSString *value = [command.arguments objectAtIndex:0];
+        NSURL *url = [NSURL URLWithString:value];
+
+        if (url == nil) {
+            return;
+        }
+
+        [Insider handleUrl:url];
+        [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
+    } @catch (NSException *exception) {
+        [Insider sendError:exception desc:@"Insider.m - handleURL"];
+    }
+}
+
 - (void)itemAddedToWishlist:(CDVInvokedUrlCommand *)command {
     @try {
         [self.commandDelegate runInBackground:^{
-            if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1] || ![command.arguments objectAtIndex:2]) return;
-
+            if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1] || ![command.arguments objectAtIndex:2]) {
+                [self sendErrorResultWithString:@"Required fields, optional fields and custom product parameters are required" andCommand:command];
+                return;
+            };
+            
             NSDictionary *requiredFields = [command.arguments objectAtIndex:0];
             NSDictionary *optionalFields = [command.arguments objectAtIndex:1];
             NSArray *customParameters = [command.arguments objectAtIndex:2];
             InsiderProduct *product = [CDVUtils parseProductFromRequiredFields:requiredFields andOptionalFields:optionalFields andCustomParameters:customParameters];
-
-            [Insider itemAddedToWishlistWithProduct:product];
-
+            NSDictionary *mappedCustomParameters = [CDVUtils parseCustomParameters:[command.arguments objectAtIndex:3]];
+            
+            if (mappedCustomParameters.count > 0) {
+                [Insider itemAddedToWishlistWithProduct:product customParameters:mappedCustomParameters];
+            } else {
+                [Insider itemAddedToWishlistWithProduct:product];
+            }
+            
             [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
         }];
     } @catch (NSException *e) {
         [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+        [self sendErrorResultWithString:[NSString stringWithFormat:@"Exception: %@", e.reason] andCommand:command];
     }
 }
 
 - (void)itemRemovedFromWishlist:(CDVInvokedUrlCommand *)command {
     @try {
         [self.commandDelegate runInBackground:^{
-            if (![command.arguments objectAtIndex:0]) return;
-
-            [Insider itemRemovedFromWishlistWithProductID:[command.arguments objectAtIndex:0]];
+            if (![command.arguments objectAtIndex:0]) {
+                [self sendErrorResultWithString:@"Product ID is required" andCommand:command];
+                return;
+            };
+            
+            NSDictionary *mappedCustomParameters = [CDVUtils parseCustomParameters:[command.arguments objectAtIndex:1]];
+            
+            if (mappedCustomParameters.count > 0) {
+                [Insider itemRemovedFromWishlistWithProductID:[command.arguments objectAtIndex:0] customParameters:mappedCustomParameters];
+            } else {
+                [Insider itemRemovedFromWishlistWithProductID:[command.arguments objectAtIndex:0]];
+            }
+            
             [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
         }];
     } @catch (NSException *e) {
         [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+        [self sendErrorResultWithString:[NSString stringWithFormat:@"Exception: %@", e.reason] andCommand:command];
     }
 }
 
 - (void)wishlistCleared:(CDVInvokedUrlCommand *)command {
     @try {
         [self.commandDelegate runInBackground:^{
-            [Insider wishlistCleared];
-
+            NSDictionary *mappedCustomParameters = [CDVUtils parseCustomParameters:[command.arguments objectAtIndex:0]];
+            
+            if (mappedCustomParameters.count > 0) {
+                [Insider wishlistClearedWithCustomParameters:mappedCustomParameters];
+            } else {
+                [Insider wishlistCleared];
+            }
+            
             [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
         }];
     } @catch (NSException *e) {
         [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+        [self sendErrorResultWithString:[NSString stringWithFormat:@"Exception: %@", e.reason] andCommand:command];
     }
 }
 
 - (void)visitWishlistPage:(CDVInvokedUrlCommand *)command {
     @try {
         [self.commandDelegate runInBackground:^{
-            if (![command.arguments objectAtIndex:0]) return;
+            if (![command.arguments objectAtIndex:0]) {
+                [self sendErrorResultWithString:@"Products array is required" andCommand:command];
+                return;
+            };
+            
             NSArray *productsArray = [command.arguments objectAtIndex:0];
             NSMutableArray *insiderProducts = [NSMutableArray array];
             
@@ -1019,11 +1377,19 @@
                 }
             }
             
-            [Insider visitWishlistWithProducts:insiderProducts];
+            NSDictionary *mappedCustomParameters = [CDVUtils parseCustomParameters:[command.arguments objectAtIndex:1]];
+            
+            if (mappedCustomParameters.count > 0) {
+                [Insider visitWishlistWithProducts:insiderProducts customParameters:mappedCustomParameters];
+            } else {
+                [Insider visitWishlistWithProducts:insiderProducts];
+            }
+            
             [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
         }];
     } @catch (NSException *e) {
         [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+        [self sendErrorResultWithString:[NSString stringWithFormat:@"Exception: %@", e.reason] andCommand:command];
     }
 }
 
@@ -1041,6 +1407,13 @@
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:resultMessage];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
+
+- (void) sendErrorResultWithDictionary:(NSDictionary *)resultMessage andCommand:(CDVInvokedUrlCommand *)command {
+    CDVPluginResult *pluginResult = nil;
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:resultMessage];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
 
 - (void) sendSuccessResultWithString:(NSString *)resultMessage andCommand:(CDVInvokedUrlCommand *)command {
     CDVPluginResult *pluginResult = nil;
@@ -1072,11 +1445,27 @@
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+- (InsiderIdentifiers *)buildInsiderIdentifiersFromMap:(NSDictionary *)identifiersMap {
+    InsiderIdentifiers *identifiers = [[InsiderIdentifiers alloc] init];
+    for (NSString *key in identifiersMap.allKeys) {
+        if ([key isEqualToString:@"addEmail"]) {
+            identifiers.addEmail([identifiersMap objectForKey:key]);
+        } else if ([key isEqualToString:@"addPhoneNumber"]) {
+            identifiers.addPhoneNumber([identifiersMap objectForKey:key]);
+        } else if ([key isEqualToString:@"addUserID"]) {
+            identifiers.addUserID([identifiersMap objectForKey:key]);
+        } else {
+            identifiers.addCustomIdentifier(key, [identifiersMap objectForKey:key]);
+        }
+    }
+    return identifiers;
+}
+
 - (NSArray<InsiderIdentifiers *> *)convertArrayToInsiderIdentifiersArray:(NSArray *)identifiersArray {
     if (identifiersArray == nil || identifiersArray.count == 0) {
         return nil;
     }
-
+    
     NSMutableArray<InsiderIdentifiers *> *identifiers = [NSMutableArray array];
     for (NSDictionary *identifierDict in identifiersArray) {
         InsiderIdentifiers *insiderIdentifiers = [[InsiderIdentifiers alloc] init];

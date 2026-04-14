@@ -14,7 +14,7 @@
     "libraries": {
         "InsiderMobile": {
             "name": "InsiderMobile",
-            "spec": "14.2.4",
+            "spec": "15.0.0",
             "count": 1
         },
         "InsiderGeofence": {

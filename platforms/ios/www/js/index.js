@@ -1,5 +1,17 @@
 const taxonomy = ['taxonomy1', 'taxonomy2', 'taxonomy3'];
 
+function sampleCustomParameters() {
+    return {
+        string_param: 'This is Insider.',
+        int_param: 42,
+        double_param: 9.99,
+        bool_param: true,
+        date_param: new Date(),
+        string_array_param: ['tag1', 'tag2', 'tag3'],
+        numeric_array_param: [1, 2, 3]
+    };
+}
+
 let app = {
     initialize: function() {
         document.addEventListener('deviceready', this.onDeviceReady.bind(this), false);
@@ -18,8 +30,14 @@ let app = {
 
         document.getElementById('itemAddToCart').addEventListener('click', purchase.itemAddToCart);
         document.getElementById('itemRemoveFromCart').addEventListener('click', purchase.itemRemoveFromCart);
+        document.getElementById('itemRemoveFromCartWithSaleID').addEventListener('click', purchase.itemRemoveFromCartWithSaleID);
         document.getElementById('itemPurchase').addEventListener('click', purchase.itemPurchase);
         document.getElementById('cartClear').addEventListener('click', purchase.cartClear);
+
+        document.getElementById('itemAddToWishlist').addEventListener('click', wishlist.itemAddToWishlist);
+        document.getElementById('itemRemoveFromWishlist').addEventListener('click', wishlist.itemRemoveFromWishlist);
+        document.getElementById('wishlistClear').addEventListener('click', wishlist.wishlistClear);
+        document.getElementById('visitWishlistPage').addEventListener('click', wishlist.visitWishlistPage);
 
         document.getElementById('smartRecommender').addEventListener('click', smartRecommendation.getData);
         document.getElementById('smartRecommenderWithIDs').addEventListener('click', smartRecommendation.withProductIDs);
@@ -30,6 +48,7 @@ let app = {
         document.getElementById('homePage').addEventListener('click', pageVisit.homePage);
         document.getElementById('productPage').addEventListener('click', pageVisit.productPage);
         document.getElementById('cartPage').addEventListener('click', pageVisit.cartPage);
+        document.getElementById('cartPageWithSaleID').addEventListener('click', pageVisit.cartPageWithSaleID);
         document.getElementById('categoryPage').addEventListener('click', pageVisit.categoryPage);
 
         document.getElementById('gdprTrue').addEventListener('click', gdpr.true);
@@ -39,10 +58,16 @@ let app = {
         document.getElementById('mobileAppAccessFalse').addEventListener('click', mobileAppAccess.disable);
 
         document.getElementById('messageCenter').addEventListener('click', getMessageCenterData);
+        document.getElementById('messageCenterWithIdentifiers').addEventListener('click', getMessageCenterDataWithIdentifiers);
+        document.getElementById('openMessageCenter').addEventListener('click', openMessageCenter);
         document.getElementById('contentOptimizer').addEventListener('click', contentOptimizer);
         document.getElementById('contentOptimizerNoCache').addEventListener('click', contentOptimizerNoCache);
 
         document.getElementById('removeInapp').addEventListener('click', removeInapp);
+
+        document.getElementById('showNativeAppReview').addEventListener('click', nativeFeatures.showNativeAppReview);
+        document.getElementById('handleUniversalLink').addEventListener('click', nativeFeatures.handleUniversalLink);
+        document.getElementById('handleURL').addEventListener('click', nativeFeatures.handleURL);
 
         initInsider();
     }
@@ -50,7 +75,9 @@ let app = {
 
 async function initInsider() {
     // FIXME-INSIDER: Please change with your partner name and app group.
-    await window.Insider.init('your_partner_name', 'group.com.useinsider.CordovaDemo',
+    await window.Insider.init(
+        'your_partner_name',
+        'group.com.useinsider.cordovademo',
         (callback) => {
             switch ((callback.result || {}).type) {
                 case window.Insider.callbackType.NOTIFICATION_OPEN:
@@ -141,59 +168,127 @@ const userIdentifiers = {
 const purchase = {
     itemAddToCart: async function() {
         let product = createNewProduct("product_id", "Pear", taxonomy, "ImageURL", 1000, "TRY");
+        const customParameters = sampleCustomParameters();
 
-        await window.Insider.itemAddedToCart(product);
+        await window.Insider.itemAddedToCart(product, customParameters);
 
-        console.log("[INSIDER][itemAddToCart]: Method is triggered, Product: ", product);
+        console.log("[INSIDER][itemAddToCart]: Method is triggered, Product: ", product, "CustomParameters: ", customParameters);
     },
     itemRemoveFromCart: async function() {
         const productID = 'product_id';
+        const customParameters = sampleCustomParameters();
 
-        await window.Insider.itemRemovedFromCart(productID);
+        await window.Insider.itemRemovedFromCart(productID, customParameters);
 
-        console.log("[INSIDER][itemRemoveFromCart]: Method is triggered, Product ID: ", productID);
+        console.log("[INSIDER][itemRemoveFromCart]: Method is triggered, Product ID: ", productID, "CustomParameters: ", customParameters);
+    },
+    itemRemoveFromCartWithSaleID: async function() {
+        const productID = 'product_id';
+        const saleID = 'sale_12345';
+        const customParameters = sampleCustomParameters();
+
+        await window.Insider.itemRemovedFromCart(productID, saleID, customParameters);
+
+        console.log("[INSIDER][itemRemoveFromCartWithSaleID]: Method is triggered, Product ID: ", productID, "SaleID: ", saleID, "CustomParameters: ", customParameters);
     },
     itemPurchase: async function() {
         let product = createNewProduct("product_id", "Pear", taxonomy, "ImageURL", 1000, "TRY");
+        const customParameters = sampleCustomParameters();
 
-        await window.Insider.itemPurchased('product_id', product);
+        await window.Insider.itemPurchased('product_id', product, customParameters);
 
-        console.log("[INSIDER][itemPurchase]: Method is triggered, Product: ", product);
+        console.log("[INSIDER][itemPurchase]: Method is triggered, Product: ", product, "CustomParameters: ", customParameters);
     },
     cartClear: async function() {
-        window.Insider.cartCleared();
+        const customParameters = sampleCustomParameters();
 
-        console.log("[INSIDER][cartClear]: Method is triggered.");
+        window.Insider.cartCleared(customParameters);
+
+        console.log("[INSIDER][cartClear]: Method is triggered, CustomParameters: ", customParameters);
+    }
+}
+
+const wishlist = {
+    itemAddToWishlist: async function() {
+        let product = createNewProduct("product_id", "Pear", taxonomy, "ImageURL", 1000, "TRY");
+        const customParameters = sampleCustomParameters();
+
+        await window.Insider.itemAddedToWishlist(product, customParameters);
+
+        console.log("[INSIDER][itemAddToWishlist]: Method is triggered, Product: ", product, "CustomParameters: ", customParameters);
+    },
+    itemRemoveFromWishlist: async function() {
+        const productID = 'product_id';
+        const customParameters = sampleCustomParameters();
+
+        await window.Insider.itemRemovedFromWishlist(productID, customParameters);
+
+        console.log("[INSIDER][itemRemoveFromWishlist]: Method is triggered, Product ID: ", productID, "CustomParameters: ", customParameters);
+    },
+    wishlistClear: async function() {
+        const customParameters = sampleCustomParameters();
+
+        await window.Insider.wishlistCleared(customParameters);
+
+        console.log("[INSIDER][wishlistClear]: Method is triggered, CustomParameters: ", customParameters);
+    },
+    visitWishlistPage: async function() {
+        let product = createNewProduct("product1", "Pear", taxonomy, "ImageURL", 1000, "TRY");
+        let product2 = createNewProduct("product2", "Apple", taxonomy, "ImageURL", 50, "TRY");
+        const insiderExampleProducts = [product, product2];
+        const customParameters = sampleCustomParameters();
+
+        await window.Insider.visitWishlistPage(insiderExampleProducts, customParameters);
+
+        console.log("[INSIDER][visitWishlistPage]: Method is triggered, CustomParameters: ", customParameters);
     }
 }
 
 const pageVisit = {
     homePage: async function() {
-        await window.Insider.visitHomePage();
+        const customParameters = sampleCustomParameters();
 
-        console.log("[INSIDER][homePage]: Method is triggered.");
+        await window.Insider.visitHomePage(customParameters);
+
+        console.log("[INSIDER][homePage]: Method is triggered, CustomParameters: ", customParameters);
     },
     categoryPage: async function() {
-        await window.Insider.visitListingPage(taxonomy);
+        const customParameters = sampleCustomParameters();
 
-        console.log("[INSIDER][categoryPage]: Method is triggered.");
+        await window.Insider.visitListingPage(taxonomy, customParameters);
+
+        console.log("[INSIDER][categoryPage]: Method is triggered, CustomParameters: ", customParameters);
     },
     productPage: async function() {
         let product = createNewProduct("product1", "Pear", taxonomy, "ImageURL", 1000, "TRY");
+        const customParameters = sampleCustomParameters();
 
-        await window.Insider.visitProductDetailPage(product);
+        await window.Insider.visitProductDetailPage(product, customParameters);
 
-        console.log("[INSIDER][productPage]: Method is triggered.");
+        console.log("[INSIDER][productPage]: Method is triggered, CustomParameters: ", customParameters);
     },
     cartPage: async function() {
         let product = createNewProduct("product1", "Pear", taxonomy, "ImageURL", 1000, "TRY");
         let product2 = createNewProduct("product2", "Apple", taxonomy, "ImageURL", 50, "TRY");
 
         const insiderExampleProducts = [product, product2];
+        const customParameters = sampleCustomParameters();
 
-        await window.Insider.visitCartPage(insiderExampleProducts);
+        await window.Insider.visitCartPage(insiderExampleProducts, customParameters);
 
-        console.log("[INSIDER][cartPage]: Method is triggered.");
+        console.log("[INSIDER][cartPage]: Method is triggered, CustomParameters: ", customParameters);
+    },
+    cartPageWithSaleID: async function() {
+        let product = createNewProduct("product1", "Pear", taxonomy, "ImageURL", 1000, "TRY");
+        let product2 = createNewProduct("product2", "Apple", taxonomy, "ImageURL", 50, "TRY");
+
+        const insiderExampleProducts = [product, product2];
+        const saleID = 'sale_12345';
+        const customParameters = sampleCustomParameters();
+
+        await window.Insider.visitCartPage(insiderExampleProducts, saleID, customParameters);
+
+        console.log("[INSIDER][cartPageWithSaleID]: Method is triggered, SaleID: ", saleID, "CustomParameters: ", customParameters);
     }
 }
 
@@ -222,13 +317,31 @@ const mobileAppAccess = {
 };
 
 async function signUpConfirmation() {
-    await window.Insider.signUpConfirmation();
-    console.log("[INSIDER][signUpConfirmation]: Method triggered");
+    const customParameters = sampleCustomParameters();
+    await window.Insider.signUpConfirmation(customParameters);
+    console.log("[INSIDER][signUpConfirmation]: Method triggered, CustomParameters: ", customParameters);
 }
 
 function removeInapp() {
     window.Insider.removeInapp();
     console.log("[INSIDER][removeInapp]: Method triggered");
+}
+
+const nativeFeatures = {
+    showNativeAppReview: function() {
+        window.Insider.showNativeAppReview();
+        console.log("[INSIDER][showNativeAppReview]: Method triggered");
+    },
+    handleUniversalLink: function() {
+        const url = 'https://example.useinsider.com/product/123';
+        window.Insider.handleUniversalLink(url);
+        console.log("[INSIDER][handleUniversalLink]: Method triggered, URL: ", url);
+    },
+    handleURL: function() {
+        const url = 'https://example.useinsider.com/product/123';
+        window.Insider.handleURL(url);
+        console.log("[INSIDER][handleURL]: Method triggered, URL: ", url);
+    }
 }
 
 async function triggerEvents() {
@@ -286,6 +399,34 @@ async function getMessageCenterData() {
     const data = await window.Insider.getMessageCenterData(100, startDate, endDate);
 
     console.log("[INSIDER][messageCenter]: ", data);
+}
+
+async function getMessageCenterDataWithIdentifiers() {
+    // --- MESSAGE CENTER WITH MULTIPLE IDENTIFIERS --- //
+
+    const startDate = new Date(Date.now() - 86400000);
+    const endDate = new Date(Date.now() + 86400000);
+
+    let identifiers = Insider.identifier();
+    identifiers.addEmail("mobile.test@useinsider.com");
+    identifiers.addPhoneNumber("+909876543210");
+    identifiers.addUserID("demo_user_id");
+    identifiers.addCustomIdentifier("custom_identifier_key", "custom_identifier_value");
+
+    const data = await window.Insider.getMessageCenterDataWithIdentifiers(
+        100,
+        startDate,
+        endDate,
+        identifiers.getIdentifiers()
+    );
+
+    console.log("[INSIDER][messageCenterWithIdentifiers]: ", data);
+}
+
+function openMessageCenter() {
+    // --- APP CARDS PAGE --- //
+    window.location.href = 'message-center.html';
+    console.log("[INSIDER][openAppCards]: Opening app cards page");
 }
 
 async function contentOptimizer() {

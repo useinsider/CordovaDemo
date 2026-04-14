@@ -73,4 +73,13 @@
 - (void) itemRemovedFromWishlist:(CDVInvokedUrlCommand *)command;
 - (void) wishlistCleared:(CDVInvokedUrlCommand *)command;
 - (void) visitWishlistPage:(CDVInvokedUrlCommand *)command;
+- (void) showNativeAppReview:(CDVInvokedUrlCommand *)command;
+- (void) handleURL:(CDVInvokedUrlCommand *)command;
+- (void) getAppCardsCampaigns:(CDVInvokedUrlCommand *)command;
+- (void) markAppCardAsRead:(CDVInvokedUrlCommand *)command;
+- (void) markAppCardAsUnread:(CDVInvokedUrlCommand *)command;
+- (void) viewAppCard:(CDVInvokedUrlCommand *)command;
+- (void) clickAppCard:(CDVInvokedUrlCommand *)command;
+- (void) clickAppCardButton:(CDVInvokedUrlCommand *)command;
+- (void) deleteAppCards:(CDVInvokedUrlCommand *)command;
 @end
