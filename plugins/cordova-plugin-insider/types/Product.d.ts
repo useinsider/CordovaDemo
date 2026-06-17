@@ -1,13 +1,13 @@
 export interface Product {
     setColor(color: string):Product;
     setVoucherName(voucherName: string):Product;
-    setPromotionName(color: string):Product;
+    setPromotionName(promotionName: string):Product;
     setSize(size: string):Product;
     setSalePrice(salePrice: number):Product;
     setShippingCost(shippingCost: number):Product;
     setVoucherDiscount(voucherDiscount: number):Product;
     setPromotionDiscount(promotionDiscount: number):Product;
-    setStock(setStock: number):Product;
+    setStock(stock: number):Product;
     setQuantity(quantity: number):Product;
     setGroupCode(groupCode: string):Product;
     setBrand(brand: string):Product;
@@ -17,7 +17,7 @@ export interface Product {
     setMultipack(multipack: string):Product;
     setProductType(productType: string):Product;
     setGtin(gtin: string):Product;
-    setTags(tags: string[]):Product;
+    setTags(tags: Array<string>):Product;
     setInStock(isInStock: boolean):Product;
     setProductURL(productURL: string):Product;
     setCustomAttributeWithString(key: string, value: string):Product;

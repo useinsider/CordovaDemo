@@ -6,6 +6,8 @@ import com.useinsider.insider.InsiderProduct;
 import com.useinsider.insider.InsiderEvent;
 import com.useinsider.insiderhybrid.InsiderHybridUtils;
 
+import com.useinsider.insider.AppCardsException;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -16,12 +18,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CDVUtils {
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
     public static Map<String, Object>  convertJSONToMap(String jsonString) {
         Map<String, Object> convertedData = null;
 
         try {
-            convertedData = new ObjectMapper().readValue(jsonString, HashMap.class);
-
+            convertedData = objectMapper.readValue(jsonString, HashMap.class);
         } catch (Exception e) {
             Insider.Instance.putException(e);
         }
@@ -33,7 +36,7 @@ public class CDVUtils {
         Map<String, String> convertedData = null;
 
         try {
-            convertedData = new ObjectMapper().readValue(jsonString, HashMap.class);
+            convertedData = objectMapper.readValue(jsonString, HashMap.class);
         } catch (Exception e) {
             Insider.Instance.putException(e);
         }
@@ -46,7 +49,7 @@ public class CDVUtils {
         ArrayList<String> listdata = new ArrayList<String>();
 
         try {
-            listdata = new ObjectMapper().readValue(jsonString, ArrayList.class);
+            listdata = objectMapper.readValue(jsonString, ArrayList.class);
         } catch (Exception e) {
             Insider.Instance.putException(e);
         }
@@ -320,6 +323,40 @@ public class CDVUtils {
                 && requiredFields.containsKey(Constants.CURRENCY);
     }
 
+    public static String mapAppCardsExceptionCode(AppCardsException exception) {
+        switch (exception.getCode()) {
+            case SDK_NOT_INITIALIZED: return "sdkNotInitialized";
+            case INVALID_PARAMETER: return "invalidParameter";
+            case NETWORK_ERROR: return "networkError";
+            case SERVER_ERROR: return "serverError";
+            case PARSE_ERROR: return "parseError";
+            default: return "unknown";
+        }
+    }
+
+    public static JSONObject appCardsErrorToJSON(Exception error) {
+        try {
+            JSONObject json = new JSONObject();
+            if (error instanceof AppCardsException) {
+                json.put("code", mapAppCardsExceptionCode((AppCardsException) error));
+                json.put("message", error.getMessage() != null ? error.getMessage() : "An unexpected error occurred.");
+            } else {
+                json.put("code", "unknown");
+                json.put("message", error.getMessage() != null ? error.getMessage() : "An unexpected error occurred.");
+            }
+            return json;
+        } catch (JSONException e) {
+            try {
+                JSONObject fallback = new JSONObject();
+                fallback.put("code", "unknown");
+                fallback.put("message", "An unexpected error occurred.");
+                return fallback;
+            } catch (JSONException ignored) {
+                return new JSONObject();
+            }
+        }
+    }
+
     private static void setProductCustomAttribute(InsiderProduct product, String key, Object value) {
         try {
             if (key == null || key.length() == 0 || value == null) return;
@@ -351,5 +388,77 @@ public class CDVUtils {
         } catch (Exception e) {
             Insider.Instance.putException(e);
         }
+    }
+
+    public static Map<String, Object> parseCustomParameters(JSONArray customParameters) {
+        Map<String, Object> mappedCustomParameters = new HashMap<>();
+
+        try {
+            if (customParameters == null) {
+                return mappedCustomParameters;
+            }
+
+            for (int i = 0; i < customParameters.length(); i++) {
+                JSONObject parameter = customParameters.getJSONObject(i);
+                if (parameter == null) continue;
+
+                String type = parameter.optString("type", null);
+                String key = parameter.optString("key", null);
+
+                if (type == null || key == null) continue;
+
+                switch (type) {
+                    case "string":
+                        if (parameter.has("value") && !parameter.isNull("value")) {
+                            mappedCustomParameters.put(key, parameter.getString("value"));
+                        }
+                        break;
+                    case "integer":
+                        if (parameter.has("value") && !parameter.isNull("value")) {
+                            mappedCustomParameters.put(key, parameter.getInt("value"));
+                        }
+                        break;
+                    case "double":
+                        if (parameter.has("value") && !parameter.isNull("value")) {
+                            mappedCustomParameters.put(key, parameter.getDouble("value"));
+                        }
+                        break;
+                    case "boolean":
+                        if (parameter.has("value") && !parameter.isNull("value")) {
+                            mappedCustomParameters.put(key, parameter.getBoolean("value"));
+                        }
+                        break;
+                    case "date":
+                        if (parameter.has("value") && !parameter.isNull("value")) {
+                            long epochMillis = parameter.getLong("value");
+                            Date dateValue = new Date(epochMillis);
+                            mappedCustomParameters.put(key, dateValue);
+                        }
+                        break;
+                    case "numeric_array":
+                        if (parameter.has("value") && !parameter.isNull("value")) {
+                            JSONArray arrayValue = parameter.getJSONArray("value");
+                            Number[] numberArray = convertJSONArrayToNumericArray(arrayValue);
+                            if (numberArray != null) {
+                                mappedCustomParameters.put(key, numberArray);
+                            }
+                        }
+                        break;
+                    case "string_array":
+                        if (parameter.has("value") && !parameter.isNull("value")) {
+                            JSONArray arrayValue = parameter.getJSONArray("value");
+                            String[] stringArray = convertJSONArrayToStringArray(arrayValue);
+                            if (stringArray != null) {
+                                mappedCustomParameters.put(key, stringArray);
+                            }
+                        }
+                        break;
+                }
+            }
+        } catch (Exception e) {
+            Insider.Instance.putException(e);
+        }
+
+        return mappedCustomParameters;
     }
 }

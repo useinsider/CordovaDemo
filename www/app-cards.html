@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either implied or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content: https:;">
+        <meta name="format-detection" content="telephone=no">
+        <meta name="msapplication-tap-highlight" content="no">
+        <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
+        <meta name="color-scheme" content="light dark">
+        <link rel="stylesheet" href="css/index.css">
+        <link rel="stylesheet" href="css/app-cards.css">
+        <title>App Cards</title>
+    </head>
+    <body>
+        <div class="app center">
+            <div class="header">
+                <div class="insider-logo">
+                    <img src="img/insider-logo.png" />
+                </div>
+                <div class="description">
+                    <div class="insider-title">App Cards</div>
+                    <p>View and manage your app cards</p>
+                </div>
+            </div>
+
+            <div class="back-button-container">
+                <input class="insider-button" type="button" id="backButton" value="Back to Home" />
+                <input class="insider-button delete-all-button" type="button" id="deleteAllButton" value="Delete All App Cards" style="display: none;" />
+            </div>
+
+            <div id="ptrIndicator" class="ptr-indicator">
+                <div class="ptr-spinner"></div>
+                <span class="ptr-label">Pull to refresh</span>
+            </div>
+
+            <div id="loading" class="loading">Loading app cards...</div>
+            <div id="error" class="error" style="display: none;"></div>
+            <div id="messagesContainer" class="messages-container"></div>
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <p>No app cards available</p>
+            </div>
+        </div>
+
+        <script src="cordova.js"></script>
+        <script src="js/app-cards.js"></script>
+    </body>
+</html>

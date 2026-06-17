@@ -224,5 +224,86 @@
     return product;
 }
 
++ (nonnull NSDictionary<NSString *, id> *)parseCustomParameters:(nonnull NSArray *)customParameters {
+    NSMutableDictionary<NSString *, id> *mappedCustomParameters = [NSMutableDictionary dictionary];
+
+    for (id item in customParameters) {
+        if (![item isKindOfClass:[NSDictionary class]]) continue;
+
+        NSDictionary *parameter = (NSDictionary *)item;
+        NSString *type = parameter[@"type"];
+        NSString *key  = parameter[@"key"];
+
+        if (![type isKindOfClass:[NSString class]] || ![key isKindOfClass:[NSString class]]) continue;
+
+        id value = parameter[@"value"];
+
+        if ([type isEqualToString:@"string"] && [value isKindOfClass:[NSString class]]) {
+            NSString *stringValue = (NSString *)value;
+            mappedCustomParameters[key] = stringValue;
+        }
+        else if (([type isEqualToString:@"integer"] || [type isEqualToString:@"double"] || [type isEqualToString:@"boolean"]) && [value isKindOfClass:[NSNumber class]]) {
+            NSNumber *numberValue = (NSNumber *)value;
+            mappedCustomParameters[key] = numberValue;
+        }
+        else if ([type isEqualToString:@"date"] && [value isKindOfClass:[NSNumber class]]) {
+            NSNumber *numberValue = (NSNumber *)value;
+            long long epochMillis = numberValue.longLongValue;
+            NSTimeInterval seconds = ((NSTimeInterval)epochMillis) / 1000.0;
+            NSDate *dateValue = [NSDate dateWithTimeIntervalSince1970:seconds];
+            mappedCustomParameters[key] = dateValue;
+        }
+        else if (([type isEqualToString:@"numeric_array"] || [type isEqualToString:@"string_array"]) && [value isKindOfClass:[NSArray class]]) {
+            NSArray *arrayValue = (NSArray *)value;
+            mappedCustomParameters[key] = arrayValue;
+        }
+    }
+
+    return mappedCustomParameters;
+}
+
++ (NSDictionary *)dictionaryFromJSONString:(NSString *)jsonString {
+    if (!jsonString || jsonString.length == 0) {
+        return nil;
+    }
+    
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    
+    if (!jsonData) {
+        return nil;
+    }
+    
+    NSError *parseError = nil;
+    NSDictionary *dictionary = [NSJSONSerialization JSONObjectWithData:jsonData 
+                                                                options:NSJSONReadingMutableContainers 
+                                                                  error:&parseError];
+    
+    if (parseError || ![dictionary isKindOfClass:[NSDictionary class]]) {
+        return nil;
+    }
+    
+    return dictionary;
+}
+
++ (NSString *)mapAppCardsErrorCode:(NSError *)error {
+    if ([error.domain isEqualToString:InsiderAppCardsErrorDomain]) {
+        switch (error.code) {
+            case InsiderAppCardsErrorCodeSdkNotInitialized: return @"sdkNotInitialized";
+            case InsiderAppCardsErrorCodeInvalidParameter: return @"invalidParameter";
+            case InsiderAppCardsErrorCodeNetworkError: return @"networkError";
+            case InsiderAppCardsErrorCodeServerError: return @"serverError";
+            case InsiderAppCardsErrorCodeParseError: return @"parseError";
+            default: return @"unknown";
+        }
+    }
+    return @"unknown";
+}
+
++ (NSDictionary *)appCardsErrorToDictionary:(NSError *)error {
+    NSString *code = [self mapAppCardsErrorCode:error];
+    NSString *message = error.localizedDescription ?: @"An unexpected error occurred.";
+    return @{@"code": code, @"message": message};
+}
+
 @end
 

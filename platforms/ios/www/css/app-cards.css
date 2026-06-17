@@ -1,0 +1,406 @@
+/* ============================================================
+   App Cards — aligned with the Insider demo app design language
+   (black / white / neutral, sans-serif, subtle elevation).
+   Class names are kept identical to app-cards.js — only styles change.
+   ============================================================ */
+
+:root {
+    --ac-ink: #000000;
+    --ac-ink-soft: #5a5a5a;
+    --ac-ink-faint: #8a8a8a;
+    --ac-line: #ececec;
+    --ac-surface: #ffffff;
+    --ac-surface-muted: #f7f7f7;
+    --ac-danger: #d64545;
+    --ac-danger-dark: #b83232;
+    --ac-radius: 12px;
+    --ac-radius-sm: 6px;
+    --ac-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.06);
+    --ac-shadow-hover: 0 2px 4px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.10);
+}
+
+/* Subhead under the page title, matching .description tone */
+.description p {
+    color: var(--ac-ink-soft);
+    font-family: sans-serif;
+    font-size: 14px;
+    margin: 6px 0 0 0;
+}
+
+/* ---------- Cards list ---------- */
+.messages-container {
+    width: 100%;
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.message-item {
+    position: relative;
+    background-color: var(--ac-surface);
+    border: 1px solid var(--ac-line);
+    border-radius: var(--ac-radius);
+    padding: 18px;
+    box-shadow: var(--ac-shadow);
+    cursor: pointer;
+    font-family: sans-serif;
+    transition: box-shadow 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
+}
+
+.message-item:hover {
+    box-shadow: var(--ac-shadow-hover);
+    border-color: #dcdcdc;
+}
+
+.message-item:active {
+    transform: scale(0.995);
+}
+
+/* Unread: solid ink accent rail + crisp white surface */
+.message-item.unread {
+    background-color: var(--ac-surface);
+    border-color: #e2e2e2;
+}
+
+.message-item.unread::before {
+    content: "";
+    position: absolute;
+    top: 14px;
+    bottom: 14px;
+    left: 0;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background-color: var(--ac-ink);
+}
+
+/* Read: muted, slightly receded */
+.message-item.read {
+    background-color: var(--ac-surface-muted);
+    border-color: var(--ac-line);
+}
+
+.message-item.read .message-title {
+    color: var(--ac-ink-soft);
+}
+
+/* ---------- Header / status badge ---------- */
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.message-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-family: sans-serif;
+}
+
+.message-status::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: currentColor;
+}
+
+.message-status.unread {
+    background-color: var(--ac-ink);
+    color: #ffffff;
+}
+
+.message-status.read {
+    background-color: #ededed;
+    color: var(--ac-ink-soft);
+}
+
+/* ---------- Content ---------- */
+.message-content {
+    margin-bottom: 4px;
+}
+
+.message-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ac-ink);
+    margin-bottom: 6px;
+    line-height: 1.3;
+}
+
+.message-description {
+    font-size: 14px;
+    color: var(--ac-ink-soft);
+    line-height: 1.5;
+}
+
+.message-type {
+    display: inline-block;
+    font-size: 11px;
+    color: var(--ac-ink-faint);
+    margin-top: 10px;
+    padding: 2px 8px;
+    background-color: var(--ac-surface-muted);
+    border: 1px solid var(--ac-line);
+    border-radius: 999px;
+}
+
+/* ---------- Images carousel ---------- */
+.message-images-container {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 10px;
+    margin: 12px 0 4px 0;
+    padding: 2px 0;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+}
+
+.message-images-container::-webkit-scrollbar {
+    height: 5px;
+}
+
+.message-images-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.message-images-container::-webkit-scrollbar-thumb {
+    background: #d0d0d0;
+    border-radius: 3px;
+}
+
+.message-images-container::-webkit-scrollbar-thumb:hover {
+    background: #b0b0b0;
+}
+
+.message-image-wrapper {
+    flex: 0 0 auto;
+    min-width: 200px;
+    max-width: 300px;
+}
+
+.message-image {
+    width: 100%;
+    height: auto;
+    border-radius: var(--ac-radius-sm);
+    object-fit: cover;
+    border: 1px solid var(--ac-line);
+}
+
+/* ---------- Buttons ---------- */
+.message-buttons-container {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--ac-line);
+}
+
+.message-buttons {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.message-buttons-dynamic {
+    margin-bottom: 10px;
+}
+
+.message-buttons-read-unread {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    flex-wrap: nowrap;
+}
+
+.message-button {
+    flex: 1 1 auto;
+    background-color: var(--ac-ink);
+    border: 1px solid var(--ac-ink);
+    color: #ffffff;
+    cursor: pointer;
+    padding: 10px 14px;
+    border-radius: var(--ac-radius-sm);
+    font-size: 13px;
+    font-family: sans-serif;
+    font-weight: 600;
+    text-align: center;
+    transition: background-color 0.18s ease, opacity 0.18s ease;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.message-button:hover {
+    background-color: #222222;
+}
+
+.message-button:active {
+    opacity: 0.85;
+}
+
+/* Read = filled ink (default). Unread = outlined ink (secondary). */
+.message-button-read {
+    background-color: var(--ac-ink);
+    border-color: var(--ac-ink);
+    color: #ffffff;
+}
+
+.message-button-read:hover {
+    background-color: #222222;
+}
+
+.message-button-unread {
+    background-color: #ffffff;
+    border-color: #cfcfcf;
+    color: var(--ac-ink);
+}
+
+.message-button-unread:hover {
+    background-color: var(--ac-surface-muted);
+    border-color: var(--ac-ink-faint);
+}
+
+/* Delete = the single accent color, outlined to stay subtle */
+.message-buttons-delete {
+    margin-top: 8px;
+}
+
+.message-button-delete {
+    background-color: #ffffff;
+    border-color: var(--ac-danger);
+    color: var(--ac-danger);
+}
+
+.message-button-delete:hover {
+    background-color: var(--ac-danger);
+    color: #ffffff;
+}
+
+/* ---------- Top action bar (Back / Delete all) ---------- */
+.back-button-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 18px;
+    margin-bottom: 22px;
+}
+
+/* Back uses the app's primary .insider-button as-is (full width).
+   Delete-all is the danger action, full width, outlined. */
+.delete-all-button {
+    margin-top: 0 !important;
+    background-color: #ffffff !important;
+    color: var(--ac-danger) !important;
+    border: 1px solid var(--ac-danger) !important;
+    font-weight: 600 !important;
+}
+
+.delete-all-button:hover {
+    background-color: var(--ac-danger) !important;
+    color: #ffffff !important;
+}
+
+/* ---------- States ---------- */
+.loading {
+    text-align: center;
+    padding: 28px 20px;
+    color: var(--ac-ink-faint);
+    font-size: 14px;
+    font-family: sans-serif;
+}
+
+.error {
+    background-color: #fdecec;
+    color: var(--ac-danger-dark);
+    border: 1px solid #f6cccc;
+    padding: 14px 16px;
+    border-radius: var(--ac-radius-sm);
+    margin: 14px 0;
+    text-align: center;
+    font-size: 14px;
+    font-family: sans-serif;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--ac-ink-faint);
+    font-family: sans-serif;
+}
+
+.empty-state::before {
+    content: "";
+    display: block;
+    width: 44px;
+    height: 44px;
+    margin: 0 auto 14px auto;
+    border-radius: 12px;
+    border: 2px solid #dcdcdc;
+    background:
+        linear-gradient(#dcdcdc, #dcdcdc) center/20px 2px no-repeat,
+        linear-gradient(#dcdcdc, #dcdcdc) center/2px 20px no-repeat;
+    opacity: 0.7;
+}
+
+.empty-state p {
+    font-size: 15px;
+    margin: 0;
+    color: var(--ac-ink-soft);
+}
+
+/* ---------- Pull to refresh ---------- */
+/* The indicator lives above the list; JS reveals/translates it as the user
+   pulls down while the page is scrolled to the very top. App-aligned: a
+   minimal black spinner with a neutral label, matching the demo's identity. */
+.ptr-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 0;
+    overflow: hidden;
+    opacity: 0;
+    font-family: sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--ac-ink-faint);
+    will-change: height, opacity;
+}
+
+/* While the finger is down we drive height/opacity inline from JS (no transition,
+   so it tracks the finger 1:1). On release we add this class to animate back. */
+.ptr-indicator.ptr-animating {
+    transition: height 0.25s ease, opacity 0.25s ease;
+}
+
+.ptr-spinner {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid #e0e0e0;
+    border-top-color: var(--ac-ink);
+    box-sizing: border-box;
+    /* Rotation is driven inline from pull distance while dragging. */
+}
+
+/* Once refreshing starts, spin continuously and swap the label copy via JS. */
+.ptr-indicator.ptr-refreshing .ptr-spinner {
+    animation: ptr-spin 0.7s linear infinite;
+}
+
+.ptr-indicator.ptr-ready .ptr-label::after {
+    content: "";
+}
+
+@keyframes ptr-spin {
+    to { transform: rotate(360deg); }
+}

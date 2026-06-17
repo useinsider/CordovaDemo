@@ -16,6 +16,10 @@ var InsiderCallbackType = require('./CallbackType');
 var InsiderGender = require('./Gender');
 var InsiderContentOptimizerDataType = require('./ContentOptimizerDataType');
 var InsiderCloseButtonPosition = require('./CloseButtonPosition');
+var InsiderAppCards = require('./InsiderAppCards');
+var _require = require('./InsiderAppCardsError'),
+  InsiderAppCardsError = _require.InsiderAppCardsError,
+  InsiderAppCardsErrorCode = _require.InsiderAppCardsErrorCode;
 var Utils = require("./Utils");
 var InsiderConstants = require("./Constants");
 var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
@@ -26,6 +30,9 @@ var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
   _defineProperty(this, "callbackType", InsiderCallbackType);
   _defineProperty(this, "contentOptimizerDataType", InsiderContentOptimizerDataType);
   _defineProperty(this, "closeButtonPosition", InsiderCloseButtonPosition);
+  _defineProperty(this, "appCards", InsiderAppCards);
+  _defineProperty(this, "AppCardsError", InsiderAppCardsError);
+  _defineProperty(this, "AppCardsErrorCode", InsiderAppCardsErrorCode);
   _defineProperty(this, "initCordovaBase", function (partnerName, appGroup, customEndpoint, handleNotificationCallback) {
     try {
       var sdkVersion = InsiderConstants.SDK_VERSION;
@@ -138,7 +145,7 @@ var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
     }
     return new InsiderProduct(productID, name, taxonomy, imageURL, price, currency);
   });
-  _defineProperty(this, "itemPurchased", function (uniqueSaleID, product) {
+  _defineProperty(this, "itemPurchased", function (uniqueSaleID, product, customParameters) {
     if (Utils.checkParameters([{
       type: 'string',
       value: uniqueSaleID
@@ -150,12 +157,13 @@ var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
       return;
     }
     try {
-      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.ITEM_PURCHASED, [uniqueSaleID, product.requiredFields, product.optionalFields, product.customParameters]);
+      var mappedCustomParameters = Utils.parseObjectWithTypes(customParameters);
+      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.ITEM_PURCHASED, [uniqueSaleID, product.requiredFields, product.optionalFields, product.customParameters, mappedCustomParameters]);
     } catch (error) {
       Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
     }
   });
-  _defineProperty(this, "itemAddedToCart", function (product) {
+  _defineProperty(this, "itemAddedToCart", function (product, customParameters) {
     if (Utils.checkParameters([{
       type: 'object',
       value: product
@@ -164,12 +172,13 @@ var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
       return;
     }
     try {
-      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.ITEM_ADDED_TO_CART, [product.requiredFields, product.optionalFields, product.customParameters]);
+      var mappedCustomParameters = Utils.parseObjectWithTypes(customParameters);
+      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.ITEM_ADDED_TO_CART, [product.requiredFields, product.optionalFields, product.customParameters, mappedCustomParameters]);
     } catch (error) {
       Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
     }
   });
-  _defineProperty(this, "itemRemovedFromCart", function (productID) {
+  _defineProperty(this, "itemRemovedFromCart", function (productID, saleIDOrCustomParameters, customParameters) {
     if (Utils.checkParameters([{
       type: 'string',
       value: productID
@@ -178,14 +187,23 @@ var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
       return;
     }
     try {
-      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.ITEM_REMOVED_FROM_CART, [productID]);
+      var resolvedSaleID = null;
+      var resolvedCustomParameters = customParameters;
+      if (typeof saleIDOrCustomParameters === 'string') {
+        resolvedSaleID = saleIDOrCustomParameters;
+      } else if (Utils.isPlainObject(saleIDOrCustomParameters)) {
+        resolvedCustomParameters = saleIDOrCustomParameters;
+      }
+      var mappedCustomParameters = Utils.parseObjectWithTypes(resolvedCustomParameters);
+      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.ITEM_REMOVED_FROM_CART, [productID, resolvedSaleID, mappedCustomParameters]);
     } catch (error) {
       Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
     }
   });
-  _defineProperty(this, "cartCleared", function () {
+  _defineProperty(this, "cartCleared", function (customParameters) {
     try {
-      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.CART_CLEARED, []);
+      var mappedCustomParameters = Utils.parseObjectWithTypes(customParameters);
+      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.CART_CLEARED, [mappedCustomParameters]);
     } catch (error) {
       Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
     }
@@ -206,6 +224,29 @@ var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
     }
     try {
       return Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.GET_MESSAGE_CENTER_DATA, [limit, startDate.getTime(), endDate.getTime()]);
+    } catch (error) {
+      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+    }
+  });
+  _defineProperty(this, "getMessageCenterDataWithIdentifiers", function (limit, startDate, endDate, identifiers) {
+    if (Utils.checkParameters([{
+      type: 'number',
+      value: limit
+    }, {
+      type: 'object',
+      value: startDate
+    }, {
+      type: 'object',
+      value: endDate
+    }, {
+      type: 'object',
+      value: identifiers
+    }]) || startDate.getTime() === endDate.getTime() || startDate.getTime() > endDate.getTime()) {
+      Utils.showParameterWarningLog(_this.constructor.name + '-getMessageCenterDataWithIdentifiers');
+      return;
+    }
+    try {
+      return Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.GET_MESSAGE_CENTER_DATA_WITH_IDENTIFIERS, [limit, startDate.getTime(), endDate.getTime(), identifiers]);
     } catch (error) {
       Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
     }
@@ -413,14 +454,15 @@ var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
       Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
     }
   });
-  _defineProperty(this, "visitHomePage", function () {
+  _defineProperty(this, "visitHomePage", function (customParameters) {
     try {
-      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.VISIT_HOME_PAGE, []);
+      var mappedCustomParameters = Utils.parseObjectWithTypes(customParameters);
+      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.VISIT_HOME_PAGE, [mappedCustomParameters]);
     } catch (error) {
       Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
     }
   });
-  _defineProperty(this, "visitListingPage", function (taxonomy) {
+  _defineProperty(this, "visitListingPage", function (taxonomy, customParameters) {
     if (Utils.checkParameters([{
       type: 'object',
       value: taxonomy
@@ -429,12 +471,13 @@ var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
       return;
     }
     try {
-      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.VISIT_LISTING_PAGE, [taxonomy]);
+      var mappedCustomParameters = Utils.parseObjectWithTypes(customParameters);
+      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.VISIT_LISTING_PAGE, [taxonomy, mappedCustomParameters]);
     } catch (error) {
       Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
     }
   });
-  _defineProperty(this, "visitProductDetailPage", function (product) {
+  _defineProperty(this, "visitProductDetailPage", function (product, customParameters) {
     if (Utils.checkParameters([{
       type: 'object',
       value: product
@@ -443,12 +486,13 @@ var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
       return;
     }
     try {
-      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.VISIT_PRODUCT_DETAIL_PAGE, [product.requiredFields, product.optionalFields, product.customParameters]);
+      var mappedCustomParameters = Utils.parseObjectWithTypes(customParameters);
+      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.VISIT_PRODUCT_DETAIL_PAGE, [product.requiredFields, product.optionalFields, product.customParameters, mappedCustomParameters]);
     } catch (error) {
       Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
     }
   });
-  _defineProperty(this, "visitCartPage", function (products) {
+  _defineProperty(this, "visitCartPage", function (products, saleIDOrCustomParameters, customParameters) {
     if (Utils.checkParameters([{
       type: 'object',
       value: products
@@ -457,6 +501,13 @@ var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
       return;
     }
     try {
+      var resolvedSaleID = null;
+      var resolvedCustomParameters = customParameters;
+      if (typeof saleIDOrCustomParameters === 'string') {
+        resolvedSaleID = saleIDOrCustomParameters;
+      } else if (Utils.isPlainObject(saleIDOrCustomParameters)) {
+        resolvedCustomParameters = saleIDOrCustomParameters;
+      }
       var mappedProducts = products.map(function (product) {
         return {
           requiredFields: product.requiredFields,
@@ -464,7 +515,8 @@ var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
           customParameters: product.customParameters
         };
       });
-      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.VISIT_CART_PAGE, [mappedProducts]);
+      var mappedCustomParameters = Utils.parseObjectWithTypes(resolvedCustomParameters);
+      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.VISIT_CART_PAGE, [mappedProducts, resolvedSaleID, mappedCustomParameters]);
     } catch (error) {
       Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
     }
@@ -596,9 +648,10 @@ var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
       Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
     }
   });
-  _defineProperty(this, "signUpConfirmation", function () {
+  _defineProperty(this, "signUpConfirmation", function (customParameters) {
     try {
-      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.SIGN_UP_CONFIRMATION, []);
+      var mappedCustomParameters = Utils.parseObjectWithTypes(customParameters);
+      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.SIGN_UP_CONFIRMATION, [mappedCustomParameters]);
     } catch (error) {
       Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
     }
@@ -698,7 +751,37 @@ var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
       Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
     }
   });
-  _defineProperty(this, "itemAddedToWishlist", function (product) {
+  _defineProperty(this, "showNativeAppReview", function () {
+    try {
+      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.SHOW_NATIVE_APP_REVIEW, []);
+    } catch (error) {
+      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+    }
+  });
+  _defineProperty(this, "handleUniversalLink", function (url) {
+    if (Utils.checkParameters([{
+      type: 'string',
+      value: url
+    }])) {
+      Utils.showParameterWarningLog(_this.constructor.name + '-handleUniversalLink');
+      return;
+    }
+    try {
+      if (cordova.platformId !== InsiderConstants.ANDROID) return;
+      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.HANDLE_UNIVERSAL_LINK, [url]);
+    } catch (error) {
+      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+    }
+  });
+  _defineProperty(this, "handleURL", function (url) {
+    try {
+      if (cordova.platformId === InsiderConstants.ANDROID) return;
+      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.HANDLE_URL, [url]);
+    } catch (error) {
+      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+    }
+  });
+  _defineProperty(this, "itemAddedToWishlist", function (product, customParameters) {
     if (Utils.checkParameters([{
       type: 'object',
       value: product
@@ -707,12 +790,13 @@ var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
       return;
     }
     try {
-      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.ITEM_ADDED_TO_WISHLIST, [product.requiredFields, product.optionalFields, product.customParameters]);
+      var mappedCustomParameters = Utils.parseObjectWithTypes(customParameters);
+      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.ITEM_ADDED_TO_WISHLIST, [product.requiredFields, product.optionalFields, product.customParameters, mappedCustomParameters]);
     } catch (error) {
       Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
     }
   });
-  _defineProperty(this, "itemRemovedFromWishlist", function (productID) {
+  _defineProperty(this, "itemRemovedFromWishlist", function (productID, customParameters) {
     if (Utils.checkParameters([{
       type: 'string',
       value: productID
@@ -721,19 +805,21 @@ var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
       return;
     }
     try {
-      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.ITEM_REMOVED_FROM_WISHLIST, [productID]);
+      var mappedCustomParameters = Utils.parseObjectWithTypes(customParameters);
+      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.ITEM_REMOVED_FROM_WISHLIST, [productID, mappedCustomParameters]);
     } catch (error) {
       Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
     }
   });
-  _defineProperty(this, "wishlistCleared", function () {
+  _defineProperty(this, "wishlistCleared", function (customParameters) {
     try {
-      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.WISHLIST_CLEARED, []);
+      var mappedCustomParameters = Utils.parseObjectWithTypes(customParameters);
+      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.WISHLIST_CLEARED, [mappedCustomParameters]);
     } catch (error) {
       Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
     }
   });
-  _defineProperty(this, "visitWishlistPage", function (products) {
+  _defineProperty(this, "visitWishlistPage", function (products, customParameters) {
     if (Utils.checkParameters([{
       type: 'object',
       value: products
@@ -749,7 +835,8 @@ var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
           customParameters: product.customParameters
         };
       });
-      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.VISIT_WISHLIST_PAGE, [mappedProducts]);
+      var mappedCustomParameters = Utils.parseObjectWithTypes(customParameters);
+      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.VISIT_WISHLIST_PAGE, [mappedProducts, mappedCustomParameters]);
     } catch (error) {
       Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
     }
