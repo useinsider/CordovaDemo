@@ -39,6 +39,7 @@ let app = {
         document.getElementById('mobileAppAccessFalse').addEventListener('click', mobileAppAccess.disable);
 
         document.getElementById('messageCenter').addEventListener('click', getMessageCenterData);
+        document.getElementById('appCards').addEventListener('click', appCards);
         document.getElementById('contentOptimizer').addEventListener('click', contentOptimizer);
         document.getElementById('contentOptimizerNoCache').addEventListener('click', contentOptimizerNoCache);
 
@@ -288,6 +289,15 @@ async function getMessageCenterData() {
     console.log("[INSIDER][messageCenter]: ", data);
 }
 
+function appCards() {
+    // --- APP CARDS PAGE --- //
+    try {
+        sessionStorage.setItem('homeScrollY', String(window.scrollY || window.pageYOffset || 0));
+    } catch (e) { /* sessionStorage may be unavailable; navigation still works */ }
+    window.location.href = 'app-cards.html';
+    console.log("[INSIDER][appCards]: Opening app cards page");
+}
+
 async function contentOptimizer() {
     // --- CONTENT OPTIMIZER --- //
 
@@ -361,5 +371,25 @@ function createNewProduct(productId, productName, taxonomy, imageURL, price, cur
 
     return product;
 }
+
+(function restoreHomeScroll() {
+    try {
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+        var saved = sessionStorage.getItem('homeScrollY');
+        if (saved === null) return;
+        sessionStorage.removeItem('homeScrollY');
+        var y = parseInt(saved, 10) || 0;
+        var applyScroll = function() { window.scrollTo(0, y); };
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            applyScroll();
+        } else {
+            window.addEventListener('DOMContentLoaded', applyScroll);
+        }
+        // Re-apply once after load in case late content (images) shifts layout.
+        window.addEventListener('load', applyScroll, { once: true });
+    } catch (e) { /* no-op: scroll restoration is best-effort */ }
+})();
 
 app.initialize();

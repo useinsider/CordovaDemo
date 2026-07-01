@@ -15,14 +15,14 @@ export interface User {
     setPushOptin(pushOptIn: boolean): User;
     setLocationOptin(locationOptIn: boolean): User;
     setWhatsappOptin(whatsappOptin: boolean): User;
-    login(identifiers:object, insiderIDResult: Function): void;
+    login(identifiers: object, insiderIDResult?: Function): void;
     logout(): void;
     logoutResettingInsiderID(identifiers?: object[] | null, insiderIDResult?: (insiderID: string) => void): void;
     setCustomAttributeWithString(key: string, value: string): User;
     setCustomAttributeWithInt(key: string, value: number): User;
     setCustomAttributeWithDouble(key: string, value: number): User;
     setCustomAttributeWithBoolean(key: string, value: boolean): User;
-    setCustomAttributeWithDate(key: string, value: string): User;
+    setCustomAttributeWithDate(key: string, value: Date): User;
     setCustomAttributeWithArray(key: string, value: object): User;
     unsetCustomAttribute(key: string): User;
 }
