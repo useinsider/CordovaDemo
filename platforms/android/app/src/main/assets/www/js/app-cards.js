@@ -158,19 +158,20 @@ let app = {
             console.error('[INSIDER][APP_CARDS][' + operation + ']:', error);
         }
     },
-    currentCampaignResponse: null,
+    // Mutable copy: the campaign response's appCards is a read-only getter.
+    currentAppCards: [],
     deleteAllMessages: async function() {
-        if (!this.currentCampaignResponse || !this.currentCampaignResponse.appCards || this.currentCampaignResponse.appCards.length === 0) {
+        if (this.currentAppCards.length === 0) {
             return;
         }
         try {
-            const appCardIds = this.currentCampaignResponse.appCards.map(function(c) { return c.id; });
+            const appCardIds = this.currentAppCards.map(function(c) { return c.id; });
             await window.Insider.appCards.delete(appCardIds);
             console.log('[INSIDER][APP_CARDS][DELETE_ALL]: Deleted all app cards');
             document.getElementById('messagesContainer').innerHTML = '';
             document.getElementById('deleteAllButton').style.display = 'none';
             document.getElementById('emptyState').style.display = 'block';
-            this.currentCampaignResponse = null;
+            this.currentAppCards = [];
         } catch (error) {
             this.handleAppCardsError('DELETE_ALL', error);
         }
@@ -186,13 +187,10 @@ let app = {
             if (cardEl) {
                 cardEl.remove();
             }
-            // Remove from currentCampaignResponse
-            if (app.currentCampaignResponse && app.currentCampaignResponse.appCards) {
-                app.currentCampaignResponse.appCards = app.currentCampaignResponse.appCards.filter(function(c) { return c.id !== appCard.id; });
-                if (app.currentCampaignResponse.appCards.length === 0) {
-                    document.getElementById('deleteAllButton').style.display = 'none';
-                    document.getElementById('emptyState').style.display = 'block';
-                }
+            app.currentAppCards = app.currentAppCards.filter(function(c) { return c.id !== appCard.id; });
+            if (app.currentAppCards.length === 0) {
+                document.getElementById('deleteAllButton').style.display = 'none';
+                document.getElementById('emptyState').style.display = 'block';
             }
         });
     },
@@ -206,6 +204,7 @@ let app = {
             loadingEl.style.display = 'block';
             errorEl.style.display = 'none';
             messagesContainer.innerHTML = '';
+            this.currentAppCards = [];
             emptyState.style.display = 'none';
 
             // Get app cards campaigns using the appCards API
@@ -220,7 +219,7 @@ let app = {
                 return;
             }
 
-            this.currentCampaignResponse = campaignResponse;
+            this.currentAppCards = campaignResponse.appCards.slice();
             document.getElementById('deleteAllButton').style.display = 'block';
 
             // Render app cards
@@ -339,11 +338,11 @@ let app = {
                 buttonEl.onclick = (e) => {
                     e.stopPropagation(); // Prevent message click
                     try {
-                        // Log keyValues and JSON if they exist in button action
+                        // Log keysAndValues and JSON if they exist in button action
                         if (button.action) {
                             try {
-                                if (button.action.keyValues) {
-                                    console.log(`[INSIDER][APP_CARDS][BUTTON_KEY_VALUES][${button.id}]:`, JSON.stringify(button.action.keyValues));
+                                if (button.action.keysAndValues) {
+                                    console.log(`[INSIDER][APP_CARDS][BUTTON_KEY_VALUES][${button.id}]:`, JSON.stringify(button.action.keysAndValues));
                                 }
                                 if (button.action.json) {
                                     console.log(`[INSIDER][APP_CARDS][BUTTON_JSON][${button.id}]:`, JSON.stringify(button.action.json));
@@ -422,11 +421,11 @@ let app = {
         // Message click handler
         messageDiv.onclick = () => {
             try {
-                // Log keyValues and JSON if they exist in message action
+                // Log keysAndValues and JSON if they exist in message action
                 if (message.action) {
                     try {
-                        if (message.action.keyValues) {
-                            console.log(`[INSIDER][APP_CARDS][CARD_KEY_VALUES][${message.id}]:`, message.action.keyValues);
+                        if (message.action.keysAndValues) {
+                            console.log(`[INSIDER][APP_CARDS][CARD_KEY_VALUES][${message.id}]:`, message.action.keysAndValues);
                         }
                         if (message.action.json) {
                             console.log(`[INSIDER][APP_CARDS][CARD_JSON][${message.id}]:`, message.action.json);

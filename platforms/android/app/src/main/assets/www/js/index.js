@@ -273,7 +273,7 @@ const smartRecommendation = {
     },
     clickProduct: async function() {
         let product = createNewProduct("product1", "Pear", taxonomy, "ImageURL", 1000, "TRY");
-        await window.Insider.clickSmartRecommendationProduct(1, product);
+        await window.Insider.clickSmartRecommendationProduct(product, 1);
         console.log("[INSIDER][clickSmartRecommendationProduct]: Method is triggered.");
     }
 }
@@ -318,16 +318,16 @@ async function contentOptimizerNoCache() {
     // --- CONTENT OPTIMIZER WITHOUT CACHE --- //
 
     // Integer
-    const contentOptimizerInt = await window.Insider.getContentIntWithNameWithoutCache('int_variable_name', 10, Insider.contentOptimizerDataType.ELEMENT);
-    console.log("[INSIDER][getContentIntWithNameWithoutCache]: ", contentOptimizerInt);
+    const contentOptimizerInt = await window.Insider.getContentIntWithoutCache('int_variable_name', 10, Insider.contentOptimizerDataType.ELEMENT);
+    console.log("[INSIDER][getContentIntWithoutCache]: ", contentOptimizerInt);
 
     // String
-    const contentOptimizerString = await window.Insider.getContentStringWithNameWithoutCache('string_variable_name', 'defaultValue', Insider.contentOptimizerDataType.ELEMENT);
-    console.log("[INSIDER][getContentStringWithNameWithoutCache]: ", contentOptimizerString);
+    const contentOptimizerString = await window.Insider.getContentStringWithoutCache('string_variable_name', 'defaultValue', Insider.contentOptimizerDataType.ELEMENT);
+    console.log("[INSIDER][getContentStringWithoutCache]: ", contentOptimizerString);
 
     // Boolean
-    const contentOptimizerBool = await window.Insider.getContentBoolWithNameWithoutCache('bool_variable_name', true, Insider.contentOptimizerDataType.ELEMENT);
-    console.log("[INSIDER][getContentBoolWithNameWithoutCache]: ", contentOptimizerBool);
+    const contentOptimizerBool = await window.Insider.getContentBoolWithoutCache('bool_variable_name', true, Insider.contentOptimizerDataType.ELEMENT);
+    console.log("[INSIDER][getContentBoolWithoutCache]: ", contentOptimizerBool);
 }
 
 function createProduct() {
