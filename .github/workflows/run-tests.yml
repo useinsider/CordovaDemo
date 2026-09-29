@@ -42,15 +42,16 @@ jobs:
       - name: Unit Tests
         run: npm test
 
-  integration-android:
-    name: Integration (android)
-    runs-on: ubuntu-latest
-    timeout-minutes: 45
+  integration-tests:
+    name: Integration Tests
+    runs-on: macos-26
+    timeout-minutes: 60
     env:
       # Must match signingConfigs.release in platforms/android/app/build.gradle, which debug builds also use.
       KEYSTORE: platforms/android/app/mykeystore.jks
       KEYSTORE_ALIAS: test
       KEYSTORE_PASSWORD: '123456'
+      DESTINATION: generic/platform=iOS Simulator
     steps:
       - uses: actions/checkout@v7
 
@@ -62,8 +63,6 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-
-      - uses: android-actions/setup-android@v3
 
       - uses: gradle/actions/setup-gradle@v4
         with:
@@ -80,33 +79,21 @@ jobs:
             -storepass "$KEYSTORE_PASSWORD" -keypass "$KEYSTORE_PASSWORD" \
             -keyalg RSA -keysize 2048 -validity 1 -dname "CN=CI"
 
-      - name: Integration Tests
+      - name: Build Android
         run: npx --registry=https://registry.npmjs.org "$CORDOVA_CLI" build android --debug
 
-  integration-ios:
-    name: Integration (ios)
-    runs-on: macos-26
-    timeout-minutes: 45
-    env:
-      DESTINATION: generic/platform=iOS Simulator
-    steps:
-      - uses: actions/checkout@v7
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Install dependencies
-        run: npm install --no-package-lock --registry=https://registry.npmjs.org
-
-      - name: Prepare iOS platform
+      # The iOS steps also run after an Android failure, so each platform reports its own result.
+      - name: Prepare iOS
+        if: ${{ !cancelled() }}
         run: npx --registry=https://registry.npmjs.org "$CORDOVA_CLI" prepare ios
 
       - name: Install pods
+        if: ${{ !cancelled() }}
         working-directory: platforms/ios
         run: pod install
 
-      - name: Integration Tests
+      - name: Build iOS
+        if: ${{ !cancelled() }}
         run: |
           xcodebuild build \
             -workspace platforms/ios/HelloCordova.xcworkspace \
@@ -114,20 +101,3 @@ jobs:
             -destination "$DESTINATION" \
             -derivedDataPath "$RUNNER_TEMP/build" \
             CODE_SIGNING_ALLOWED=NO
-
-  integration-tests:
-    name: Integration Tests
-    needs:
-      - integration-android
-      - integration-ios
-    if: always()
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: Integration Tests
-        env:
-          ANDROID_RESULT: ${{ needs.integration-android.result }}
-          IOS_RESULT: ${{ needs.integration-ios.result }}
-        run: |
-          echo "android: $ANDROID_RESULT, ios: $IOS_RESULT"
-          test "$ANDROID_RESULT" = success && test "$IOS_RESULT" = success
