@@ -5,7 +5,7 @@
   "description": "A sample Apache Cordova application that responds to the deviceready event.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --ci"
   },
   "keywords": [
     "ecosystem:cordova"
@@ -15,7 +15,16 @@
   "devDependencies": {
     "cordova-android": "^14.0.1",
     "cordova-ios": "^6.2.0",
-    "cordova-plugin-insider": "^4.0.1"
+    "cordova-plugin-insider": "^4.0.1",
+    "jest": "^30.5.2",
+    "jest-environment-jsdom": "^30.5.2"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "roots": [
+      "<rootDir>/test"
+    ],
+    "transform": {}
   },
   "cordova": {
     "platforms": [
