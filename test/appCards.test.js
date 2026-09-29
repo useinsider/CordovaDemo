@@ -141,6 +141,14 @@ describe('rendering', () => {
     expect(actionsCalled('clickAppCardButton')[0].args[0]).toBe('card-1');
     expect(JSON.parse(actionsCalled('clickAppCardButton')[0].args[1]).id).toBe('button-1');
   });
+
+  test('card button click logs the button key-value pairs as JSON', async () => {
+    const keyValue = { coupon: 'SPRING10' };
+    await reload([{ ...CARDS[0], buttons: [{ ...CARDS[0].buttons[0], action: { ...CARDS[0].buttons[0].action, key_value: keyValue } }] }]);
+    console.log.mockClear();
+    cardElement('card-1').querySelector('.message-buttons-dynamic .message-button').click();
+    expect(console.log).toHaveBeenCalledWith('[INSIDER][APP_CARDS][BUTTON_KEY_VALUES][button-1]:', JSON.stringify(keyValue));
+  });
 });
 
 describe('delete', () => {
@@ -173,6 +181,15 @@ describe('delete', () => {
     expect(app.currentAppCards).toEqual([]);
   });
 
+  test('Delete All after a single delete sends only the remaining card ids', async () => {
+    cardElement('card-1').querySelector('.message-button-delete').click();
+    await flushPromises();
+    page.execCalls.length = 0;
+    byId('deleteAllButton').click();
+    await flushPromises();
+    expect(actionsCalled('deleteAppCards')[0].args).toEqual([['card-2']]);
+  });
+
   test('Delete All without cards makes no native call', async () => {
     app.currentAppCards = [];
     await app.deleteAllMessages();
@@ -196,6 +213,26 @@ describe('loading states', () => {
     expect(byId('error').style.display).toBe('block');
     expect(byId('error').textContent).toBe('Error loading app cards: offline');
     expect(logs.errors).toEqual(['[INSIDER][APP_CARDS][GET_CAMPAIGNS]: Network error - offline']);
+  });
+});
+
+describe('reload after a successful load', () => {
+  beforeEach(() => reload(CARDS));
+
+  test('a failed reload clears the previous cards so Delete All makes no native call', async () => {
+    failures.getAppCardsCampaigns = { code: 'networkError', message: 'offline' };
+    await app.loadMessages();
+    expect(app.currentAppCards).toEqual([]);
+    page.execCalls.length = 0;
+    await app.deleteAllMessages();
+    expect(actionsCalled('deleteAppCards')).toHaveLength(0);
+  });
+
+  test('an empty reload clears the previous cards so Delete All makes no native call', async () => {
+    await reload([]);
+    expect(app.currentAppCards).toEqual([]);
+    await app.deleteAllMessages();
+    expect(actionsCalled('deleteAppCards')).toHaveLength(0);
   });
 });
 
