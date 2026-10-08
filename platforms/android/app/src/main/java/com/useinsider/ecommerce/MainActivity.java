@@ -17,7 +17,7 @@
        under the License.
  */
 
-package com.useinsider.cordovademo;
+package com.useinsider.ecommerce;
 
 import android.os.Bundle;
 

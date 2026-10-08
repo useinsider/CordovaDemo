@@ -113,7 +113,7 @@ ext {
 }
 
 // PLUGIN GRADLE EXTENSIONS START
-apply from: "../cordova-plugin-insider/cordovademo-build-extras.gradle"
+apply from: "../cordova-plugin-insider/ecommerce-build-extras.gradle"
 // PLUGIN GRADLE EXTENSIONS END
 
 def hasBuildExtras1 = file('build-extras.gradle').exists()
@@ -193,7 +193,7 @@ android {
     defaultConfig {
         versionCode cdvVersionCode ?: new BigInteger("" + privateHelpers.extractIntFromManifest("versionCode"))
         // FIXME-INSIDER: Please change with your application ID.
-        applicationId "com.useinsider.cordovademo"
+        applicationId "com.useinsider.ecommerce"
 
         // FIXME-INSIDER: Please change with your partner name.
         manifestPlaceholders = [ partner: "your_partner_name" ]
@@ -296,7 +296,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
-            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

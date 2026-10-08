@@ -12,6 +12,9 @@ cordova.define("cordova-plugin-insider.InsiderAppCard", function(require, export
  * - All Cordova/Ionic versions support require()
  */
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n = 0, F = function F() {}; return { s: F, n: function n() { return _n >= r.length ? { done: !0 } : { done: !1, value: r[_n++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t.return || t.return(); } finally { if (u) throw o; } } }; }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
 function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
@@ -32,12 +35,11 @@ function _checkPrivateRedeclaration(e, t) { if (t.has(e)) throw new TypeError("C
 function _classPrivateFieldGet(s, a) { return s.get(_assertClassBrand(s, a)); }
 function _classPrivateFieldSet(s, a, r) { return s.set(_assertClassBrand(s, a), r), r; }
 function _assertClassBrand(e, t, n) { if ("function" == typeof e ? e === t : e.has(t)) return arguments.length < 3 ? t : n; throw new TypeError("Private element is not present on this object"); }
-var _insiderAppCards = null;
 function getInsiderAppCards() {
-  if (!_insiderAppCards) {
-    _insiderAppCards = require('./InsiderAppCards');
-  }
-  return _insiderAppCards;
+  // Node's require cache already returns the same module object every time,
+  // so the memo this used to keep added nothing. The require stays inside the
+  // function, which is what keeps the circular import lazy.
+  return require('./InsiderAppCards');
 }
 
 /**
@@ -90,12 +92,41 @@ var InsiderAppCardImage = /*#__PURE__*/function () {
   }]);
 }();
 /**
+ * Represents a category associated with an app card.
+ *
+ * This model contains the id and name of a category assigned to the app card.
+ */
+var _id = /*#__PURE__*/new WeakMap();
+var _name = /*#__PURE__*/new WeakMap();
+var InsiderAppCardCategory = /*#__PURE__*/function () {
+  function InsiderAppCardCategory(_ref3) {
+    var id = _ref3.id,
+      name = _ref3.name;
+    _classCallCheck(this, InsiderAppCardCategory);
+    _classPrivateFieldInitSpec(this, _id, void 0);
+    _classPrivateFieldInitSpec(this, _name, void 0);
+    _classPrivateFieldSet(_id, this, id);
+    _classPrivateFieldSet(_name, this, name);
+  }
+  return _createClass(InsiderAppCardCategory, [{
+    key: "id",
+    get: function get() {
+      return _classPrivateFieldGet(_id, this);
+    }
+  }, {
+    key: "name",
+    get: function get() {
+      return _classPrivateFieldGet(_name, this);
+    }
+  }]);
+}();
+/**
  * Represents an action button within an app card.
  *
  * This model defines a button that can be displayed in an app card, containing text and an
  * associated action that is executed when the button is tapped.
  */
-var _id = /*#__PURE__*/new WeakMap();
+var _id2 = /*#__PURE__*/new WeakMap();
 var _appCardId = /*#__PURE__*/new WeakMap();
 var _text = /*#__PURE__*/new WeakMap();
 var _action = /*#__PURE__*/new WeakMap();
@@ -103,12 +134,12 @@ var _data = /*#__PURE__*/new WeakMap();
 var InsiderAppCardButton = /*#__PURE__*/function () {
   function InsiderAppCardButton(data) {
     _classCallCheck(this, InsiderAppCardButton);
-    _classPrivateFieldInitSpec(this, _id, void 0);
+    _classPrivateFieldInitSpec(this, _id2, void 0);
     _classPrivateFieldInitSpec(this, _appCardId, void 0);
     _classPrivateFieldInitSpec(this, _text, void 0);
     _classPrivateFieldInitSpec(this, _action, void 0);
     _classPrivateFieldInitSpec(this, _data, void 0);
-    _classPrivateFieldSet(_id, this, data.id);
+    _classPrivateFieldSet(_id2, this, data.id);
     _classPrivateFieldSet(_appCardId, this, data.appCardId);
     _classPrivateFieldSet(_text, this, data.text);
     _classPrivateFieldSet(_data, this, data);
@@ -139,7 +170,7 @@ var InsiderAppCardButton = /*#__PURE__*/function () {
   }, {
     key: "id",
     get: function get() {
-      return _classPrivateFieldGet(_id, this);
+      return _classPrivateFieldGet(_id2, this);
     }
   }, {
     key: "appCardId",
@@ -171,8 +202,8 @@ var InsiderAppCardButton = /*#__PURE__*/function () {
  */
 var _type = /*#__PURE__*/new WeakMap();
 var InsiderAppCardAction = /*#__PURE__*/function () {
-  function InsiderAppCardAction(_ref3) {
-    var actionType = _ref3.actionType;
+  function InsiderAppCardAction(_ref4) {
+    var actionType = _ref4.actionType;
     _classCallCheck(this, InsiderAppCardAction);
     _classPrivateFieldInitSpec(this, _type, void 0);
     _classPrivateFieldSet(_type, this, actionType);
@@ -196,13 +227,13 @@ var _externalBrowserUrl = /*#__PURE__*/new WeakMap();
 var _json = /*#__PURE__*/new WeakMap();
 var _keysAndValues = /*#__PURE__*/new WeakMap();
 var InsiderAppCardDeeplinkAction = /*#__PURE__*/function (_InsiderAppCardAction2) {
-  function InsiderAppCardDeeplinkAction(_ref4) {
+  function InsiderAppCardDeeplinkAction(_ref5) {
     var _this;
-    var url_scheme = _ref4.url_scheme,
-      internal_browser_url = _ref4.internal_browser_url,
-      external_browser_url = _ref4.external_browser_url,
-      json = _ref4.json,
-      key_value = _ref4.key_value;
+    var url_scheme = _ref5.url_scheme,
+      internal_browser_url = _ref5.internal_browser_url,
+      external_browser_url = _ref5.external_browser_url,
+      json = _ref5.json,
+      key_value = _ref5.key_value;
     _classCallCheck(this, InsiderAppCardDeeplinkAction);
     _this = _callSuper(this, InsiderAppCardDeeplinkAction, [{
       actionType: 'deep_link'
@@ -223,8 +254,8 @@ var InsiderAppCardDeeplinkAction = /*#__PURE__*/function (_InsiderAppCardAction2
   return _createClass(InsiderAppCardDeeplinkAction, [{
     key: "url",
     get: function get() {
-      var _ref5, _ref6, _classPrivateFieldGet2;
-      return (_ref5 = (_ref6 = (_classPrivateFieldGet2 = _classPrivateFieldGet(_urlScheme, this)) !== null && _classPrivateFieldGet2 !== void 0 ? _classPrivateFieldGet2 : _classPrivateFieldGet(_internalBrowserUrl, this)) !== null && _ref6 !== void 0 ? _ref6 : _classPrivateFieldGet(_externalBrowserUrl, this)) !== null && _ref5 !== void 0 ? _ref5 : null;
+      var _ref6, _ref7, _classPrivateFieldGet2;
+      return (_ref6 = (_ref7 = (_classPrivateFieldGet2 = _classPrivateFieldGet(_urlScheme, this)) !== null && _classPrivateFieldGet2 !== void 0 ? _classPrivateFieldGet2 : _classPrivateFieldGet(_internalBrowserUrl, this)) !== null && _ref7 !== void 0 ? _ref7 : _classPrivateFieldGet(_externalBrowserUrl, this)) !== null && _ref6 !== void 0 ? _ref6 : null;
     }
   }, {
     key: "deeplinkType",
@@ -278,27 +309,29 @@ var InsiderAppCardFeedbackAction = /*#__PURE__*/function (_InsiderAppCardAction4
  * This model contains all the data for an app card, including its content,
  * images, buttons, and associated actions. App cards can be either text-based or image-based.
  */
-var _id2 = /*#__PURE__*/new WeakMap();
+var _id3 = /*#__PURE__*/new WeakMap();
 var _type2 = /*#__PURE__*/new WeakMap();
 var _read = /*#__PURE__*/new WeakMap();
 var _images = /*#__PURE__*/new WeakMap();
 var _content = /*#__PURE__*/new WeakMap();
 var _buttons = /*#__PURE__*/new WeakMap();
+var _categories = /*#__PURE__*/new WeakMap();
 var _action2 = /*#__PURE__*/new WeakMap();
 var _data2 = /*#__PURE__*/new WeakMap();
 var InsiderAppCard = /*#__PURE__*/function () {
   function InsiderAppCard(data) {
     var _data$images, _data$buttons;
     _classCallCheck(this, InsiderAppCard);
-    _classPrivateFieldInitSpec(this, _id2, void 0);
+    _classPrivateFieldInitSpec(this, _id3, void 0);
     _classPrivateFieldInitSpec(this, _type2, void 0);
     _classPrivateFieldInitSpec(this, _read, void 0);
     _classPrivateFieldInitSpec(this, _images, void 0);
     _classPrivateFieldInitSpec(this, _content, void 0);
     _classPrivateFieldInitSpec(this, _buttons, void 0);
+    _classPrivateFieldInitSpec(this, _categories, void 0);
     _classPrivateFieldInitSpec(this, _action2, void 0);
     _classPrivateFieldInitSpec(this, _data2, void 0);
-    _classPrivateFieldSet(_id2, this, data.id);
+    _classPrivateFieldSet(_id3, this, data.id);
     _classPrivateFieldSet(_type2, this, data.type);
     _classPrivateFieldSet(_read, this, data.read);
     _classPrivateFieldSet(_images, this, (_data$images = data.images) === null || _data$images === void 0 ? void 0 : _data$images.map(function (img) {
@@ -310,6 +343,29 @@ var InsiderAppCard = /*#__PURE__*/function () {
         appCardId: data.id
       }));
     }));
+    _classPrivateFieldSet(_categories, this, []);
+    if (Array.isArray(data.categories)) {
+      var _iterator = _createForOfIteratorHelper(data.categories),
+        _step;
+      try {
+        for (_iterator.s(); !(_step = _iterator.n()).done;) {
+          var category = _step.value;
+          if (category == null || _typeof(category) !== 'object') {
+            console.warn("[InsiderCordova] Skipping non-dictionary category element: " + JSON.stringify(category));
+            continue;
+          }
+          if (typeof category.id !== 'number' || typeof category.name !== 'string') {
+            console.warn("[InsiderCordova] Skipping malformed category element: " + JSON.stringify(category));
+            continue;
+          }
+          _classPrivateFieldGet(_categories, this).push(new InsiderAppCardCategory(category));
+        }
+      } catch (err) {
+        _iterator.e(err);
+      } finally {
+        _iterator.f();
+      }
+    }
     _classPrivateFieldSet(_data2, this, data);
     if (data.action) {
       switch (data.action.type) {
@@ -338,7 +394,7 @@ var InsiderAppCard = /*#__PURE__*/function () {
   }, {
     key: "id",
     get: function get() {
-      return _classPrivateFieldGet(_id2, this);
+      return _classPrivateFieldGet(_id3, this);
     }
   }, {
     key: "type",
@@ -364,6 +420,11 @@ var InsiderAppCard = /*#__PURE__*/function () {
     key: "buttons",
     get: function get() {
       return _classPrivateFieldGet(_buttons, this);
+    }
+  }, {
+    key: "categories",
+    get: function get() {
+      return _classPrivateFieldGet(_categories, this);
     }
   }, {
     key: "action",
@@ -427,9 +488,9 @@ var InsiderAppCard = /*#__PURE__*/function () {
  */
 var _appCards = /*#__PURE__*/new WeakMap();
 var InsiderAppCardsCampaignResponse = /*#__PURE__*/function () {
-  function InsiderAppCardsCampaignResponse(_ref7) {
+  function InsiderAppCardsCampaignResponse(_ref8) {
     var _items$map;
-    var items = _ref7.items;
+    var items = _ref8.items;
     _classCallCheck(this, InsiderAppCardsCampaignResponse);
     _classPrivateFieldInitSpec(this, _appCards, void 0);
     _classPrivateFieldSet(_appCards, this, (_items$map = items === null || items === void 0 ? void 0 : items.map(function (item) {
@@ -446,6 +507,7 @@ var InsiderAppCardsCampaignResponse = /*#__PURE__*/function () {
 module.exports = {
   InsiderAppCardContent: InsiderAppCardContent,
   InsiderAppCardImage: InsiderAppCardImage,
+  InsiderAppCardCategory: InsiderAppCardCategory,
   InsiderAppCardButton: InsiderAppCardButton,
   InsiderAppCardAction: InsiderAppCardAction,
   InsiderAppCardDeeplinkAction: InsiderAppCardDeeplinkAction,

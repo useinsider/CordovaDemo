@@ -10,6 +10,9 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
 var Utils = require("./Utils");
 var InsiderConstants = require("./Constants");
 var Identifier = /*#__PURE__*/function () {
+  // Stryker disable next-line BlockStatement: the field initializer above already sets
+  // `identifiers = {}`, so this body reassigns the exact same value — removing it is
+  // unobservable.
   function Identifier() {
     _classCallCheck(this, Identifier);
     _defineProperty(this, "identifiers", {});
@@ -28,7 +31,7 @@ var Identifier = /*#__PURE__*/function () {
       try {
         this.identifiers[InsiderConstants.ADD_EMAIL] = email;
       } catch (error) {
-        Utils.asyncExec(InsiderCordovaPlugin, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }
       return this;
     }
@@ -45,7 +48,7 @@ var Identifier = /*#__PURE__*/function () {
       try {
         this.identifiers[InsiderConstants.ADD_PHONE_NUMBER] = phoneNumber;
       } catch (error) {
-        Utils.asyncExec(InsiderCordovaPlugin, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }
       return this;
     }
@@ -62,7 +65,7 @@ var Identifier = /*#__PURE__*/function () {
       try {
         this.identifiers[InsiderConstants.ADD_USER_ID] = userID;
       } catch (error) {
-        Utils.asyncExec(InsiderCordovaPlugin, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }
       return this;
     }
@@ -82,7 +85,7 @@ var Identifier = /*#__PURE__*/function () {
       try {
         this.identifiers[key] = value;
       } catch (error) {
-        Utils.asyncExec(InsiderCordovaPlugin, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }
       return this;
     }

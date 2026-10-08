@@ -17,6 +17,7 @@ var InsiderGender = require('./Gender');
 var InsiderContentOptimizerDataType = require('./ContentOptimizerDataType');
 var InsiderCloseButtonPosition = require('./CloseButtonPosition');
 var InsiderAppCards = require('./InsiderAppCards');
+var InsiderEvents = require('./InsiderEvents');
 var _require = require('./InsiderAppCardsError'),
   InsiderAppCardsError = _require.InsiderAppCardsError,
   InsiderAppCardsErrorCode = _require.InsiderAppCardsErrorCode;
@@ -31,18 +32,20 @@ var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
   _defineProperty(this, "contentOptimizerDataType", InsiderContentOptimizerDataType);
   _defineProperty(this, "closeButtonPosition", InsiderCloseButtonPosition);
   _defineProperty(this, "appCards", InsiderAppCards);
+  _defineProperty(this, "events", InsiderEvents);
   _defineProperty(this, "AppCardsError", InsiderAppCardsError);
   _defineProperty(this, "AppCardsErrorCode", InsiderAppCardsErrorCode);
-  _defineProperty(this, "initCordovaBase", function (partnerName, appGroup, customEndpoint, handleNotificationCallback) {
+  _defineProperty(this, "initCordovaBase", function (partnerName, appGroup, customEndpoint, handleNotificationCallback, appIdentifier) {
     try {
       var sdkVersion = InsiderConstants.SDK_VERSION;
+      var args = [partnerName, sdkVersion, appGroup, customEndpoint, typeof appIdentifier === 'string' && appIdentifier.length > 0 ? appIdentifier : null];
       document.addEventListener('ins_notification_handle', handleNotificationCallback, false);
-      if (customEndpoint !== null) Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.INIT_WITH_CUSTOM_ENDPOINT, [partnerName, sdkVersion, appGroup, customEndpoint]);else if (cordova.platformId === "ios") Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.INIT_WITH_LAUNCH_OPTIONS, [partnerName, sdkVersion, appGroup]);else Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.INIT, [partnerName, sdkVersion]);
+      if (customEndpoint !== null) Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.INIT_WITH_CUSTOM_ENDPOINT, args);else if (cordova.platformId === "ios") Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.INIT_WITH_LAUNCH_OPTIONS, args);else Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.INIT, args);
     } catch (error) {
       Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
     }
   });
-  _defineProperty(this, "init", function (partnerName, appGroup, handleNotificationCallback) {
+  _defineProperty(this, "init", function (partnerName, appGroup, handleNotificationCallback, appIdentifier) {
     if (Utils.checkParameters([{
       type: 'string',
       value: partnerName
@@ -57,12 +60,12 @@ var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
       return;
     }
     try {
-      _this.initCordovaBase(partnerName, appGroup, null, handleNotificationCallback);
+      _this.initCordovaBase(partnerName, appGroup, null, handleNotificationCallback, appIdentifier);
     } catch (error) {
       Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
     }
   });
-  _defineProperty(this, "initWithCustomEndpoint", function (partnerName, appGroup, endpoint, handleNotificationCallback) {
+  _defineProperty(this, "initWithCustomEndpoint", function (partnerName, appGroup, endpoint, handleNotificationCallback, appIdentifier) {
     if (Utils.checkParameters([{
       type: 'string',
       value: partnerName
@@ -76,11 +79,11 @@ var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
       type: 'function',
       value: handleNotificationCallback
     }])) {
-      Utils.showParameterWarningLog(_this.constructor.name + '-init');
+      Utils.showParameterWarningLog(_this.constructor.name + '-initWithCustomEndpoint');
       return;
     }
     try {
-      _this.initCordovaBase(partnerName, appGroup, endpoint, handleNotificationCallback);
+      _this.initCordovaBase(partnerName, appGroup, endpoint, handleNotificationCallback, appIdentifier);
     } catch (error) {
       Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
     }
@@ -90,7 +93,7 @@ var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
       type: 'string',
       value: partnerName
     }])) {
-      Utils.showParameterWarningLog(_this.constructor.name + '-reinit');
+      Utils.showParameterWarningLog(_this.constructor.name + '-reinitWithPartnerName');
       return;
     }
     try {
@@ -218,7 +221,7 @@ var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
     }, {
       type: 'object',
       value: endDate
-    }]) || startDate.getTime() === endDate.getTime() || startDate.getTime() > endDate.getTime()) {
+    }]) || startDate.getTime() >= endDate.getTime()) {
       Utils.showParameterWarningLog(_this.constructor.name + '-getMessageCenterData');
       return;
     }
@@ -241,7 +244,7 @@ var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
     }, {
       type: 'object',
       value: identifiers
-    }]) || startDate.getTime() === endDate.getTime() || startDate.getTime() > endDate.getTime()) {
+    }]) || startDate.getTime() >= endDate.getTime()) {
       Utils.showParameterWarningLog(_this.constructor.name + '-getMessageCenterDataWithIdentifiers');
       return;
     }
@@ -309,7 +312,7 @@ var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
       return;
     }
     productIDs = productIDs.filter(function (value) {
-      return value != null && typeof value == "string" && value.trim();
+      return typeof value == "string" && value.trim();
     });
     try {
       return Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.GET_SMART_RECOMMENDATION_WITH_PRODUCT_IDS, [productIDs, recommendationID, locale, currency]);
@@ -434,6 +437,20 @@ var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
       Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
     }
   });
+  _defineProperty(this, "markContentOptimizerAsSeen", function (variableName) {
+    if (Utils.checkParameters([{
+      type: 'string',
+      value: variableName
+    }])) {
+      Utils.showParameterWarningLog(_this.constructor.name + '-markContentOptimizerAsSeen');
+      return;
+    }
+    try {
+      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.MARK_CONTENT_OPTIMIZER_AS_SEEN, [variableName]);
+    } catch (error) {
+      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+    }
+  });
   _defineProperty(this, "getContentIntWithoutCache", function (variableName, defaultValue, contentOptimizerDataType) {
     if (Utils.checkParameters([{
       type: 'string',
@@ -524,6 +541,21 @@ var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
   _defineProperty(this, "startTrackingGeofence", function () {
     try {
       Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.START_TRACKING_GEOFENCE, []);
+    } catch (error) {
+      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+    }
+  });
+  _defineProperty(this, "setAllowsBackgroundLocationUpdates", function (allowsBackgroundLocationUpdates) {
+    if (Utils.checkParameters([{
+      type: 'boolean',
+      value: allowsBackgroundLocationUpdates
+    }])) {
+      Utils.showParameterWarningLog(_this.constructor.name + '-setAllowsBackgroundLocationUpdates');
+      return;
+    }
+    try {
+      if (cordova.platformId === InsiderConstants.ANDROID) return;
+      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.SET_ALLOWS_BACKGROUND_LOCATION_UPDATES, [allowsBackgroundLocationUpdates.toString().toLowerCase()]);
     } catch (error) {
       Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
     }
@@ -707,12 +739,26 @@ var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
     if (Utils.checkParameters([{
       type: 'object',
       value: userInfo
-    }])) {
-      Utils.showParameterWarningLog(_this.constructor.name + '-setForegroundPushCallback');
+    }]) || !Utils.isPlainObject(userInfo)) {
+      Utils.showParameterWarningLog(_this.constructor.name + '-handleNotification');
       return;
     }
     try {
       Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.HANDLE_NOTIFICATION, [userInfo]);
+    } catch (error) {
+      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+    }
+  });
+  _defineProperty(this, "triggerPushProcessWithNotificationData", function (userInfo) {
+    if (Utils.checkParameters([{
+      type: 'object',
+      value: userInfo
+    }]) || !Utils.isPlainObject(userInfo)) {
+      Utils.showParameterWarningLog(_this.constructor.name + '-triggerPushProcessWithNotificationData');
+      return;
+    }
+    try {
+      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.TRIGGER_PUSH_PROCESS_WITH_NOTIFICATION_DATA, [userInfo]);
     } catch (error) {
       Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
     }

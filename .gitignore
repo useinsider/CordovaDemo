@@ -27,3 +27,13 @@ package-lock.json
 platforms/ios/Pods/
 platforms/ios/Podfile.lock
 
+# Credentials and signing material - never commit. CI writes its own from ci/fixtures and keytool.
+google-services.json
+agconnect-services.json
+GoogleService-Info.plist
+*.jks
+*.keystore
+*.p12
+*.mobileprovision
+!ci/fixtures/google-services.json
+

@@ -1,9 +1,18 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.useinsider.cordovademo" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<!-- android-packageName: the shared Firebase project (google-services.json) has a client for this package only. -->
+<widget id="com.useinsider.cordovademo" android-packageName="com.useinsider.ecommerce" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>HelloCordova</name>
     <description>This Demo contains simple methods that you can use with the Insider SDK.</description>
 
     <content src="index.html" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
+
+    <platform name="ios">
+        <!-- InsiderMobile 16.x requires iOS 12.2; cordova-ios 6 defaults to 11.0 and pod install fails. -->
+        <preference name="deployment-target" value="12.2" />
+        <!-- Cordova regenerates the Podfile on every plugin add/rm and drops the extension targets. -->
+        <hook type="after_plugin_add" src="scripts/ios-extension-pods.js" />
+        <hook type="after_prepare" src="scripts/ios-extension-pods.js" />
+    </platform>
 </widget>

@@ -21,6 +21,7 @@ module.exports = {
   SET_PUSH_OPTIN: 'setPushOptin',
   SET_LOCATION_OPTIN: 'setLocationOptin',
   SET_WHATSAPP_OPTIN: 'setWhatsappOptin',
+  SET_PROMOTIONAL_OPTIN: 'setPromotionalOptin',
   LOGIN: 'login',
   LOGOUT: 'logout',
   LOGOUT_RESETTING_INSIDER_ID: 'logoutResettingInsiderID',
@@ -62,11 +63,13 @@ module.exports = {
   GET_CONTENT_STRING_WITHOUT_CACHE: 'getContentStringWithoutCache',
   GET_CONTENT_BOOL_WITHOUT_CACHE: 'getContentBoolWithoutCache',
   GET_CONTENT_INT_WITHOUT_CACHE: 'getContentIntWithoutCache',
+  MARK_CONTENT_OPTIMIZER_AS_SEEN: 'markContentOptimizerAsSeen',
   VISIT_HOME_PAGE: 'visitHomePage',
   VISIT_LISTING_PAGE: 'visitListingPage',
   VISIT_PRODUCT_DETAIL_PAGE: 'visitProductDetailPage',
   VISIT_CART_PAGE: 'visitCartPage',
   START_TRACKING_GEOFENCE: 'startTrackingGeofence',
+  SET_ALLOWS_BACKGROUND_LOCATION_UPDATES: 'setAllowsBackgroundLocationUpdates',
   SET_GDPR_CONSENT: 'setGDPRConsent',
   SET_MOBILE_APP_ACCESS: 'setMobileAppAccess',
   REMOVE_IN_APP: 'removeInapp',
@@ -81,8 +84,11 @@ module.exports = {
   SET_ACTIVE_FOREGROUND_PUSH_VIEW: 'setActiveForegroundPushView',
   SET_FOREGROUND_PUSH_CALLBACK: 'setForegroundPushCallback',
   HANDLE_NOTIFICATION: 'handleNotification',
+  TRIGGER_PUSH_PROCESS_WITH_NOTIFICATION_DATA: 'triggerPushProcessWithNotificationData',
   GET_INSIDER_ID: 'getInsiderID',
   REGISTER_INSIDER_ID_LISTENER: 'registerInsiderIDListener',
+  ADD_EVENT_OBSERVER: 'addEventObserver',
+  REMOVE_EVENT_OBSERVER: 'removeEventObserver',
   DISABLE_IN_APP_MESSAGES: 'disableInAppMessages',
   ENABLE_IN_APP_MESSAGES: 'enableInAppMessages',
   SHOW_NATIVE_APP_REVIEW: 'showNativeAppReview',
@@ -124,6 +130,6 @@ module.exports = {
   // Reinit
   REINIT_WITH_PARTNER_NAME: 'reinitWithPartnerName',
   // SDK Version
-  SDK_VERSION: 'CDV-4.0.1'
+  SDK_VERSION: 'CDV-4.1.0'
 };
 });

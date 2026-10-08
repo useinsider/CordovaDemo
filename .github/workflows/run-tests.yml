@@ -47,7 +47,7 @@ jobs:
     runs-on: macos-26
     timeout-minutes: 60
     env:
-      # Must match signingConfigs.release in platforms/android/app/build.gradle, which debug builds also use.
+      # Must match signingConfigs.release in platforms/android/app/build.gradle (debug builds use the default debug keystore).
       KEYSTORE: platforms/android/app/mykeystore.jks
       KEYSTORE_ALIAS: test
       KEYSTORE_PASSWORD: '123456'

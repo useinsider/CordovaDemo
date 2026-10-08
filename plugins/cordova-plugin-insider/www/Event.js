@@ -12,6 +12,9 @@ var InsiderConstants = require("./Constants");
 var Event = /*#__PURE__*/function () {
   function Event(name) {
     _classCallCheck(this, Event);
+    // Stryker disable next-line StringLiteral: the constructor unconditionally overwrites this
+    // with `this.name = name` right after the field initializer runs, so its value is never
+    // observable — any string here is equivalent.
     _defineProperty(this, "name", '');
     _defineProperty(this, "parameters", []);
     this.name = name;
@@ -35,10 +38,10 @@ var Event = /*#__PURE__*/function () {
           key: key,
           value: value
         });
-        return this;
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }
+      return this;
     }
   }, {
     key: "addParameterWithInt",
@@ -49,7 +52,7 @@ var Event = /*#__PURE__*/function () {
       }, {
         type: 'number',
         value: value
-      }])) {
+      }]) || !Number.isFinite(value)) {
         Utils.showParameterWarningLog(this.constructor.name + '-addParameterWithInt');
         return this;
       }
@@ -59,10 +62,10 @@ var Event = /*#__PURE__*/function () {
           key: key,
           value: value
         });
-        return this;
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }
+      return this;
     }
   }, {
     key: "addParameterWithDouble",
@@ -73,7 +76,7 @@ var Event = /*#__PURE__*/function () {
       }, {
         type: 'number',
         value: value
-      }])) {
+      }]) || !Number.isFinite(value)) {
         Utils.showParameterWarningLog(this.constructor.name + '-addParameterWithDouble');
         return this;
       }
@@ -83,10 +86,10 @@ var Event = /*#__PURE__*/function () {
           key: key,
           value: value
         });
-        return this;
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }
+      return this;
     }
   }, {
     key: "addParameterWithBoolean",
@@ -107,10 +110,10 @@ var Event = /*#__PURE__*/function () {
           key: key,
           value: value
         });
-        return this;
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }
+      return this;
     }
   }, {
     key: "addParameterWithDate",
@@ -132,10 +135,10 @@ var Event = /*#__PURE__*/function () {
           key: key,
           value: value.getTime().toString()
         });
-        return this;
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }
+      return this;
     }
   }, {
     key: "addParameterWithArray",
@@ -157,10 +160,10 @@ var Event = /*#__PURE__*/function () {
           key: key,
           value: value
         });
-        return this;
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }
+      return this;
     }
   }, {
     key: "addParameterWithStringArray",
@@ -181,10 +184,10 @@ var Event = /*#__PURE__*/function () {
           key: key,
           value: value
         });
-        return this;
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }
+      return this;
     }
   }, {
     key: "addParameterWithNumericArray",
@@ -205,10 +208,10 @@ var Event = /*#__PURE__*/function () {
           key: key,
           value: value
         });
-        return this;
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }
+      return this;
     }
   }, {
     key: "build",

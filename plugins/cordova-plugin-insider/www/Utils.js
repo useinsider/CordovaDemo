@@ -14,6 +14,35 @@ module.exports = {
       window.cordova.exec(resolve, reject, className, reference, args);
     });
   },
+  /**
+   * Streaming counterpart of asyncExec.
+   *
+   * asyncExec wraps cordova.exec in a Promise, and a Promise settles exactly once,
+   * so it cannot carry a native callback that fires repeatedly. streamExec keeps the
+   * success handler alive: the native side sends keep-callback plugin results and
+   * every one of them invokes onData. Errors are routed to onError (if supplied)
+   * without tearing the stream down on the JS side.
+   *
+   * @param {string} className - Native class name (Constants.CLASS).
+   * @param {string} reference - Native action name.
+   * @param {Array} [args] - Arguments forwarded to native.
+   * @param {Function} onData - Called for every result the native side pushes.
+   * @param {Function} [onError] - Called for every error the native side pushes.
+   */
+  streamExec: function streamExec(className, reference) {
+    var args = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
+    var onData = arguments.length > 3 ? arguments[3] : undefined;
+    var onError = arguments.length > 4 ? arguments[4] : undefined;
+    window.cordova.exec(function (result) {
+      if (typeof onData === 'function') {
+        onData(result);
+      }
+    }, function (error) {
+      if (typeof onError === 'function') {
+        onError(error);
+      }
+    }, className, reference, args);
+  },
   generateJSONErrorString: function generateJSONErrorString(error) {
     return '[InsiderCordova][JavaScriptError] ' + error;
   },

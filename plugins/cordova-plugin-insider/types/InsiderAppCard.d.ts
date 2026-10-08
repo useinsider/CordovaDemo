@@ -25,6 +25,19 @@ export class InsiderAppCardImage {
 }
 
 /**
+ * Represents a category associated with an app card.
+ *
+ * This model contains the id and name of a category assigned to the app card.
+ */
+export class InsiderAppCardCategory {
+  /** Unique identifier for the category. */
+  id: number;
+  /** Name of the category. */
+  name: string;
+  constructor(params: { id: number; name: string });
+}
+
+/**
  * Represents an action button within an app card.
  *
  * This model defines a button that can be displayed in an app card, containing text and an
@@ -153,6 +166,8 @@ export class InsiderAppCard {
   content?: InsiderAppCardContent;
   /** Array of action buttons that can be displayed with the app card. */
   buttons?: InsiderAppCardButton[];
+  /** Array of categories associated with the app card. Always present (empty when the card has none). */
+  categories: InsiderAppCardCategory[];
   /**
    * Action to be executed when the app card is tapped.
    */
@@ -166,6 +181,7 @@ export class InsiderAppCard {
     images?: InsiderAppCardImage[];
     content?: InsiderAppCardContent;
     buttons?: InsiderAppCardButton[];
+    categories?: InsiderAppCardCategory[];
     action?: InsiderAppCardAction;
   });
   /** Marks the app card as read. */

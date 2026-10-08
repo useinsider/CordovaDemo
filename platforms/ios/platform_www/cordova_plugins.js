@@ -72,9 +72,14 @@ cordova.define('cordova/plugin_list', function(require, exports, module) {
       "id": "cordova-plugin-insider.InsiderAppCardsError",
       "file": "plugins/cordova-plugin-insider/www/InsiderAppCardsError.js",
       "pluginId": "cordova-plugin-insider"
+    },
+    {
+      "id": "cordova-plugin-insider.InsiderEvents",
+      "file": "plugins/cordova-plugin-insider/www/InsiderEvents.js",
+      "pluginId": "cordova-plugin-insider"
     }
   ];
   module.exports.metadata = {
-    "cordova-plugin-insider": "4.0.1"
+    "cordova-plugin-insider": "4.1.0"
   };
 });

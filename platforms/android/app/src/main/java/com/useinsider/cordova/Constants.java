@@ -6,7 +6,9 @@ class Constants {
     }
     
     static final String HANDLE_NOTIFICATION = "handleNotification";
+    static final String TRIGGER_PUSH_PROCESS_WITH_NOTIFICATION_DATA = "triggerPushProcessWithNotificationData";
     static final String SET_INTERNAL_BROWSER_CLOSE_BUTTON_POSITION = "setInternalBrowserCloseButtonPosition";
+    static final String SET_PROMOTIONAL_OPTIN = "setPromotionalOptin";
     static final String ERROR = "error";
     static final String DEFAULT_VALUE = "defaultValue";
     static final String VARIABLE_NAME = "variableName";

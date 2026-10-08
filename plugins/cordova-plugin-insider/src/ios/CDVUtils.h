@@ -17,5 +17,7 @@
 + (NSString *)mapAppCardsErrorCode:(NSError *)error;
 + (NSDictionary *)appCardsErrorToDictionary:(NSError *)error;
 
++ (NSDictionary<NSString *, id> *)sanitizeEventParameters:(NSDictionary<NSString *, id> *)parameters;
+
 @end
 

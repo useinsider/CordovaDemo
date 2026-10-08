@@ -357,6 +357,115 @@ public class CDVUtils {
         }
     }
 
+    /**
+     * Converts a native Map (as delivered by the Insider SDK event listener) into a JSONObject
+     * that can be handed to a CallbackContext.
+     *
+     * Structured conversion is mandatory here: event parameter values are supplied by the
+     * integrator and may contain quotes, backslashes or newlines that would corrupt any
+     * string-interpolated JSON.
+     *
+     * Null values are preserved as JSONObject.NULL rather than dropped, because
+     * JSONObject.put(key, null) REMOVES the key and would silently hide the parameter from JS.
+     */
+    public static JSONObject convertMapToJSON(Map<String, Object> map) {
+        JSONObject json = new JSONObject();
+
+        if (map == null) {
+            return json;
+        }
+
+        try {
+            for (Map.Entry<String, Object> entry : map.entrySet()) {
+                String key = entry.getKey();
+
+                if (key == null) continue;
+
+                json.put(key, convertValueToJSON(entry.getValue()));
+            }
+        } catch (Exception e) {
+            Insider.Instance.putException(e);
+        }
+
+        return json;
+    }
+
+    private static JSONArray convertCollectionToJSON(Iterable<?> values) {
+        JSONArray array = new JSONArray();
+
+        if (values == null) {
+            return array;
+        }
+
+        for (Object value : values) {
+            array.put(convertValueToJSON(value));
+        }
+
+        return array;
+    }
+
+    private static JSONArray convertArrayToJSON(Object array) {
+        JSONArray jsonArray = new JSONArray();
+
+        int length = java.lang.reflect.Array.getLength(array);
+
+        for (int i = 0; i < length; i++) {
+            jsonArray.put(convertValueToJSON(java.lang.reflect.Array.get(array, i)));
+        }
+
+        return jsonArray;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Object convertValueToJSON(Object value) {
+        try {
+            if (value == null) {
+                return JSONObject.NULL;
+            }
+
+            if (value instanceof Map) {
+                return convertMapToJSON((Map<String, Object>) value);
+            }
+
+            if (value instanceof Iterable) {
+                return convertCollectionToJSON((Iterable<?>) value);
+            }
+
+            if (value.getClass().isArray()) {
+                return convertArrayToJSON(value);
+            }
+
+            if (value instanceof Date) {
+                return ((Date) value).getTime();
+            }
+
+            if (value instanceof Boolean || value instanceof String || value instanceof JSONObject || value instanceof JSONArray) {
+                return value;
+            }
+
+            if (value instanceof Double || value instanceof Float) {
+                double doubleValue = ((Number) value).doubleValue();
+
+                // JSONObject rejects NaN / Infinity; represent them as null instead of throwing.
+                if (Double.isNaN(doubleValue) || Double.isInfinite(doubleValue)) {
+                    return JSONObject.NULL;
+                }
+
+                return doubleValue;
+            }
+
+            if (value instanceof Number) {
+                return value;
+            }
+
+            return String.valueOf(value);
+        } catch (Exception e) {
+            Insider.Instance.putException(e);
+        }
+
+        return JSONObject.NULL;
+    }
+
     private static void setProductCustomAttribute(InsiderProduct product, String key, Object value) {
         try {
             if (key == null || key.length() == 0 || value == null) return;
