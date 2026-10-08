@@ -2,7 +2,75 @@
 #import "InsiderPlugin.h"
 #import "CDVUtils.h"
 
-@interface InsiderPlugin (){
+@class InsiderPlugin;
+
+/**
+ * Dedicated InsiderEventListener implementation.
+ *
+ * WHY A SEPARATE CLASS: the SDK stores observers WEAKLY. If the plugin registered itself,
+ * nothing outside the SDK would guarantee the observer stayed alive beyond Cordova's own
+ * retain of the plugin, and the weak SDK reference would nil out silently the moment the
+ * plugin was released - the listener would simply stop firing with no error.
+ *
+ * The plugin therefore holds this object STRONGLY (see the eventObserver ivar below), which
+ * is what keeps the SDK's weak reference valid. The back-pointer to the plugin is weak so
+ * the pair cannot form a retain cycle.
+ */
+@interface InsiderEventObserver : NSObject <InsiderEventListener>
+
+@property (nonatomic, weak) InsiderPlugin *plugin;
+
+@end
+
+@interface InsiderPlugin ()
+{
+    InsiderEventObserver *eventObserver;
+    NSString *eventObserverCallbackId;
+
+    /**
+     * Guards the two ivars above. They are written on the Cordova thread by
+     * addEventObserver: / removeEventObserver: / dispose and read on the SDK's own listener
+     * thread by handleRecordedEvent:. Without the lock that read is an unsynchronised
+     * cross-thread access with no guarantee of ever observing the write.
+     *
+     * The lock is held only around the ivar read/write, never around sendPluginResult or a
+     * dispatch onto eventQueue, so event delivery is not serialised behind it and the lock can
+     * never be held while waiting on the queue (which is what would deadlock).
+     */
+    NSLock *eventObserverLock;
+
+    /**
+     * Dedicated SERIAL queue owning every event-observer side effect: addObserver,
+     * removeObserver, and delivery of recorded events to JS.
+     *
+     * WHY SERIAL AND NOT commandDelegate runInBackground: that runs blocks on a CONCURRENT
+     * queue. For delivery that would let two events recorded back to back reach JS in either
+     * order - a product_detail_page_view landing after the purchase it preceded produces a
+     * garbage funnel, and event order is the entire point of this feature. For add/remove it
+     * would let a rapid remove-then-add re-subscribe execute out of order and leave the SDK
+     * with no observer while JS believes one is registered. One serial queue fixes both, and
+     * putting add/remove/delivery on the SAME queue additionally orders registration against
+     * delivery instead of only ordering each class of work within itself.
+     *
+     * This mirrors the Android side, which uses a single-thread executor for the same reason.
+     */
+    dispatch_queue_t eventQueue;
+}
+
+- (void)handleRecordedEvent:(NSString *)name parameters:(NSDictionary<NSString *, id> *)parameters timestamp:(NSTimeInterval)timestamp;
+
+@end
+
+@implementation InsiderEventObserver
+
+- (void)onEventRecorded:(NSString *)name
+             parameters:(NSDictionary<NSString *, id> *)parameters
+              timestamp:(NSTimeInterval)timestamp {
+    @try {
+        [self.plugin handleRecordedEvent:name parameters:parameters timestamp:timestamp];
+    } @catch (NSException *e) {
+        [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+    }
 }
 
 @end
@@ -10,6 +78,43 @@
 @implementation InsiderPlugin
 
 - (void) pluginInitialize {
+    eventObserverLock = [[NSLock alloc] init];
+    eventQueue = dispatch_queue_create("com.useinsider.cordova.events", DISPATCH_QUEUE_SERIAL);
+}
+
+- (void)dispose {
+    @try {
+        InsiderEventObserver *observerToRemove = nil;
+
+        // @finally guarantees the unlock even if an exception is raised while the lock is
+        // held, which would otherwise deadlock every later access to these ivars.
+        [eventObserverLock lock];
+        @try {
+            observerToRemove = eventObserver;
+
+            eventObserver = nil;
+            eventObserverCallbackId = nil;
+        } @finally {
+            [eventObserverLock unlock];
+        }
+
+        if (observerToRemove != nil) {
+            [[Insider events] removeObserver:observerToRemove];
+        }
+    } @catch (NSException *e) {
+        [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+    }
+
+    [super dispose];
+}
+
+- (NSString *)resolveAppIdentifier:(CDVInvokedUrlCommand *)command {
+    if (command.arguments.count <= 4)
+        return nil;
+
+    id appIdentifier = [command.arguments objectAtIndex:4];
+
+    return [appIdentifier isKindOfClass:[NSString class]] && [appIdentifier length] > 0 ? appIdentifier : nil;
 }
 
 - (void) init:(CDVInvokedUrlCommand *)command {
@@ -36,7 +141,13 @@
         
         [Insider registerInsiderCallbackWithSelector:@selector(registerCallback:) sender:self];
         [Insider setHybridSDKVersion:[command.arguments objectAtIndex:1]];
-        [Insider initWithLaunchOptions:nil partnerName:[command.arguments objectAtIndex:0] appGroup:[command.arguments objectAtIndex:2]];
+        NSString *appIdentifier = [self resolveAppIdentifier:command];
+
+        if (appIdentifier)
+            [Insider initWithLaunchOptions:nil partnerName:[command.arguments objectAtIndex:0] appGroup:[command.arguments objectAtIndex:2] appIdentifier:appIdentifier];
+        else
+            [Insider initWithLaunchOptions:nil partnerName:[command.arguments objectAtIndex:0] appGroup:[command.arguments objectAtIndex:2]];
+
         [Insider applicationDidBecomeActive];
         
         [self sendSuccessResultWithString:@"Insider Cordova Plugin: initWithLaunchOptions" andCommand:command];
@@ -53,7 +164,13 @@
         
         [Insider registerInsiderCallbackWithSelector:@selector(registerCallback:) sender:self];
         [Insider setHybridSDKVersion:[command.arguments objectAtIndex:1]];
-        [Insider initWithLaunchOptions:nil partnerName:[command.arguments objectAtIndex:0] appGroup:[command.arguments objectAtIndex:2] customEndpoint:[command.arguments objectAtIndex:3]];
+        NSString *appIdentifier = [self resolveAppIdentifier:command];
+
+        if (appIdentifier)
+            [Insider initWithLaunchOptions:nil partnerName:[command.arguments objectAtIndex:0] appGroup:[command.arguments objectAtIndex:2] customEndpoint:[command.arguments objectAtIndex:3] appIdentifier:appIdentifier];
+        else
+            [Insider initWithLaunchOptions:nil partnerName:[command.arguments objectAtIndex:0] appGroup:[command.arguments objectAtIndex:2] customEndpoint:[command.arguments objectAtIndex:3]];
+
         [Insider applicationDidBecomeActive];
         
         [self sendSuccessResultWithString:@"Insider Cordova Plugin: initWithCustomEndpoint" andCommand:command];
@@ -183,6 +300,18 @@
         }];
     } @catch (NSException *exception) {
         [Insider sendError:exception desc:@"Insider.m - startTrackingGeofence"];
+    }
+}
+
+- (void)setAllowsBackgroundLocationUpdates:(CDVInvokedUrlCommand *)command {
+    @try {
+        if (![command.arguments objectAtIndex:0]) return;
+        [self.commandDelegate runInBackground:^{
+            [InsiderGeofence setAllowsBackgroundLocationUpdates:[[command.arguments objectAtIndex:0] boolValue]];
+            [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
+        }];
+    } @catch (NSException *exception) {
+        [Insider sendError:exception desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
     }
 }
 
@@ -346,6 +475,15 @@
     }
 }
 
+- (void)markContentOptimizerAsSeen:(CDVInvokedUrlCommand *)command {
+    @try {
+        if (![command.arguments objectAtIndex:0]) return;
+        [Insider markContentOptimizerAsSeen:[command.arguments objectAtIndex:0]];
+    } @catch (NSException *e) {
+        [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+    }
+}
+
 - (void)visitHomePage:(CDVInvokedUrlCommand *)command {
     @try {
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -451,7 +589,7 @@
             } else if (mappedCustomParameters.count > 0) {
                 [Insider visitCartPageWithProducts:[insiderProducts copy] customParameters:mappedCustomParameters];
             } else {
-                [InsiderHybrid visitCartPage:insiderProducts];
+                [Insider visitCartPageWithProducts:[insiderProducts copy]];
             }
             [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
         });
@@ -954,6 +1092,15 @@
     }
 }
 
+- (void)setPromotionalOptin:(CDVInvokedUrlCommand *)command {
+    @try {
+        if (![command.arguments objectAtIndex:0]) return;
+        [Insider getCurrentUser].setPromotionalOptin([[command.arguments objectAtIndex:0] boolValue]);
+    } @catch (NSException *e) {
+        [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+    }
+}
+
 - (void)setLanguage:(CDVInvokedUrlCommand *)command {
     @try {
         if (![command.arguments objectAtIndex:0]) return;
@@ -1069,22 +1216,13 @@
 }
 
 - (void)login:(CDVInvokedUrlCommand *)command {
-    @try {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (![command.arguments objectAtIndex:0]) return;
-            NSMutableDictionary *identifiers  = [command.arguments objectAtIndex:0];
-            InsiderIdentifiers *insiderIdentifiers = [[InsiderIdentifiers alloc] init];
-            for (NSString *key in identifiers.allKeys){
-                if([key isEqualToString:@"addEmail"]){
-                    insiderIdentifiers.addEmail([identifiers objectForKey:key]);
-                } else if([key isEqualToString:@"addPhoneNumber"]){
-                    insiderIdentifiers.addPhoneNumber([identifiers objectForKey:key]);
-                } else if([key isEqualToString:@"addUserID"]){
-                    insiderIdentifiers.addUserID([identifiers objectForKey:key]);
-                } else {
-                    insiderIdentifiers.addCustomIdentifier(key, [identifiers objectForKey:key]);
-                }
-            }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        @try {
+            id identifiers = command.arguments.count > 0 ? [command.arguments objectAtIndex:0] : nil;
+
+            if (![identifiers isKindOfClass:[NSDictionary class]]) return;
+
+            InsiderIdentifiers *insiderIdentifiers = [self buildInsiderIdentifiersFromMap:identifiers];
             
             if ([command.arguments count] > 1) {
                 [[Insider getCurrentUser] login:insiderIdentifiers insiderIDResult:^(NSString *insiderID) {
@@ -1093,10 +1231,10 @@
             } else {
                 [[Insider getCurrentUser] login:insiderIdentifiers];
             }
-        });
-    } @catch (NSException *e) {
-        [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
-    }
+        } @catch (NSException *e) {
+            [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+        }
+    });
 }
 
 - (void)logout:(CDVInvokedUrlCommand *)command {
@@ -1112,8 +1250,8 @@
 }
 
 - (void)logoutResettingInsiderID:(CDVInvokedUrlCommand *)command {
-    @try {
-        dispatch_async(dispatch_get_main_queue(), ^{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        @try {
             NSArray *identifiersArray = nil;
             if ([command.arguments count] > 0 && [command.arguments objectAtIndex:0] != [NSNull null]) {
                 identifiersArray = [command.arguments objectAtIndex:0];
@@ -1130,10 +1268,10 @@
                 [[Insider getCurrentUser] logoutResettingInsiderID:identifiers];
                 [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
             }
-        });
-    } @catch (NSException *e) {
-        [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
-    }
+        } @catch (NSException *e) {
+            [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+        }
+    });
 }
 
 - (void)signUpConfirmation:(CDVInvokedUrlCommand *)command {
@@ -1184,9 +1322,27 @@
 
 - (void) handleNotification:(CDVInvokedUrlCommand *) command {
     @try {
-        if (![command.arguments objectAtIndex:0]) return;
-        
-        NSMutableDictionary *mutableNotification = [[command.arguments objectAtIndex:0] mutableCopy];
+        id notification = command.arguments.count > 0 ? [command.arguments objectAtIndex:0] : nil;
+
+        if (![notification isKindOfClass:[NSDictionary class]]) return;
+
+        NSMutableDictionary *mutableNotification = [notification mutableCopy];
+
+        // APNs delivers nested Insider fields (push_buttons, ...) as JSON strings and the SDK parses
+        // them as strings; a raw array/object there makes it hand a garbage callback payload back.
+        for (id key in [notification allKeys]) {
+            id value = notification[key];
+
+            if (![value isKindOfClass:[NSArray class]] && ![value isKindOfClass:[NSDictionary class]]) continue;
+
+            NSData *jsonData = [NSJSONSerialization isValidJSONObject:value] ? [NSJSONSerialization dataWithJSONObject:value options:0 error:nil] : nil;
+
+            if (jsonData) {
+                mutableNotification[key] = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+            } else {
+                [mutableNotification removeObjectForKey:key];
+            }
+        }
         
         mutableNotification[@"aps"] = @"insider";
         
@@ -1195,6 +1351,10 @@
     } @catch (NSException *exception){
         [Insider sendError:exception desc:@"Insider.m - handleNotification"];
     }
+}
+
+- (void) triggerPushProcessWithNotificationData:(CDVInvokedUrlCommand *) command {
+    [self handleNotification:command];
 }
 
 - (void)getInsiderID:(CDVInvokedUrlCommand *)command {
@@ -1402,6 +1562,189 @@
     }
 }
 
+- (void)addEventObserver:(CDVInvokedUrlCommand *)command {
+    // Declared outside the @try so the @catch below can still reach it to tear down a
+    // half-built registration.
+    InsiderEventObserver *observer = nil;
+
+    @try {
+        [eventObserverLock lock];
+        @try {
+            eventObserverCallbackId = command.callbackId;
+
+            if (eventObserver == nil) {
+                observer = [[InsiderEventObserver alloc] init];
+                observer.plugin = self;
+
+                // Strong ivar retain: the SDK's own reference is weak, so this is what keeps
+                // the observer alive. Assign BEFORE registering so the SDK never sees a
+                // deallocated object.
+                eventObserver = observer;
+            }
+        } @finally {
+            [eventObserverLock unlock];
+        }
+
+        // Already registered - only the callbackId needed refreshing.
+        if (observer == nil) {
+            return;
+        }
+
+        NSString *registrationCallbackId = command.callbackId;
+
+        dispatch_async(eventQueue, ^{
+            @try {
+                [[Insider events] addObserver:observer];
+            } @catch (NSException *e) {
+                [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+
+                [self failEventObserverRegistrationForObserver:observer callbackId:registrationCallbackId reason:e];
+            }
+        });
+    } @catch (NSException *e) {
+        [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+
+        [self failEventObserverRegistrationForObserver:observer callbackId:command.callbackId reason:e];
+    }
+}
+
+/**
+ * Reports a failed native observer registration to JS AND tears the half-built registration
+ * back down.
+ *
+ * Both halves matter. Without the error result JS never learns the stream is dead: its retry
+ * state machine only clears isNativeObserverRegistered in its onError handler, so a failed
+ * registration would leave JS pointed at a stream that can never deliver. Without the local
+ * teardown the eventObserver ivar would stay non-nil and the retried addEventObserver: would
+ * take the "already registered" early return and never call addObserver again.
+ *
+ * The error result deliberately does NOT set keepCallback. Cordova drops the callback entry on
+ * a non-keepCallback result, which is exactly right: the JS retry issues a fresh cordova.exec
+ * with a NEW callbackId, so keeping the dead one alive would only leak it. A later successful
+ * registration is unaffected because it is a different callbackId end to end.
+ */
+- (void)failEventObserverRegistrationForObserver:(InsiderEventObserver *)failedObserver
+                                      callbackId:(NSString *)callbackId
+                                          reason:(NSException *)reason {
+    @try {
+        if (failedObserver == nil) {
+            return;
+        }
+
+        [eventObserverLock lock];
+        @try {
+            // Only tear down if this failure belongs to the CURRENT registration. A remove
+            // followed by a fresh add could otherwise let a late failure from the old attempt
+            // wipe out a newer, healthy observer.
+            if (eventObserver == failedObserver) {
+                eventObserver = nil;
+                eventObserverCallbackId = nil;
+            }
+        } @finally {
+            [eventObserverLock unlock];
+        }
+
+        if (callbackId != nil) {
+            CDVPluginResult *pluginResult =
+                [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                  messageAsString:[NSString stringWithFormat:@"[InsiderCordova] addEventObserver failed: %@", reason.reason]];
+
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+        }
+    } @catch (NSException *e) {
+        [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+    }
+}
+
+- (void)removeEventObserver:(CDVInvokedUrlCommand *)command {
+    @try {
+        InsiderEventObserver *observerToRemove = nil;
+
+        [eventObserverLock lock];
+        @try {
+            observerToRemove = eventObserver;
+
+            eventObserver = nil;
+            eventObserverCallbackId = nil;
+        } @finally {
+            [eventObserverLock unlock];
+        }
+
+        if (observerToRemove != nil) {
+            // Same serial queue as addObserver, so a rapid remove-then-add re-subscribe can
+            // never invert and leave the SDK with no observer while JS believes one is live.
+            dispatch_async(eventQueue, ^{
+                @try {
+                    [[Insider events] removeObserver:observerToRemove];
+                } @catch (NSException *e) {
+                    [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+                }
+            });
+        }
+
+        [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
+    } @catch (NSException *e) {
+        [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+    }
+}
+
+/**
+ * Invoked by InsiderEventObserver on the SDK's own background thread.
+ * The payload is built structurally (never string-interpolated) and pushed through the
+ * stored callbackId with keepCallback set so the JS handler survives for later events.
+ *
+ * The send itself is marshalled onto the plugin's serial eventQueue so results never leave the
+ * SDK's listener thread and stay in recorded order. See the eventQueue declaration for why the
+ * queue must be serial rather than commandDelegate runInBackground.
+ */
+- (void)handleRecordedEvent:(NSString *)name parameters:(NSDictionary<NSString *, id> *)parameters timestamp:(NSTimeInterval)timestamp {
+    @try {
+        // Read the callbackId under the lock - it is written on the Cordova thread while this
+        // runs on the SDK's listener thread. The lock is released before sending.
+        NSString *callbackId = nil;
+
+        [eventObserverLock lock];
+        @try {
+            callbackId = eventObserverCallbackId;
+        } @finally {
+            [eventObserverLock unlock];
+        }
+
+        if (callbackId == nil || name == nil) {
+            return;
+        }
+
+        NSDictionary *event = @{
+            @"name": name,
+            // Sanitised: NSDate and other non-JSON values would make NSJSONSerialization fail
+            // and drop the WHOLE event. See sanitizeEventParameters:.
+            @"parameters": [CDVUtils sanitizeEventParameters:parameters],
+            // Whole seconds since 1970, passed through unchanged for parity with the native SDKs.
+            @"timestamp": @((long long)timestamp)
+        };
+
+        // The payload is built ABOVE on the SDK's listener thread on purpose - the parameters
+        // dictionary is only guaranteed to be valid for the duration of this callback - and only
+        // the send is handed to the serial queue. dispatch_async (never _sync) and no lock held
+        // here, so the SDK thread is not blocked and no deadlock is possible.
+        dispatch_async(eventQueue, ^{
+            @try {
+                [self sendKeepCallbackResultWithDictionary:event andCallbackId:callbackId];
+            } @catch (NSException *e) {
+                [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+            }
+        });
+    } @catch (NSException *e) {
+        [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+    }
+}
+
+- (void) sendKeepCallbackResultWithDictionary:(NSDictionary *)resultMessage andCallbackId:(NSString *)callbackId {
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:resultMessage];
+    [pluginResult setKeepCallback:@YES];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+}
+
 - (void) sendErrorResultWithString:(NSString *)resultMessage andCommand:(CDVInvokedUrlCommand *)command {
     CDVPluginResult *pluginResult = nil;
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:resultMessage];
@@ -1448,6 +1791,9 @@
 - (InsiderIdentifiers *)buildInsiderIdentifiersFromMap:(NSDictionary *)identifiersMap {
     InsiderIdentifiers *identifiers = [[InsiderIdentifiers alloc] init];
     for (NSString *key in identifiersMap.allKeys) {
+        // The SDK identifier setters take NSString only and crash on anything else.
+        if (![key isKindOfClass:[NSString class]] || ![[identifiersMap objectForKey:key] isKindOfClass:[NSString class]]) continue;
+
         if ([key isEqualToString:@"addEmail"]) {
             identifiers.addEmail([identifiersMap objectForKey:key]);
         } else if ([key isEqualToString:@"addPhoneNumber"]) {
@@ -1462,25 +1808,15 @@
 }
 
 - (NSArray<InsiderIdentifiers *> *)convertArrayToInsiderIdentifiersArray:(NSArray *)identifiersArray {
-    if (identifiersArray == nil || identifiersArray.count == 0) {
+    if (![identifiersArray isKindOfClass:[NSArray class]] || identifiersArray.count == 0) {
         return nil;
     }
     
     NSMutableArray<InsiderIdentifiers *> *identifiers = [NSMutableArray array];
-    for (NSDictionary *identifierDict in identifiersArray) {
-        InsiderIdentifiers *insiderIdentifiers = [[InsiderIdentifiers alloc] init];
-        for (NSString *key in identifierDict.allKeys) {
-            if ([key isEqualToString:@"addEmail"]) {
-                insiderIdentifiers.addEmail([identifierDict objectForKey:key]);
-            } else if ([key isEqualToString:@"addPhoneNumber"]) {
-                insiderIdentifiers.addPhoneNumber([identifierDict objectForKey:key]);
-            } else if ([key isEqualToString:@"addUserID"]) {
-                insiderIdentifiers.addUserID([identifierDict objectForKey:key]);
-            } else {
-                insiderIdentifiers.addCustomIdentifier(key, [identifierDict objectForKey:key]);
-            }
-        }
-        [identifiers addObject:insiderIdentifiers];
+    for (id identifierDict in identifiersArray) {
+        if (![identifierDict isKindOfClass:[NSDictionary class]]) continue;
+
+        [identifiers addObject:[self buildInsiderIdentifiersFromMap:identifierDict]];
     }
     return identifiers;
 }

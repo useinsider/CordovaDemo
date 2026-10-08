@@ -6,6 +6,7 @@ import { Gender } from './Gender';
 import { CallbackType } from './CallbackType';
 import { ContentOptimizerDataType } from './ContentOptimizerDataType';
 import { InsiderAppCards } from './InsiderAppCards';
+import { InsiderEvents } from './InsiderEvents';
 import { InsiderAppCardsError, InsiderAppCardsErrorCode } from './InsiderAppCardsError';
 import { CloseButtonPosition } from './CloseButtonPosition';
 
@@ -14,8 +15,8 @@ export type CustomParameters = {
 };
 
 interface InsiderPlugin {
-    init(partnerName: string, appGroup: string, handleNotificationCallback: Function): void;
-    initWithCustomEndpoint(partnerName: string, appGroup: string, endpoint: string, handleNotificationCallback: Function): void;
+    init(partnerName: string, appGroup: string, handleNotificationCallback: Function, appIdentifier?: string | null): void;
+    initWithCustomEndpoint(partnerName: string, appGroup: string, endpoint: string, handleNotificationCallback: Function, appIdentifier?: string | null): void;
     reinitWithPartnerName(partnerName: string): void;
     tagEvent(eventName: string): Event;
     getCurrentUser(): User;
@@ -43,6 +44,7 @@ interface InsiderPlugin {
     getContentStringWithoutCache(variableName: string, defaultValue: string, contentOptimizerDataType: number): Promise<any>;
     getContentBoolWithoutCache(variableName: string, defaultValue: boolean, contentOptimizerDataType: number): Promise<any>;
     getContentIntWithoutCache(variableName: string, defaultValue: number, contentOptimizerDataType: number): Promise<any>;
+    markContentOptimizerAsSeen(variableName: string): void;
     visitHomePage(customParameters?: CustomParameters): void;
     visitListingPage(taxonomy: Array<string>, customParameters?: CustomParameters): void;
     visitProductDetailPage(product: Product, customParameters?: CustomParameters): void;
@@ -51,6 +53,7 @@ interface InsiderPlugin {
     visitCartPage(products: Array<Product>, saleID: string): void;
     visitCartPage(products: Array<Product>, saleID: string, customParameters: CustomParameters): void;
     startTrackingGeofence(): void;
+    setAllowsBackgroundLocationUpdates(allowsBackgroundLocationUpdates: boolean): void;
     setGDPRConsent(gdprConsent: boolean): void;
     setMobileAppAccess(mobileAppAccess: boolean): void;
     enableIDFACollection(idfaCollection: boolean): void;
@@ -72,6 +75,7 @@ interface InsiderPlugin {
     showNativeAppReview(): void;
     handleUniversalLink(url: string): void;
     handleURL(url: string): void;
+    triggerPushProcessWithNotificationData(userInfo: object): void;
 
     gender: Gender;
     callbackType: CallbackType;
@@ -79,6 +83,7 @@ interface InsiderPlugin {
     closeButtonPosition: CloseButtonPosition;
     identifier(): Identifier;
     appCards: InsiderAppCards;
+    events: InsiderEvents;
     AppCardsError: typeof InsiderAppCardsError;
     AppCardsErrorCode: typeof InsiderAppCardsErrorCode;
 }

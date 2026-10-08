@@ -15,6 +15,7 @@ export interface User {
     setPushOptin(pushOptIn: boolean): User;
     setLocationOptin(locationOptIn: boolean): User;
     setWhatsappOptin(whatsappOptin: boolean): User;
+    setPromotionalOptin(promotionalOptin: boolean): User;
     login(identifiers: object, insiderIDResult?: Function): void;
     logout(): void;
     logoutResettingInsiderID(identifiers?: object[] | null, insiderIDResult?: (insiderID: string) => void): void;

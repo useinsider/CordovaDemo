@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='utf-8'?>
-<plugin id="cordova-plugin-insider" version="4.0.1" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+<plugin id="cordova-plugin-insider" version="4.1.0" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
     <name>Insider</name>
     <description>Insider Cordova Plugin</description>
     <keywords>insider,cordova,cordova-ios,cordova-android</keywords>
-    <license>Apache 2.0 License</license>
+    <license>MIT</license>
 
     <js-module name="InsiderPlugin" src="www/InsiderPlugin.js">
         <clobbers target="Insider" />
@@ -22,6 +22,7 @@
     <js-module name="InsiderAppCards" src="www/InsiderAppCards.js" />
     <js-module name="InsiderAppCard" src="www/InsiderAppCard.js" />
     <js-module name="InsiderAppCardsError" src="www/InsiderAppCardsError.js" />
+    <js-module name="InsiderEvents" src="www/InsiderEvents.js" />
 
     <engines>
         <engine name="cordova" version=">=7.0.0" />
@@ -74,9 +75,9 @@
                 <source url="https://cdn.cocoapods.org/" />
             </config>
             <pods use-frameworks="true">
-                <pod name="InsiderMobile" spec="15.0.0" />
-                <pod name="InsiderGeofence" spec="1.2.4" />
-                <pod name="InsiderHybrid" spec="1.7.6" />
+                <pod name="InsiderMobile" spec="16.2.1" />
+                <pod name="InsiderGeofence" spec="1.3.0" />
+                <pod name="InsiderHybrid" spec="1.8.0" />
             </pods>
         </podspec>
 

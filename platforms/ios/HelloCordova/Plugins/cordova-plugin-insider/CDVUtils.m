@@ -125,11 +125,11 @@
             int quantity = quantityNumber.intValue;
             product.setQuantity(quantity);
         }
-        else if ([key isEqualToString:@"group_code"]) {
+        else if ([key isEqualToString:@"groupcode"]) {
             NSString *groupCode = (NSString *)value;
             product.setGroupCode(groupCode);
         }
-        else if ([key isEqualToString:@"brand"]) {
+        else if ([key isEqualToString:@"brnd"]) {
             NSString *brand = (NSString *)value;
             product.setBrand(brand);
         }
@@ -137,23 +137,23 @@
             NSString *sku = (NSString *)value;
             product.setSku(sku);
         }
-        else if ([key isEqualToString:@"gender"]) {
+        else if ([key isEqualToString:@"ge"]) {
             NSString *gender = (NSString *)value;
             product.setGender(gender);
         }
-        else if ([key isEqualToString:@"multipack"]) {
+        else if ([key isEqualToString:@"mlt"]) {
             NSString *multipack = (NSString *)value;
             product.setMultipack(multipack);
         }
-        else if ([key isEqualToString:@"product_type"]) {
+        else if ([key isEqualToString:@"pt"]) {
             NSString *productType = (NSString *)value;
             product.setProductType(productType);
         }
-        else if ([key isEqualToString:@"gtin"]) {
+        else if ([key isEqualToString:@"gt"]) {
             NSString *gtin = (NSString *)value;
             product.setGtin(gtin);
         }
-        else if ([key isEqualToString:@"description"]) {
+        else if ([key isEqualToString:@"desc"]) {
             NSString *desc = (NSString *)value;
             product.setDescription(desc);
         }
@@ -161,7 +161,7 @@
             NSArray *tagsArray = (NSArray *)value;
             product.setTags(tagsArray);
         }
-        else if ([key isEqualToString:@"in_stock"]) {
+        else if ([key isEqualToString:@"iis"]) {
             NSNumber *inStockNumber = (NSNumber *)value;
             BOOL inStock = inStockNumber.boolValue;
             product.setInStock(inStock);
@@ -303,6 +303,82 @@
     NSString *code = [self mapAppCardsErrorCode:error];
     NSString *message = error.localizedDescription ?: @"An unexpected error occurred.";
     return @{@"code": code, @"message": message};
+}
+
+/**
+ * Makes an SDK event-parameter dictionary safe to hand to CDVPluginResult.
+ *
+ * CDVPluginResult serialises via NSJSONSerialization, which accepts ONLY NSString, NSNumber,
+ * NSNull, NSArray and NSDictionary. An NSDate parameter value - which the SDK does deliver -
+ * is not a valid JSON object, so serialisation of the WHOLE event fails and the event is lost
+ * silently. Values are therefore converted rather than passed through.
+ *
+ * NSDate becomes epoch MILLISECONDS, matching CDVUtils.java convertValueToJSON (Date ->
+ * getTime()) and the repo-wide "dates cross the bridge as epoch-ms" convention. Note this is
+ * deliberately NOT the unit of the top-level event.timestamp, which stays in whole SECONDS for
+ * parity with the native SDKs.
+ *
+ * Anything still unrepresentable falls back to its description string so one odd value degrades
+ * a single parameter instead of dropping the entire event.
+ */
++ (NSDictionary<NSString *, id> *)sanitizeEventParameters:(NSDictionary<NSString *, id> *)parameters {
+    if (parameters == nil) {
+        return @{};
+    }
+
+    NSMutableDictionary<NSString *, id> *sanitized = [NSMutableDictionary dictionaryWithCapacity:parameters.count];
+
+    [parameters enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *stop) {
+        if (![key isKindOfClass:[NSString class]]) {
+            return;
+        }
+
+        sanitized[key] = [self sanitizeEventParameterValue:value];
+    }];
+
+    return sanitized;
+}
+
++ (id)sanitizeEventParameterValue:(id)value {
+    if (value == nil || [value isKindOfClass:[NSNull class]]) {
+        return [NSNull null];
+    }
+
+    if ([value isKindOfClass:[NSDate class]]) {
+        // Epoch milliseconds - same representation as the Android bridge.
+        return @((long long)([(NSDate *)value timeIntervalSince1970] * 1000.0));
+    }
+
+    if ([value isKindOfClass:[NSString class]]) {
+        return value;
+    }
+
+    if ([value isKindOfClass:[NSNumber class]]) {
+        double doubleValue = [(NSNumber *)value doubleValue];
+
+        // NSJSONSerialization rejects NaN / infinity; represent them as null instead of failing.
+        if (isnan(doubleValue) || isinf(doubleValue)) {
+            return [NSNull null];
+        }
+
+        return value;
+    }
+
+    if ([value isKindOfClass:[NSDictionary class]]) {
+        return [self sanitizeEventParameters:(NSDictionary *)value];
+    }
+
+    if ([value isKindOfClass:[NSArray class]]) {
+        NSMutableArray *sanitized = [NSMutableArray arrayWithCapacity:((NSArray *)value).count];
+
+        for (id element in (NSArray *)value) {
+            [sanitized addObject:[self sanitizeEventParameterValue:element]];
+        }
+
+        return sanitized;
+    }
+
+    return [value description];
 }
 
 @end

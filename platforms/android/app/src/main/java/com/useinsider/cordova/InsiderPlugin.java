@@ -32,6 +32,7 @@ import com.useinsider.insiderhybrid.InsiderHybrid;
 import com.useinsider.insiderhybrid.InsiderHybridUtils;
 import com.useinsider.insiderhybrid.constants.InsiderHybridMethods;
 import com.useinsider.insider.InsiderIDListener;
+import com.useinsider.insider.InsiderEventListener;
 import com.useinsider.insider.InsiderAppCardButton;
 import com.useinsider.insider.InsiderAppCard;
 
@@ -51,6 +52,9 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 
 public class InsiderPlugin extends CordovaPlugin {
     private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -59,33 +63,85 @@ public class InsiderPlugin extends CordovaPlugin {
 
     private InsiderIDListener insiderIDListener;
 
+    /**
+     * Written on the Cordova thread by addEventObserver / removeEventObserver and also read and
+     * cleared from the registration worker thread by failEventObserverRegistration, so the write
+     * has to be published across threads like the two fields below.
+     */
+    private volatile InsiderEventListener insiderEventListener;
+
+    /**
+     * Written on the Cordova thread by addEventObserver / removeEventObserver and read on the
+     * SDK's listener thread by sendEventToJS. volatile publishes the write so the delivery
+     * thread cannot keep observing a stale (already removed) CallbackContext indefinitely.
+     */
+    private volatile CallbackContext eventObserverCallbackContext;
+
+    /**
+     * Single-threaded executor that serialises event delivery to JS.
+     *
+     * The SDK invokes onEventRecorded on its own internal thread and results must not be sent
+     * from there. cordova.getThreadPool() is a POOL - concurrent workers would let two events
+     * race and arrive at JS out of order, which corrupts funnels (a product_detail_page_view
+     * landing after the purchase it preceded). A single worker thread gives strict FIFO while
+     * keeping this analytics mirror off the UI thread, which runOnUiThread would burden with
+     * every recorded event.
+     *
+     * volatile for the same reason as eventObserverCallbackContext above: it is written on the
+     * Cordova thread by addEventObserver / removeEventObserver and read on the SDK's listener
+     * thread by sendEventToJS, so the write must be published to that thread.
+     */
+    private volatile ExecutorService eventDeliveryExecutor;
+
+    /**
+     * Single-threaded executor that serialises the SDK addObserver / removeObserver calls.
+     *
+     * Separate from eventDeliveryExecutor, which is shut down on unregister — this one must
+     * outlive a full unsubscribe so a later re-subscribe still orders against the removal
+     * that preceded it.
+     *
+     * cordova.getThreadPool() cannot be used here: it is concurrent, so a rapid
+     * remove-then-add can invert and run the add first. The SDK would then be left holding
+     * an observer that JS has already dropped, firing onEventRecorded for the rest of the
+     * process with nothing to deliver to and no later removeObserver to clear it. The iOS
+     * side avoids the same inversion with its serial eventQueue.
+     */
+    private static final ExecutorService OBSERVER_REGISTRATION_EXECUTOR =
+            Executors.newSingleThreadExecutor();
+
+    /**
+     * The plugin instance whose WebView receives SDK callbacks. The SDK outlives an Activity
+     * recreation, so its callback must follow the newest live WebView rather than capture one.
+     */
+    private static InsiderPlugin callbackTarget;
+
+    /** Callbacks fired while no live WebView had called init yet; flushed by the next init. */
+    private static final List<String> pendingCallbacks = new ArrayList<>();
+
+    /** Oldest held callbacks are dropped beyond this so a long-dead WebView cannot replay a backlog. */
+    private static final int MAX_PENDING_CALLBACKS = 10;
+
     @Override
     protected void pluginInitialize() {
         super.initialize(cordova, webView);
     }
 
-    public void init(final String partnerName, final String sdkVersion) {
+    public void init(final String partnerName, final String sdkVersion, final String appIdentifier) {
         try {
+            attachCallbackTarget();
+
             if (Insider.Instance.isSDKInitialized())
                 return;
 
             cordova.getActivity().runOnUiThread(new Runnable()  {
                 @Override
                 public void run() {
-                    Insider.Instance.registerInsiderCallback(new InsiderCallback() {
-                        @Override
-                        public void doAction(JSONObject jsonObject, InsiderCallbackType insiderCallbackType) {
-                            try {
-                                String json = "{'action':'" + insiderCallbackType + "','result':" + jsonObject.toString() + "}";
-
-                                loadHandleUrl(json);
-                            } catch (Exception e) {
-                                Insider.Instance.putException(e);
-                            }
-                        }
-                    });
+                    registerInsiderCallback();
                     
-                    InsiderHybrid.initWithActivity(cordova.getActivity(), partnerName);
+                    if (appIdentifier != null)
+                        Insider.Instance.init(cordova.getActivity().getApplication(), partnerName, appIdentifier);
+                    else
+                        Insider.Instance.init(cordova.getActivity().getApplication(), partnerName);
 
                     Insider.Instance.setSDKType("cordova");
                     Insider.Instance.setHybridSDKVersion(sdkVersion);
@@ -98,6 +154,8 @@ public class InsiderPlugin extends CordovaPlugin {
                     isCoreInitialized = true;
 
                     Insider.Instance.storePartnerName(partnerName);
+
+                    reattachEventObserver();
                 }
             });
         } catch (Exception e) {
@@ -105,8 +163,128 @@ public class InsiderPlugin extends CordovaPlugin {
         }
     }
 
-    public void loadHandleUrl(String json) {
-        webView.loadUrl("javascript:cordova.fireDocumentEvent('ins_notification_handle'," + json + ");");
+    private static void registerInsiderCallback() {
+        try {
+            Insider.Instance.registerInsiderCallback(new InsiderCallback() {
+                @Override
+                public void doAction(JSONObject jsonObject, InsiderCallbackType insiderCallbackType) {
+                    try {
+                        dispatchCallback("{'action':'" + insiderCallbackType + "','result':" + jsonObject.toString() + "}");
+                    } catch (Exception e) {
+                        Insider.Instance.putException(e);
+                    }
+                }
+            });
+        } catch (Exception e) {
+            Insider.Instance.putException(e);
+        }
+    }
+
+    private static void dispatchCallback(String json) {
+        InsiderPlugin target;
+
+        synchronized (pendingCallbacks) {
+            target = callbackTarget;
+
+            if (target == null) {
+                holdCallback(json);
+
+                return;
+            }
+        }
+
+        target.deliverCallback(json);
+    }
+
+    private static void holdCallback(String json) {
+        pendingCallbacks.add(json);
+
+        while (pendingCallbacks.size() > MAX_PENDING_CALLBACKS) {
+            pendingCallbacks.remove(0);
+        }
+    }
+
+    // The target can be detached between dispatch and the UI-thread run; hold the callback then.
+    private void deliverCallback(final String json) {
+        try {
+            cordova.getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    InsiderPlugin current;
+
+                    synchronized (pendingCallbacks) {
+                        current = callbackTarget;
+
+                        if (current == null) {
+                            holdCallback(json);
+
+                            return;
+                        }
+                    }
+
+                    if (current != InsiderPlugin.this) {
+                        current.deliverCallback(json);
+
+                        return;
+                    }
+
+                    loadHandleUrl(json);
+                }
+            });
+        } catch (Exception e) {
+            synchronized (pendingCallbacks) {
+                holdCallback(json);
+            }
+        }
+    }
+
+    /**
+     * Called from init, after JS has added its ins_notification_handle listener, so callbacks
+     * held while the Activity was being recreated are delivered to the new WebView.
+     */
+    private void attachCallbackTarget() {
+        List<String> callbacksToFlush;
+
+        synchronized (pendingCallbacks) {
+            callbackTarget = this;
+            callbacksToFlush = new ArrayList<>(pendingCallbacks);
+            pendingCallbacks.clear();
+        }
+
+        for (String json : callbacksToFlush) {
+            loadHandleUrl(json);
+        }
+    }
+
+    private void detachCallbackTarget() {
+        synchronized (pendingCallbacks) {
+            if (callbackTarget == this) {
+                callbackTarget = null;
+            }
+        }
+    }
+
+    private static String resolveAppIdentifier(JSONArray args, int index) {
+        Object appIdentifier = args.opt(index);
+
+        return appIdentifier instanceof String && !((String) appIdentifier).isEmpty() ? (String) appIdentifier : null;
+    }
+
+    public void loadHandleUrl(final String json) {
+        try {
+            cordova.getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        webView.loadUrl("javascript:cordova.fireDocumentEvent('ins_notification_handle'," + json + ");");
+                    } catch (Exception e) {
+                        Insider.Instance.putException(e);
+                    }
+                }
+            });
+        } catch (Exception e) {
+            Insider.Instance.putException(e);
+        }
     }
 
     public void sendInsiderIDToJS(String insiderIDObject) {
@@ -126,6 +304,233 @@ public class InsiderPlugin extends CordovaPlugin {
         }
     }
 
+    /**
+     * Registers a single InsiderEventListener and streams every recorded event back to JS
+     * over the supplied CallbackContext.
+     *
+     * The listener is guarded by a null check so repeated addEventObserver calls never stack
+     * native observers. Insider.Instance.events() is resolved fresh here (never cached in a
+     * field) because it returns a no-op instance before the SDK finishes initializing.
+     */
+    private void addEventObserver(final CallbackContext callbackContext) {
+        try {
+            eventObserverCallbackContext = callbackContext;
+
+            if (insiderEventListener != null) {
+                return;
+            }
+
+            eventDeliveryExecutor = Executors.newSingleThreadExecutor();
+
+            insiderEventListener = new InsiderEventListener() {
+                @Override
+                public void onEventRecorded(String name, Map<String, Object> parameters, long timestamp) {
+                    sendEventToJS(name, parameters, timestamp);
+                }
+            };
+
+            final InsiderEventListener listenerToRegister = insiderEventListener;
+
+            OBSERVER_REGISTRATION_EXECUTOR.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Insider.Instance.events().addObserver(listenerToRegister);
+                    } catch (Exception e) {
+                        Insider.Instance.putException(e);
+
+                        failEventObserverRegistration(callbackContext, listenerToRegister, e);
+                    }
+                }
+            });
+        } catch (Exception e) {
+            Insider.Instance.putException(e);
+
+            failEventObserverRegistration(callbackContext, insiderEventListener, e);
+        }
+    }
+
+    /**
+     * Re-registers the current listener once the SDK may have become usable.
+     *
+     * Insider.Instance.events() hands out a no-op instance while the SDK is uninitialised, frozen
+     * or without consent, and that instance drops addObserver without an error, so an observer
+     * added before init or consent would otherwise never receive an event. Re-adding is safe:
+     * the SDK keeps a single registration for the same listener.
+     */
+    private void reattachEventObserver() {
+        try {
+            final InsiderEventListener listenerToReattach = insiderEventListener;
+
+            if (listenerToReattach == null) {
+                return;
+            }
+
+            OBSERVER_REGISTRATION_EXECUTOR.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        // A remove may have been queued since the read above; never revive it.
+                        if (insiderEventListener != listenerToReattach) {
+                            return;
+                        }
+
+                        Insider.Instance.events().addObserver(listenerToReattach);
+                    } catch (Exception e) {
+                        Insider.Instance.putException(e);
+                    }
+                }
+            });
+        } catch (Exception e) {
+            Insider.Instance.putException(e);
+        }
+    }
+
+    /**
+     * Reports a failed native observer registration to JS AND tears the half-built registration
+     * back down.
+     *
+     * Both halves matter. Without the error result, JS never learns the stream is dead: its
+     * retry state machine only clears isNativeObserverRegistered in its onError handler, so a
+     * failed registration would leave JS pointed at a stream that can never deliver, and the
+     * retry path would be unreachable. Without the local teardown, the listener field would stay
+     * non-null and the retried addEventObserver would take the "already registered" early return
+     * and never actually call addObserver again.
+     *
+     * The error result deliberately does NOT set keepCallback. Cordova drops the callback entry
+     * on a non-keepCallback result, which is exactly right here: the JS retry issues a fresh
+     * cordova.exec with a NEW callbackId, so keeping the dead one alive would only leak it. A
+     * later successful registration is unaffected because it is a different callbackId end to
+     * end.
+     */
+    private void failEventObserverRegistration(final CallbackContext callbackContext, final InsiderEventListener failedListener, final Exception cause) {
+        try {
+            // Only tear down if this failure belongs to the CURRENT registration. A remove
+            // followed by a fresh add could otherwise let a late failure from the old attempt
+            // wipe out a newer, healthy observer.
+            if (insiderEventListener == failedListener) {
+                final ExecutorService executorToShutdown = eventDeliveryExecutor;
+
+                insiderEventListener = null;
+                eventObserverCallbackContext = null;
+                eventDeliveryExecutor = null;
+
+                if (executorToShutdown != null) {
+                    executorToShutdown.shutdown();
+                }
+            }
+
+            if (callbackContext != null) {
+                callbackContext.error("[InsiderCordova] addEventObserver failed: " + cause);
+            }
+        } catch (Exception e) {
+            Insider.Instance.putException(e);
+        }
+    }
+
+    /**
+     * Removes the native observer and releases the stored CallbackContext.
+     *
+     * Android holds listeners strongly, so failing to call removeObserver would leak the
+     * plugin (and the WebView) for the lifetime of the SDK.
+     */
+    private void removeEventObserver() {
+        try {
+            final InsiderEventListener listenerToRemove = insiderEventListener;
+            final ExecutorService executorToShutdown = eventDeliveryExecutor;
+
+            insiderEventListener = null;
+            eventObserverCallbackContext = null;
+            eventDeliveryExecutor = null;
+
+            // Ordered shutdown: already-queued deliveries still run, no new ones are accepted.
+            if (executorToShutdown != null) {
+                executorToShutdown.shutdown();
+            }
+
+            if (listenerToRemove == null) {
+                return;
+            }
+
+            OBSERVER_REGISTRATION_EXECUTOR.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Insider.Instance.events().removeObserver(listenerToRemove);
+                    } catch (Exception e) {
+                        Insider.Instance.putException(e);
+                    }
+                }
+            });
+        } catch (Exception e) {
+            Insider.Instance.putException(e);
+        }
+    }
+
+    /**
+     * Listener-scoped result sender.
+     *
+     * The SDK delivers events on its own internal thread and results must NOT be sent from
+     * there, so the payload is built on that thread (the parameters Map is only guaranteed to
+     * be valid for the duration of the callback) and the send is handed to the plugin's own
+     * single-thread executor.
+     *
+     * WHY A SINGLE-THREAD EXECUTOR AND NOT cordova.getThreadPool(): the thread pool runs tasks
+     * concurrently, so two events recorded back to back could be sent in either order. Event
+     * order is the whole point of this feature - a product_detail_page_view delivered after the
+     * purchase it preceded produces a garbage funnel. One worker thread guarantees FIFO. The UI
+     * thread would also preserve order but would put every recorded event on the main thread,
+     * which this analytics mirror does not need (sendPluginResult is thread-safe and has no UI
+     * thread requirement).
+     */
+    private void sendEventToJS(String name, Map<String, Object> parameters, long timestamp) {
+        try {
+            final CallbackContext callbackContext = eventObserverCallbackContext;
+            final ExecutorService executor = eventDeliveryExecutor;
+
+            if (callbackContext == null || executor == null || name == null) {
+                return;
+            }
+
+            final JSONObject event = new JSONObject();
+
+            event.put("name", name);
+            event.put("parameters", CDVUtils.convertMapToJSON(parameters));
+            // Whole seconds since 1970, passed through unchanged for parity with the native SDKs.
+            event.put("timestamp", timestamp);
+
+            try {
+                executor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, event);
+
+                            pluginResult.setKeepCallback(true);
+
+                            callbackContext.sendPluginResult(pluginResult);
+                        } catch (Exception e) {
+                            Insider.Instance.putException(e);
+                        }
+                    }
+                });
+            } catch (RejectedExecutionException e) {
+                // The observer was removed between the null check and the submit; the event is
+                // intentionally dropped because JS is no longer listening.
+            }
+        } catch (Exception e) {
+            Insider.Instance.putException(e);
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        detachCallbackTarget();
+        removeEventObserver();
+
+        super.onDestroy();
+    }
+
     @Override
     public boolean execute(String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
         if (args == null) {
@@ -134,17 +539,29 @@ public class InsiderPlugin extends CordovaPlugin {
 
         try {
             if (action.equals("init")) {
-                init(args.getString(0), args.getString(1));
+                init(args.getString(0), args.getString(1), resolveAppIdentifier(args, 4));
             } else if (action.equals("initWithCustomEndpoint")) {
                 Insider.Instance.setCustomEndpoint(args.getString(3));
 
-                init(args.getString(0), args.getString(1));
+                init(args.getString(0), args.getString(1), resolveAppIdentifier(args, 4));
             } else if (action.equals("reinitWithPartnerName")) {
                 Insider.Instance.reinitWithPartnerName(args.getString(0));
             } else if (action.equals("setGDPRConsent")) {
-                Insider.Instance.setGDPRConsent(Boolean.parseBoolean(args.getString(0)));
+                boolean gdprConsent = Boolean.parseBoolean(args.getString(0));
+
+                Insider.Instance.setGDPRConsent(gdprConsent);
+
+                if (gdprConsent) {
+                    reattachEventObserver();
+                }
             } else if (action.equals("setMobileAppAccess")) {
-                Insider.Instance.setMobileAppAccess(Boolean.parseBoolean(args.getString(0)));
+                boolean mobileAppAccess = Boolean.parseBoolean(args.getString(0));
+
+                Insider.Instance.setMobileAppAccess(mobileAppAccess);
+
+                if (mobileAppAccess) {
+                    reattachEventObserver();
+                }
             } else if (action.equals("startTrackingGeofence")) {
                 cordova.getThreadPool().execute(new Runnable() {
                     @Override
@@ -192,6 +609,8 @@ public class InsiderPlugin extends CordovaPlugin {
                 boolean optimizedBoolean = Insider.Instance.getContentBoolWithoutCache(args.getString(0), args.getBoolean(1), boolVariableDataType);
 
                 callbackSuccess(callbackContext, optimizedBoolean);
+            } else if (action.equals("markContentOptimizerAsSeen")) {
+                Insider.Instance.markContentOptimizerAsSeen(args.getString(0));
             } else if (action.equals("removeInapp")) {
                 Insider.Instance.removeInapp(this.cordova.getActivity());
             } else if (action.equals(InsiderHybridMethods.ITEM_PURCHASED)) {
@@ -767,6 +1186,11 @@ public class InsiderPlugin extends CordovaPlugin {
                     return false;
 
                 Insider.Instance.getCurrentUser().setWhatsappOptin(args.getBoolean(0));
+            } else if (action.equals(Constants.SET_PROMOTIONAL_OPTIN)) {
+                if (args.get(0) == null)
+                    return false;
+
+                Insider.Instance.getCurrentUser().setPromotionalOptin(args.getBoolean(0));
             } else if (action.equals(InsiderHybridMethods.SET_LANGUAGE)) {
                 if (args.get(0) == null)
                     return false;
@@ -919,6 +1343,13 @@ public class InsiderPlugin extends CordovaPlugin {
                     default:
                         break;
                 }
+            } else if (action.equals(Constants.TRIGGER_PUSH_PROCESS_WITH_NOTIFICATION_DATA)) {
+                if (args.getString(0) == null)
+                    return false;
+
+                Map<String, String> remoteMessageStringMap = CDVUtils.convertJSONToStringMap(args.getString(0));
+
+                Insider.Instance.triggerPushProcessWithNotificationData(cordova.getContext(), remoteMessageStringMap);
             } else if (action.equals("enableCarrierCollection")) {
                 cordova.getActivity().runOnUiThread(new Runnable() {
                     @Override
@@ -1044,6 +1475,12 @@ public class InsiderPlugin extends CordovaPlugin {
 
                     Insider.Instance.registerInsiderIDListener(insiderIDListener);
                 }
+            } else if (action.equals("addEventObserver")) {
+                addEventObserver(callbackContext);
+            } else if (action.equals("removeEventObserver")) {
+                removeEventObserver();
+
+                callbackSuccess(callbackContext, "SUCCESS");
             } else if (action.equals("disableInAppMessages")) {
                 cordova.getActivity().runOnUiThread(new Runnable() {
                     @Override

@@ -319,7 +319,7 @@ var Product = /*#__PURE__*/function () {
   }, {
     key: "setTags",
     value: function setTags(tags) {
-      if (tags == null || !Array.isArray(tags)) {
+      if (!Array.isArray(tags)) {
         Utils.showParameterWarningLog(this.constructor.name + '-tags');
         return this;
       }
