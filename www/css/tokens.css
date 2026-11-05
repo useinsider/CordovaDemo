@@ -51,6 +51,10 @@
     --navy-card-outline: #ffffff26;
     --navy-chevron: #ffffff80;
     --scrim: #0000008a;
+    --danger: #d64545;
+    --danger-ink: #b83232;
+    --danger-surface: #fdecec;
+    --danger-outline: #f6cccc;
 
     --radius-card: 18px;
     --radius-control: 14px;

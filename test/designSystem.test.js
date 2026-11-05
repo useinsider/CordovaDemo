@@ -47,3 +47,30 @@ test.each(['index.html', 'app-cards.html'])('%s loads tokens.css before any othe
   const sheets = [...readWww(page).matchAll(/<link[^>]*rel="stylesheet"[^>]*href="([^"]+)"/g)].map(([, href]) => href);
   expect(sheets[0]).toBe('css/tokens.css');
 });
+
+const wwwFiles = (dir = WWW) =>
+  fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) return wwwFiles(full);
+    return /\.(css|html|js)$/.test(entry.name) ? [full] : [];
+  });
+
+// Colour literals in CSS declarations, style attributes and inline style assignments.
+const COLOUR_LITERAL = /(?:[:\s(,]|^)(#[0-9a-f]{3,8}\b|rgba?\([^)]*\))/gim;
+
+const colourSource = (file, text) => {
+  if (file.endsWith('.css')) return text;
+  if (file.endsWith('.html')) return [...text.matchAll(/style="([^"]*)"/g)].map(([, css]) => css).join('\n');
+  return [...text.matchAll(/style\.\w+\s*=\s*(['"`])(.*?)\1/g)].map(([, , css]) => css).join('\n');
+};
+
+test('colour literals live only in tokens.css', () => {
+  const offenders = wwwFiles()
+    .filter((file) => path.basename(file) !== 'tokens.css')
+    .flatMap((file) =>
+      [...colourSource(file, fs.readFileSync(file, 'utf8')).matchAll(COLOUR_LITERAL)].map(
+        ([, literal]) => `${path.relative(WWW, file)}: ${literal}`,
+      ),
+    );
+  expect(offenders).toEqual([]);
+});
