@@ -58,6 +58,15 @@ describe('mini-apps sheet and App Cards console button', () => {
     expect(consoleText()).toContain('    Description: D');
   });
 
+  test('App Cards button keeps the count visible for a large inbox', async () => {
+    const many = { items: Array.from({ length: 40 }, (_, i) => ({ id: `c${i}`, type: 'single', read: false, content: { title: 'T' } })) };
+    page.bridge.respond = ({ action, success }) => success(action === 'getAppCardsCampaigns' ? many : undefined);
+    await click('clearConsole');
+    await click('appCards');
+    const lines = consoleText().split('\n');
+    expect(lines[lines.length - 1]).toBe('[INSIDER][getCampaigns]: Received 40 app cards');
+  });
+
   test('App Cards button is labelled as in FlutterDemo', () => {
     expect(document.getElementById('appCards').value).toBe('Get Campaigns Data (Console)');
   });

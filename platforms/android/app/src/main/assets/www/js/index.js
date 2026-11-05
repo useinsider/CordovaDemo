@@ -12,13 +12,19 @@ function renderPlaygroundConsole() {
     output.scrollTop = output.scrollHeight;
 }
 
-function appendPlaygroundLine(line) {
-    playgroundLines.push(line);
+function appendPlaygroundLines(lines) {
+    lines.forEach((line) => {
+        playgroundLines.push(line);
+        console.log(line);
+    });
     if (playgroundLines.length > PLAYGROUND_MAX_LINES) {
         playgroundLines.splice(0, playgroundLines.length - PLAYGROUND_MAX_LINES);
     }
-    console.log(line);
     renderPlaygroundConsole();
+}
+
+function appendPlaygroundLine(line) {
+    appendPlaygroundLines([line]);
 }
 
 function describeResult(result) {
@@ -36,7 +42,7 @@ function logInsider(method, result) {
 }
 
 function logInsiderError(method, error) {
-    const message = error && error.message ? error.message : String(error);
+    const message = error && error.message ? error.message : error === undefined ? 'undefined' : describeResult(error);
     appendPlaygroundLine('[INSIDER][' + method + '] error: ' + message);
 }
 
@@ -55,6 +61,9 @@ function guarded(method, handler) {
         }
     };
 }
+
+// Most plugin calls fire their native request and drop the promise, so a native failure only shows up here.
+window.addEventListener('unhandledrejection', (event) => logInsiderError('unhandled', event.reason));
 
 let app = {
     initialize: function() {
@@ -438,16 +447,21 @@ async function getAppCardsCampaigns() {
         return;
     }
 
-    logInsider('getCampaigns', 'Received ' + response.appCards.length + ' app cards');
+    const lines = [];
     response.appCards.forEach((card) => {
         const content = card.content || {};
-        appendPlaygroundLine('  - Card ID: ' + card.id);
-        appendPlaygroundLine('    Title: ' + (content.title || 'N/A'));
-        appendPlaygroundLine('    Description: ' + (content.description || 'N/A'));
-        appendPlaygroundLine('    Read: ' + card.isRead);
-        appendPlaygroundLine('    Images: ' + (card.images || []).length);
-        appendPlaygroundLine('    Buttons: ' + (card.buttons || []).length);
+        lines.push(
+            '  - Card ID: ' + card.id,
+            '    Title: ' + (content.title || 'N/A'),
+            '    Description: ' + (content.description || 'N/A'),
+            '    Read: ' + card.isRead,
+            '    Images: ' + (card.images || []).length,
+            '    Buttons: ' + (card.buttons || []).length
+        );
     });
+    // The count goes last so the 200-line cap never pushes it out of a large inbox.
+    lines.push('[INSIDER][getCampaigns]: Received ' + response.appCards.length + ' app cards');
+    appendPlaygroundLines(lines);
 }
 
 function openMiniApps() {

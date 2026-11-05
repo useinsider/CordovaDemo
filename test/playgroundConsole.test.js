@@ -61,6 +61,20 @@ describe('home output console', () => {
     expect(page.handlerErrors).toEqual([]);
   });
 
+  test('logInsiderError prints a plain-object error as JSON', async () => {
+    page.bridge.respond = ({ action, args, success, failure }) =>
+      action === 'getSmartRecommendation' ? failure({ code: 'E1' }) : succeed({ action, args, success });
+    await click('smartRecommender');
+    expect(consoleText()).toContain('[INSIDER][getSmartRecommendation] error: {"code":"E1"}');
+  });
+
+  test('an unhandled rejection from a fire-and-forget call reaches the console', () => {
+    const event = new Event('unhandledrejection');
+    event.reason = 'native failure';
+    window.dispatchEvent(event);
+    expect(consoleText()).toContain('[INSIDER][unhandled] error: native failure');
+  });
+
   test('console wraps long lines', () => {
     const [, rule] = readWww('css/index.css').match(/#playgroundConsole\s*{([^}]*)}/);
     expect(rule).toMatch(/white-space:\s*pre-wrap/);
