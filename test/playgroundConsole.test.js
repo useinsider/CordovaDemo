@@ -118,6 +118,13 @@ describe('home output console', () => {
     expect(consoleText()).toContain('[INSIDER][unhandled] error: native failure');
   });
 
+  test('an unhandled rejection without a reason prints undefined', () => {
+    const event = new Event('unhandledrejection');
+    event.reason = undefined;
+    window.dispatchEvent(event);
+    expect(consoleText()).toContain('[INSIDER][unhandled] error: undefined');
+  });
+
   test('console wraps long lines', () => {
     const [, rule] = readWww('css/index.css').match(/#playgroundConsole\s*{([^}]*)}/);
     expect(rule).toMatch(/white-space:\s*pre-wrap/);

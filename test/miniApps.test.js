@@ -50,6 +50,13 @@ describe('mini-apps sheet and App Cards console button', () => {
     expect(consoleText()).toContain('[INSIDER][appCards]: Opening app cards page');
   });
 
+  test('App Cards row closes the sheet', async () => {
+    await click('miniAppsButton');
+    expect(sheet().hidden).toBe(false);
+    await click('miniAppAppCards');
+    expect(sheet().hidden).toBe(true);
+  });
+
   test('App Cards button logs campaigns', async () => {
     await click('appCards');
     expect(consoleText()).toContain('[INSIDER][getCampaigns]: Received 1 app cards');
