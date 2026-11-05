@@ -41,7 +41,7 @@ CordovaDemo is the reference integration partners copy and the harness Mobile QA
   - colours `lib/theme/insider_colors.dart`, metrics `lib/theme/insider_theme.dart` (card radius 18, control radius 14, button height 60, console height 124);
   - home `lib/main.dart` (`_PlaygroundTopBar`, `PlaygroundConsole`, section list, FAB "Apps");
   - components `lib/components/` (`playground_button`, `custom_title`, `insider_card`, `playground_console`, `mini_apps_sheet`);
-  - assets `assets/fonts/Kufam-{Regular,Medium,SemiBold}.ttf` (Bold exists but is not used), `assets/images/insider-one.png`.
+  - assets `assets/fonts/Kufam-{Regular,Medium,SemiBold,Bold}.ttf` (FlutterDemo `pubspec.yaml` registers weights 400–700 and section titles use 700, so all four are bundled to meet "at the FlutterDemo weights"), `assets/images/insider-one.png`.
 - **Tests (`npm test`, Jest + jsdom, also run in CI `.github/workflows/run-tests.yml`):**
   - `test/support/indexPageSuite.js` finds home buttons with the regex `<input[^>]*class="insider-button[^"]*"[^>]*id="…"`, asserts the count is 28, clicks every button on a faked iOS and Android bridge, and fails if a click throws, logs an error/warning, makes no native call (except `createProduct`, `appCards`), or calls a native action the platform does not implement.
   - `test/domIds.test.js` requires every `getElementById` target to exist and every `.insider-button[id]` to be wired in `js/index.js`.
