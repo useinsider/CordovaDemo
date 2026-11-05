@@ -106,7 +106,7 @@
             </section>
             <section class="playground-section">
                 <h2 class="playground-title">App Cards</h2>
-                <input class="insider-button" type="button" id="appCards" value="App Cards" />
+                <input class="insider-button" type="button" id="appCards" value="Get Campaigns Data (Console)" />
             </section>
             <section class="playground-section">
                 <h2 class="playground-title">Content Optimizer</h2>
@@ -136,6 +136,25 @@
                 <input class="insider-button" type="button" id="reinitWithPartnerName" value="Reinit With Partner Name" />
             </section>
             </main>
+        </div>
+        <button id="miniAppsButton" class="mini-apps-button" type="button" aria-haspopup="dialog" aria-controls="miniAppsSheet">
+            <span class="mini-apps-button-icon" aria-hidden="true">&#x25A6;</span>Apps
+        </button>
+        <div id="miniAppsSheet" class="mini-apps" role="dialog" aria-modal="true" aria-labelledby="miniAppsTitle" hidden>
+            <div id="miniAppsBackdrop" class="mini-apps-backdrop"></div>
+            <div class="mini-apps-panel">
+                <div class="mini-apps-grabber"></div>
+                <h2 id="miniAppsTitle" class="mini-apps-title">Mini-apps</h2>
+                <p class="mini-apps-subtitle">Jump into another experience</p>
+                <button id="miniAppAppCards" class="mini-app-card" type="button">
+                    <span class="mini-app-icon" aria-hidden="true">&#x2709;</span>
+                    <span class="mini-app-text">
+                        <span class="mini-app-title">App Cards</span>
+                        <span class="mini-app-subtitle">Inbox campaigns from the panel</span>
+                    </span>
+                    <span class="mini-app-chevron" aria-hidden="true">&#x203A;</span>
+                </button>
+            </div>
         </div>
         <script src="cordova.js"></script>
         <script src="js/index.js"></script>

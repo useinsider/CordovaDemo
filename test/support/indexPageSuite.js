@@ -8,8 +8,8 @@ const BUTTON_IDS = [...readWww('index.html').matchAll(/<input[^>]*class="insider
 // setAllowsBackgroundLocationUpdates is iOS-only: the plugin returns before cordova.exec on Android
 // (plugins/cordova-plugin-insider/www/InsiderPlugin.js), so that button makes no native call there.
 const NO_NATIVE_CALL = {
-  ios: new Set(['createProduct', 'appCards']),
-  android: new Set(['createProduct', 'appCards', 'allowBackgroundLocationUpdates']),
+  ios: new Set(['createProduct']),
+  android: new Set(['createProduct', 'allowBackgroundLocationUpdates']),
 };
 
 // iOS-only APIs the plugin JS still sends on Android; the Java side has no branch for them.
@@ -118,9 +118,9 @@ function describeIndexPage(platformId) {
       expect(window.alert).toHaveBeenCalledWith('Logout successful! New Insider ID: insider-id-001');
     });
 
-    test('appCards saves the scroll position before navigating', async () => {
+    test('the mini-apps App Cards row saves the scroll position before navigating', async () => {
       sessionStorage.removeItem('homeScrollY');
-      await click('appCards');
+      await click('miniAppAppCards');
       expect(sessionStorage.getItem('homeScrollY')).toBe('0');
     });
   });

@@ -63,6 +63,10 @@ let app = {
     onDeviceReady: function() {
         document.getElementById('clearConsole').addEventListener('click', clearPlaygroundConsole);
 
+        document.getElementById('miniAppsButton').addEventListener('click', openMiniApps);
+        document.getElementById('miniAppsBackdrop').addEventListener('click', closeMiniApps);
+        document.getElementById('miniAppAppCards').addEventListener('click', openAppCardsPage);
+
         document.getElementById('userAttributes').addEventListener('click', guarded('currentUser', userAttributes));
 
         document.getElementById('login').addEventListener('click', guarded('login', userIdentifiers.login));
@@ -97,7 +101,7 @@ let app = {
         document.getElementById('mobileAppAccessFalse').addEventListener('click', guarded('setMobileAppAccess', mobileAppAccess.disable));
 
         document.getElementById('messageCenter').addEventListener('click', guarded('getMessageCenterData', getMessageCenterData));
-        document.getElementById('appCards').addEventListener('click', appCards);
+        document.getElementById('appCards').addEventListener('click', guarded('getCampaigns', getAppCardsCampaigns));
         document.getElementById('contentOptimizer').addEventListener('click', guarded('contentOptimizer', contentOptimizer));
         document.getElementById('contentOptimizerNoCache').addEventListener('click', guarded('contentOptimizerNoCache', contentOptimizerNoCache));
 
@@ -423,11 +427,42 @@ async function getMessageCenterData() {
     logInsider('getMessageCenterData', data);
 }
 
-function appCards() {
-    // --- APP CARDS PAGE --- //
+async function getAppCardsCampaigns() {
+    // --- APP CARDS --- //
+    logInsider('getCampaigns', 'Method is triggered, waiting response...');
+
+    const response = await window.Insider.appCards.getCampaigns();
+
+    if (!response) {
+        logInsider('getCampaigns', 'No campaigns data received');
+        return;
+    }
+
+    logInsider('getCampaigns', 'Received ' + response.appCards.length + ' app cards');
+    response.appCards.forEach((card) => {
+        const content = card.content || {};
+        appendPlaygroundLine('  - Card ID: ' + card.id);
+        appendPlaygroundLine('    Title: ' + (content.title || 'N/A'));
+        appendPlaygroundLine('    Description: ' + (content.description || 'N/A'));
+        appendPlaygroundLine('    Read: ' + card.isRead);
+        appendPlaygroundLine('    Images: ' + (card.images || []).length);
+        appendPlaygroundLine('    Buttons: ' + (card.buttons || []).length);
+    });
+}
+
+function openMiniApps() {
+    document.getElementById('miniAppsSheet').hidden = false;
+}
+
+function closeMiniApps() {
+    document.getElementById('miniAppsSheet').hidden = true;
+}
+
+function openAppCardsPage() {
     try {
-        sessionStorage.setItem('homeScrollY', String(window.scrollY || window.pageYOffset || 0));
+        sessionStorage.setItem('homeScrollY', String(document.getElementById('playgroundSections').scrollTop || 0));
     } catch (e) { /* sessionStorage may be unavailable; navigation still works */ }
+    closeMiniApps();
     logInsider('appCards', 'Opening app cards page');
     window.location.href = 'app-cards.html';
 }
@@ -515,7 +550,10 @@ function createNewProduct(productId, productName, taxonomy, imageURL, price, cur
         if (saved === null) return;
         sessionStorage.removeItem('homeScrollY');
         var y = parseInt(saved, 10) || 0;
-        var applyScroll = function() { window.scrollTo(0, y); };
+        var applyScroll = function() {
+            var sections = document.getElementById('playgroundSections');
+            if (sections) sections.scrollTop = y;
+        };
         if (document.readyState === 'complete' || document.readyState === 'interactive') {
             applyScroll();
         } else {
