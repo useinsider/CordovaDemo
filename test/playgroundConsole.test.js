@@ -61,6 +61,17 @@ describe('home output console', () => {
     expect(page.handlerErrors).toEqual([]);
   });
 
+  test('a failing call in a multi-call handler is labelled with its own API and the rest still run', async () => {
+    await click('clearConsole');
+    page.execCalls.length = 0;
+    page.bridge.respond = ({ action, args, success, failure }) =>
+      action === 'getSmartRecommendationWithProduct' ? failure('boom') : success(action.startsWith('getSmart') ? {} : undefined);
+    await click('smartRecommender');
+    expect(consoleText()).toContain('[INSIDER][getSmartRecommendationWithProduct] error: boom');
+    expect(consoleText()).not.toContain('[INSIDER][getSmartRecommendation] error');
+    expect(page.execCalls.map((c) => c.action)).toContain('getSmartRecommendationWithProductIDs');
+  });
+
   test('logInsiderError prints a plain-object error as JSON', async () => {
     page.bridge.respond = ({ action, args, success, failure }) =>
       action === 'getSmartRecommendation' ? failure({ code: 'E1' }) : succeed({ action, args, success });

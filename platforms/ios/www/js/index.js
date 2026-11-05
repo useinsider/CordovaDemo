@@ -51,6 +51,15 @@ function clearPlaygroundConsole() {
     renderPlaygroundConsole();
 }
 
+// Runs one SDK call of a multi-call handler so a failure names that call and the next calls still run.
+async function logCall(method, call) {
+    try {
+        logInsider(method, await call());
+    } catch (error) {
+        logInsiderError(method, error);
+    }
+}
+
 // Runs a button handler and reports a thrown or rejected call on the console instead of failing silently.
 function guarded(method, handler) {
     return async function() {
@@ -404,14 +413,13 @@ async function triggerEvents() {
 const smartRecommendation = {
     getData: async function() {
         // --- RECOMMENDATION ENGINE --- //
-        const smartData = await window.Insider.getSmartRecommendation(1, 'tr_TR', 'TRY');
-        logInsider('getSmartRecommendation', smartData);
+        await logCall('getSmartRecommendation', () => window.Insider.getSmartRecommendation(1, 'tr_TR', 'TRY'));
 
         const product = createNewProduct("product1", "Pear", taxonomy, "ImageURL", 1000, "TRY");
-        const smartDataWithProduct = await window.Insider.getSmartRecommendationWithProduct(product, 1, 'tr_TR');
-        logInsider('getSmartRecommendationWithProduct', smartDataWithProduct);
+        await logCall('getSmartRecommendationWithProduct', () => window.Insider.getSmartRecommendationWithProduct(product, 1, 'tr_TR'));
 
-        await smartRecommendation.withProductIDs();
+        const productIDs = ['product1', 'product2', 'product3'];
+        await logCall('getSmartRecommendationWithProductIDs', () => window.Insider.getSmartRecommendationWithProductIDs(productIDs, 1, 'tr_TR', 'TRY'));
     },
     withProductIDs: async function() {
         const productIDs = ['product1', 'product2', 'product3'];
@@ -485,32 +493,26 @@ async function contentOptimizer() {
     // --- CONTENT OPTIMIZER --- //
 
     // Integer
-    const contentOptimizerInt = await window.Insider.getContentIntWithName('int_variable_name', 10, Insider.contentOptimizerDataType.ELEMENT);
-    logInsider('getContentIntWithName', contentOptimizerInt);
+    await logCall('getContentIntWithName', () => window.Insider.getContentIntWithName('int_variable_name', 10, Insider.contentOptimizerDataType.ELEMENT));
 
     // String
-    const contentOptimizerString = await window.Insider.getContentStringWithName('string_variable_name', 'defaultValue', Insider.contentOptimizerDataType.ELEMENT);
-    logInsider('getContentStringWithName', contentOptimizerString);
+    await logCall('getContentStringWithName', () => window.Insider.getContentStringWithName('string_variable_name', 'defaultValue', Insider.contentOptimizerDataType.ELEMENT));
 
     // Boolean
-    const contentOptimizerBool = await window.Insider.getContentBoolWithName('bool_variable_name', true, Insider.contentOptimizerDataType.ELEMENT);
-    logInsider('getContentBoolWithName', contentOptimizerBool);
+    await logCall('getContentBoolWithName', () => window.Insider.getContentBoolWithName('bool_variable_name', true, Insider.contentOptimizerDataType.ELEMENT));
 }
 
 async function contentOptimizerNoCache() {
     // --- CONTENT OPTIMIZER WITHOUT CACHE --- //
 
     // Integer
-    const contentOptimizerInt = await window.Insider.getContentIntWithoutCache('int_variable_name', 10, Insider.contentOptimizerDataType.ELEMENT);
-    logInsider('getContentIntWithoutCache', contentOptimizerInt);
+    await logCall('getContentIntWithoutCache', () => window.Insider.getContentIntWithoutCache('int_variable_name', 10, Insider.contentOptimizerDataType.ELEMENT));
 
     // String
-    const contentOptimizerString = await window.Insider.getContentStringWithoutCache('string_variable_name', 'defaultValue', Insider.contentOptimizerDataType.ELEMENT);
-    logInsider('getContentStringWithoutCache', contentOptimizerString);
+    await logCall('getContentStringWithoutCache', () => window.Insider.getContentStringWithoutCache('string_variable_name', 'defaultValue', Insider.contentOptimizerDataType.ELEMENT));
 
     // Boolean
-    const contentOptimizerBool = await window.Insider.getContentBoolWithoutCache('bool_variable_name', true, Insider.contentOptimizerDataType.ELEMENT);
-    logInsider('getContentBoolWithoutCache', contentOptimizerBool);
+    await logCall('getContentBoolWithoutCache', () => window.Insider.getContentBoolWithoutCache('bool_variable_name', true, Insider.contentOptimizerDataType.ELEMENT));
 }
 
 function createProduct() {

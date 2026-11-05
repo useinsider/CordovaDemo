@@ -63,7 +63,7 @@
     --button-height: 60px;
     --console-height: 124px;
     --font: 'Kufam', -apple-system, sans-serif;
-    --font-mono: monospace, Menlo, Courier;
+    --font-mono: Menlo, Courier, monospace;
 }
 
 body {

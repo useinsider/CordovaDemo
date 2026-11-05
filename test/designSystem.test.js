@@ -74,3 +74,18 @@ test('colour literals live only in tokens.css', () => {
     );
   expect(offenders).toEqual([]);
 });
+
+test.each(['.mini-apps', '.mini-apps-backdrop'])('%s pins all four edges without relying on inset', (selector) => {
+  const escaped = selector.replace('.', '\\.');
+  const [, rule] = readWww('css/index.css').match(new RegExp(`${escaped}\\s*{([^}]*)}`));
+  for (const side of ['top', 'right', 'bottom', 'left']) expect(rule).toMatch(new RegExp(`\\b${side}:\\s*0;`));
+});
+
+test('the console font lists Menlo before the generic monospace family', () => {
+  expect(tokens()).toMatch(/--font-mono:\s*Menlo,\s*Courier,\s*monospace;/);
+});
+
+test('the logo is sized for its 26px slot', () => {
+  const png = fs.readFileSync(path.join(WWW, 'img/insider-one.png'));
+  expect(png.readUInt32BE(20)).toBeLessThanOrEqual(120);
+});
