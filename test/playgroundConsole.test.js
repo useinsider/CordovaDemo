@@ -68,6 +68,38 @@ describe('home output console', () => {
     expect(consoleText()).toContain('[INSIDER][getSmartRecommendation] error: {"code":"E1"}');
   });
 
+  test('logInsiderError prints the message of an App Cards bridge error', async () => {
+    page.bridge.respond = ({ action, args, success, failure }) =>
+      action === 'getAppCardsCampaigns'
+        ? failure({ code: 'networkError', message: 'offline' })
+        : succeed({ action, args, success });
+    await click('appCards');
+    expect(consoleText()).toContain('[INSIDER][getCampaigns] error: offline');
+    expect(page.handlerErrors).toEqual([]);
+  });
+
+  test('notification callbacks write NOTIFICATION_OPEN and TEMP_STORE_CUSTOM_ACTION lines', () => {
+    const { NOTIFICATION_OPEN, TEMP_STORE_CUSTOM_ACTION } = window.Insider.callbackType;
+    const dispatch = (result) => {
+      const event = new Event('ins_notification_handle');
+      event.result = result;
+      document.dispatchEvent(event);
+    };
+    dispatch({ type: NOTIFICATION_OPEN, url: 'demo://open' });
+    dispatch({ type: TEMP_STORE_CUSTOM_ACTION, action: 'promo' });
+    expect(consoleText()).toContain(`[INSIDER][NOTIFICATION_OPEN]: {"type":${NOTIFICATION_OPEN},"url":"demo://open"}`);
+    expect(consoleText()).toContain(
+      `[INSIDER][TEMP_STORE_CUSTOM_ACTION]: {"type":${TEMP_STORE_CUSTOM_ACTION},"action":"promo"}`,
+    );
+  });
+
+  test('login writes the native Insider ID to the console', async () => {
+    page.bridge.respond = ({ action, args, success }) =>
+      action === 'login' ? success('insider-id-042') : succeed({ action, args, success });
+    await click('login');
+    expect(consoleText()).toContain('[INSIDER][login]: Insider ID: insider-id-042');
+  });
+
   test('an unhandled rejection from a fire-and-forget call reaches the console', () => {
     const event = new Event('unhandledrejection');
     event.reason = 'native failure';

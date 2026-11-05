@@ -58,6 +58,24 @@ describe('mini-apps sheet and App Cards console button', () => {
     expect(consoleText()).toContain('    Description: D');
   });
 
+  test('App Cards button logs the read state and image and button counts', async () => {
+    const card = {
+      id: 'c2',
+      type: 'single',
+      read: true,
+      content: { title: 'T2' },
+      images: [{ url: 'https://example.com/a.png' }, { url: 'https://example.com/b.png' }],
+      buttons: [{ id: 'b1', text: 'Open' }, { id: 'b2', text: 'Later' }, { id: 'b3', text: 'Close' }],
+    };
+    page.bridge.respond = ({ action, success }) => success(action === 'getAppCardsCampaigns' ? { items: [card] } : undefined);
+    await click('clearConsole');
+    await click('appCards');
+    const lines = consoleText().split('\n');
+    const start = lines.indexOf('  - Card ID: c2');
+    expect(start).toBeGreaterThan(-1);
+    expect(lines.slice(start + 3, start + 6)).toEqual(['    Read: true', '    Images: 2', '    Buttons: 3']);
+  });
+
   test('App Cards button keeps the count visible for a large inbox', async () => {
     const many = { items: Array.from({ length: 40 }, (_, i) => ({ id: `c${i}`, type: 'single', read: false, content: { title: 'T' } })) };
     page.bridge.respond = ({ action, success }) => success(action === 'getAppCardsCampaigns' ? many : undefined);
