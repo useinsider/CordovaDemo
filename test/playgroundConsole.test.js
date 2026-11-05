@@ -1,21 +1,5 @@
 const { loadDemoPage, captureConsole, readWww } = require('./support/demoPage');
-
-const HOME_TITLES = [
-  'User Attributes',
-  'User Identifiers',
-  'Event',
-  'Product',
-  'Purchase',
-  'Smart Recommender',
-  'Social Proof',
-  'Page Visit Methods',
-  'GDPR',
-  'Mobile App Access',
-  'Message Center',
-  'App Cards',
-  'Content Optimizer',
-  'In-App Messages',
-];
+const { SPEC_TITLES } = require('./support/featureGapSuite');
 
 const succeed = ({ action, args, success }) =>
   success(action.startsWith('getContent') ? args[1] : action === 'getAppCardsCampaigns' ? { items: [] } : undefined);
@@ -85,6 +69,6 @@ describe('home output console', () => {
 
   test('sections sit in the scroll container in spec order', () => {
     const titles = [...document.querySelectorAll('#playgroundSections h2.playground-title')].map((h) => h.textContent.trim());
-    expect(titles).toEqual(HOME_TITLES);
+    expect(titles).toEqual(SPEC_TITLES);
   });
 });

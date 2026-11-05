@@ -5,7 +5,12 @@ const BUTTON_IDS = [...readWww('index.html').matchAll(/<input[^>]*class="insider
   ([, id]) => id,
 );
 
-const NO_NATIVE_CALL = new Set(['createProduct', 'appCards']);
+// setAllowsBackgroundLocationUpdates is iOS-only: the plugin returns before cordova.exec on Android
+// (plugins/cordova-plugin-insider/www/InsiderPlugin.js), so that button makes no native call there.
+const NO_NATIVE_CALL = {
+  ios: new Set(['createProduct', 'appCards']),
+  android: new Set(['createProduct', 'appCards', 'allowBackgroundLocationUpdates']),
+};
 
 // iOS-only APIs the plugin JS still sends on Android; the Java side has no branch for them.
 const PLATFORM_ONLY_ACTIONS = {
@@ -19,6 +24,7 @@ const EXEC_RESULTS = {
   getAppCardsCampaigns: { items: [] },
   getMessageCenterData: [],
   getSmartRecommendation: {},
+  getSmartRecommendationWithProduct: {},
   getSmartRecommendationWithProductIDs: {},
 };
 
@@ -80,14 +86,14 @@ function describeIndexPage(platformId) {
     });
 
     test('index.html has the expected buttons', () => {
-      expect(BUTTON_IDS).toHaveLength(28);
+      expect(BUTTON_IDS).toHaveLength(37);
       expect(new Set(BUTTON_IDS).size).toBe(BUTTON_IDS.length);
     });
 
     test.each(BUTTON_IDS)('#%s runs without errors and only calls implemented native actions', async (id) => {
       const result = await click(id);
       expect(result.failures).toEqual([]);
-      if (!NO_NATIVE_CALL.has(id)) expect(result.actions.length).toBeGreaterThan(0);
+      if (!NO_NATIVE_CALL[platformId].has(id)) expect(result.actions.length).toBeGreaterThan(0);
       expect(result.services.filter((service) => service !== 'InsiderPlugin')).toEqual([]);
       expect(unimplemented(result.actions)).toEqual([]);
     });

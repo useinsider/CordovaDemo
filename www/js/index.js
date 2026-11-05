@@ -1,4 +1,6 @@
 const taxonomy = ['taxonomy1', 'taxonomy2', 'taxonomy3'];
+// FIXME-INSIDER: Please change with your partner name.
+const PARTNER_NAME = 'your_partner_name';
 
 const PLAYGROUND_MAX_LINES = 200;
 const playgroundLines = [];
@@ -99,15 +101,27 @@ let app = {
         document.getElementById('contentOptimizer').addEventListener('click', guarded('contentOptimizer', contentOptimizer));
         document.getElementById('contentOptimizerNoCache').addEventListener('click', guarded('contentOptimizerNoCache', contentOptimizerNoCache));
 
+        document.getElementById('startTrackingGeofence').addEventListener('click', guarded('startTrackingGeofence', geofence.startTracking));
+        document.getElementById('allowBackgroundLocationUpdates').addEventListener('click', guarded('setAllowsBackgroundLocationUpdates', geofence.allowBackgroundLocationUpdates));
+
+        document.getElementById('enableInApp').addEventListener('click', guarded('enableInAppMessages', inAppMessages.enable));
+        document.getElementById('disableInApp').addEventListener('click', guarded('disableInAppMessages', inAppMessages.disable));
         document.getElementById('removeInapp').addEventListener('click', guarded('removeInapp', removeInapp));
+
+        document.getElementById('addToWishlist').addEventListener('click', guarded('itemAddedToWishlist', wishlist.add));
+        document.getElementById('removeFromWishlist').addEventListener('click', guarded('itemRemovedFromWishlist', wishlist.remove));
+        document.getElementById('clearWishlist').addEventListener('click', guarded('wishlistCleared', wishlist.clear));
+        document.getElementById('visitWishlistPage').addEventListener('click', guarded('visitWishlistPage', wishlist.visitPage));
+
+        document.getElementById('reinitWithPartnerName').addEventListener('click', guarded('reinitWithPartnerName', reinitWithPartnerName));
 
         initInsider().catch((error) => logInsiderError('initialize', error));
     }
 };
 
 async function initInsider() {
-    // FIXME-INSIDER: Please change with your partner name and app group.
-    await window.Insider.init('your_partner_name', 'group.com.useinsider.cordovademo',
+    // FIXME-INSIDER: Please change with your app group.
+    await window.Insider.init(PARTNER_NAME, 'group.com.useinsider.cordovademo',
         (callback) => {
             switch ((callback.result || {}).type) {
                 case window.Insider.callbackType.NOTIFICATION_OPEN:
@@ -287,6 +301,59 @@ async function signUpConfirmation() {
     logInsider('signUpConfirmation');
 }
 
+const inAppMessages = {
+    enable: function() {
+        window.Insider.enableInAppMessages();
+        logInsider('enableInAppMessages');
+    },
+    disable: function() {
+        window.Insider.disableInAppMessages();
+        logInsider('disableInAppMessages');
+    }
+};
+
+const geofence = {
+    startTracking: function() {
+        window.Insider.startTrackingGeofence();
+        logInsider('startTrackingGeofence');
+    },
+    allowBackgroundLocationUpdates: function() {
+        if (window.cordova.platformId === 'android') {
+            logInsider('setAllowsBackgroundLocationUpdates', 'iOS only, no native call on Android');
+            return;
+        }
+        window.Insider.setAllowsBackgroundLocationUpdates(true);
+        logInsider('setAllowsBackgroundLocationUpdates', 'true');
+    }
+};
+
+const wishlist = {
+    add: function() {
+        const product = createNewProduct("product_id", "Pear", taxonomy, "ImageURL", 1000, "TRY");
+        window.Insider.itemAddedToWishlist(product);
+        logInsider('itemAddedToWishlist');
+    },
+    remove: function() {
+        window.Insider.itemRemovedFromWishlist('product_id');
+        logInsider('itemRemovedFromWishlist', 'Product ID: product_id');
+    },
+    clear: function() {
+        window.Insider.wishlistCleared();
+        logInsider('wishlistCleared');
+    },
+    visitPage: function() {
+        const product1 = createNewProduct("product1", "Pear", taxonomy, "ImageURL", 100, "TRY");
+        const product2 = createNewProduct("product2", "Apple", taxonomy, "ImageURL", 200, "TRY");
+        window.Insider.visitWishlistPage([product1, product2]);
+        logInsider('visitWishlistPage');
+    }
+};
+
+function reinitWithPartnerName() {
+    window.Insider.reinitWithPartnerName(PARTNER_NAME);
+    logInsider('reinitWithPartnerName', 'active partner: ' + PARTNER_NAME);
+}
+
 function removeInapp() {
     window.Insider.removeInapp();
     logInsider('removeInapp');
@@ -310,6 +377,7 @@ async function triggerEvents() {
         .addParameterWithString('string_parameter', 'This is Insider.')
         .addParameterWithStringArray('string_array_parameter', stringArray)
         .addParameterWithNumericArray('numeric_array_parameter', numericArray)
+        .addParameterWithArray('array_parameter', stringArray)
         .build();
 
     const event3 = await window.Insider
@@ -325,6 +393,12 @@ const smartRecommendation = {
         // --- RECOMMENDATION ENGINE --- //
         const smartData = await window.Insider.getSmartRecommendation(1, 'tr_TR', 'TRY');
         logInsider('getSmartRecommendation', smartData);
+
+        const product = createNewProduct("product1", "Pear", taxonomy, "ImageURL", 1000, "TRY");
+        const smartDataWithProduct = await window.Insider.getSmartRecommendationWithProduct(product, 1, 'tr_TR');
+        logInsider('getSmartRecommendationWithProduct', smartDataWithProduct);
+
+        await smartRecommendation.withProductIDs();
     },
     withProductIDs: async function() {
         const productIDs = ['product1', 'product2', 'product3'];
