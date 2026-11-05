@@ -1,73 +1,130 @@
-html, body {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  background: #FFFFFF;
-}
-
+html,
 body {
-    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: var(--ios-canvas);
+    color: var(--ios-text-primary);
+    -webkit-text-size-adjust: 100%;
 }
 
-.header img {
-  margin: 10px auto 20px auto;
-  display: block;
+.playground {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    box-sizing: border-box;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
 }
 
-.insider-logo {
-  height: 140px;
-  width: 100%;
+.playground-top-bar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    padding: 12px 16px;
 }
 
-.description * {
-  color: #000000;
-  font-family: sans-serif;
+.playground-logo {
+    height: 26px;
+    width: auto;
 }
 
-.center {
-  width: 88%;
-  margin: 0 auto;
-  padding: 10px 0;
+.playground-clear {
+    position: absolute;
+    right: 16px;
+    top: 12px;
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    background: var(--white);
+    color: var(--ios-text-primary);
+    font-family: var(--font);
+    font-size: 16px;
+    line-height: 40px;
+    padding: 0;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
 }
 
-.insider-title {
-  width: 100%;
-  display: block;
-  margin: 14px auto 0 auto;
-  font-weight: bold;
-  font-size: 24px;
-  color: #000000;
-  font-family: sans-serif;
+#playgroundConsole {
+    flex: none;
+    height: var(--console-height);
+    margin: 0 16px 8px;
+    padding: 14px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    background: var(--white);
+    border: var(--stroke) solid var(--ios-border);
+    border-radius: var(--radius-control);
+    color: var(--ios-text-primary);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.4;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    -webkit-user-select: text;
+    user-select: text;
 }
-  
+
+.playground-sections {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: calc(88px + env(safe-area-inset-bottom));
+}
+
+.playground-title {
+    margin: 0;
+    padding: 16px 16px 6px;
+    font-family: var(--font);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+    color: var(--ios-text-primary);
+}
+
 .insider-button {
-  background-color: #000000;
-  border: none;
-  color: white;
-  cursor: pointer;
-  width: 100%;
-  display: block;
-  margin: 0 auto;
-  margin-top: 15px;
-  padding: 13px 10px !important;
-  border-radius: 4px !important;
-  font-size: 13px !important;
-  box-sizing: border-box !important;
-  appearance: none !important;
-  font-weight: normal;
- }
-
-.insider-col {
-  display: flex;
-  width: 100%;
-  margin: 0 auto;
+    display: block;
+    width: calc(100% - 16px);
+    height: var(--button-height);
+    margin: 3px 8px;
+    padding: 0 12px;
+    box-sizing: border-box;
+    border: none;
+    border-radius: var(--radius-control);
+    background: linear-gradient(to right, var(--ios-gradient-red), var(--ios-gradient-orange));
+    color: var(--white);
+    font-family: var(--font);
+    font-size: 15px;
+    font-weight: 600;
+    text-align: center;
+    white-space: normal;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
-.insider-col .insider-button:nth-child(1) {
-  margin-right: 7px;
+.insider-button:active {
+    filter: brightness(0.92);
 }
 
-.insider-col .insider-button:nth-child(2) {
-  margin-left: 7px;
+.insider-button:focus,
+.playground-clear:focus {
+    outline: none;
+}
+
+.insider-button:focus-visible,
+.playground-clear:focus-visible {
+    outline: 2px solid var(--navy);
+    outline-offset: 2px;
+}
+
+.insider-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
 }

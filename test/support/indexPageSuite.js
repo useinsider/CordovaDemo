@@ -51,12 +51,18 @@ function describeIndexPage(platformId) {
       page.execCalls.length = 0;
       page.handlerErrors.length = 0;
       logs.reset();
+      // Handlers catch their own errors and print them to the on-screen console, so read it back.
+      page.global('clearPlaygroundConsole')();
       document.getElementById(id).click();
       await page.settle();
+      const consoleErrors = document
+        .getElementById('playgroundConsole')
+        .textContent.split('\n')
+        .filter((line) => line.includes('] error:'));
       return {
         actions: page.execCalls.map((call) => call.action),
         services: [...new Set(page.execCalls.map((call) => call.service))],
-        failures: [...page.handlerErrors.map(String), ...logs.errors, ...logs.warnings],
+        failures: [...page.handlerErrors.map(String), ...logs.errors, ...logs.warnings, ...consoleErrors],
       };
     }
 
