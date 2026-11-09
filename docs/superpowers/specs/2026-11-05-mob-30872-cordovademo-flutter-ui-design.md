@@ -50,7 +50,7 @@ CordovaDemo is the reference integration partners copy and the harness Mobile QA
 
 ## Corrected feature gap
 
-The ticket lists eight APIs. "Content Optimizer without cache" already exists on `origin/main` (`www/js/index.js:317`, button `contentOptimizerNoCache`, methods `getContent{Int,String,Bool}WithoutCache`), so seven are new. Placement follows FlutterDemo: features live under buttons inside sections, and one button may call several APIs.
+The ticket lists eight APIs. "Content Optimizer without cache" already exists on `origin/main` (`www/js/index.js:317`, button `contentOptimizerNoCache`, methods `getContent{Int,String,Bool}WithoutCache`), so seven are new; `addParameterWithArray` was later dropped as deprecated, and the amended ticket lists seven. Placement follows FlutterDemo: features live under buttons inside sections, and one button may call several APIs.
 
 | API | Where | How |
 |---|---|---|
@@ -59,7 +59,7 @@ The ticket lists eight APIs. "Content Optimizer without cache" already exists on
 | `startTrackingGeofence` | New **Geofence** section | Button "Start Tracking Geofence" (the call at init stays) |
 | `setAllowsBackgroundLocationUpdates` | **Geofence** section | Button "Allow Background Location Updates" calling it with `true`. On Android the console states it is iOS-only and no native call is made |
 | `getSmartRecommendationWithProduct` | **Smart Recommender** section | Added inside the existing "Get Smart Recommender Data" button, as FlutterDemo does (three calls, three console lines). No new button |
-| `addParameterWithArray` | **Event** section | Added as a parameter on the existing "Trigger Events" event. No new button |
+| `addParameterWithArray` | Not added | Dropped on 2026-11-08 with the ticket amended: deprecated in `cordova-plugin-insider` 4.1.0 in favour of `addParameterWithStringArray`, which "Trigger Events" already sends |
 | `reinitWithPartnerName` | New **Reinit** section, last | Button "Reinit With Partner Name" calling it with the same `'your_partner_name'` placeholder used by `init` (`www/js/index.js:54`, FIXME). Console prints the active partner name |
 
 ## Home page
