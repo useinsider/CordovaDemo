@@ -105,8 +105,6 @@ let app = {
         document.getElementById('smartRecommenderWithIDs').addEventListener('click', guarded('getSmartRecommendationWithProductIDs', smartRecommendation.withProductIDs));
         document.getElementById('clickSmartRecommendationProduct').addEventListener('click', guarded('clickSmartRecommendationProduct', smartRecommendation.clickProduct));
 
-        document.getElementById('socialProof').addEventListener('click', guarded('visitProductDetailPage', pageVisit.productPage));
-
         document.getElementById('homePage').addEventListener('click', guarded('visitHomePage', pageVisit.homePage));
         document.getElementById('productPage').addEventListener('click', guarded('visitProductDetailPage', pageVisit.productPage));
         document.getElementById('cartPage').addEventListener('click', guarded('visitCartPage', pageVisit.cartPage));
@@ -399,7 +397,6 @@ async function triggerEvents() {
         .addParameterWithString('string_parameter', 'This is Insider.')
         .addParameterWithStringArray('string_array_parameter', stringArray)
         .addParameterWithNumericArray('numeric_array_parameter', numericArray)
-        .addParameterWithArray('array_parameter', stringArray)
         .build();
 
     const event3 = await window.Insider

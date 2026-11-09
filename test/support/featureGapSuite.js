@@ -7,7 +7,6 @@ const SPEC_TITLES = [
   'Product',
   'Purchase',
   'Smart Recommender',
-  'Social Proof',
   'Page Visit Methods',
   'GDPR',
   'Mobile App Access',
@@ -74,10 +73,12 @@ function describeFeatureGap(platformId) {
       ]);
     });
 
-    test('triggerEvents sends the array parameter', async () => {
+    test('triggerEvents sends the string array parameter, not the deprecated array one', async () => {
       const calls = await click('triggerEvents');
       const second = calls.find((call) => call.action === 'tagEvent' && call.args[0] === 'second_event');
-      expect(second.args[1]).toEqual(expect.arrayContaining([expect.objectContaining({ key: 'array_parameter' })]));
+      const keys = second.args[1].map((parameter) => parameter.key);
+      expect(keys).toContain('string_array_parameter');
+      expect(keys).not.toContain('array_parameter');
     });
 
     test('reinit uses the init partner name', async () => {

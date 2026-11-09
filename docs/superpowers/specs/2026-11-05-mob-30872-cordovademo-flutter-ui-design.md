@@ -28,7 +28,7 @@ CordovaDemo is the reference integration partners copy and the harness Mobile QA
 
 ## Anti-goals (would be a failure even if it "works")
 
-- A redesigned page where any existing action stops working or loses its result output (Social Proof, Mobile App Access and Message Center included).
+- A redesigned page where any existing action stops working or loses its result output (Mobile App Access and Message Center included). Social Proof was removed on 2026-11-08: its button ran the same `visitProductDetailPage` handler as Product Page, and FlutterDemo has no such section.
 - Hex colours scattered across stylesheets or inline styles instead of tokens.
 - Tests loosened or deleted to make the redesign pass. Test changes must follow real behaviour changes (button count, new buttons, platform-only APIs) and must be stated in the PR.
 - Touching the user's main checkout. Its uncommitted sdk-run changes (`www/index.html`, `www/js/index.js`, `package.json`, `platforms/…`, `*.sdkrun-bak`) are unrelated and must stay untouched.
@@ -75,7 +75,7 @@ Top to bottom, on the iOS cream canvas (`#EFEBE4`), identical on iOS and Android
 
 Section order: FlutterDemo's order, with Cordova-only sections kept where they are today:
 
-User Attributes · User Identifiers · Event · Product · Purchase · Smart Recommender · **Social Proof** · Page Visit Methods · GDPR · **Mobile App Access** · **Message Center** · App Cards · Content Optimizer · Geofence · In-App Messages · Wishlist · Reinit
+User Attributes · User Identifiers · Event · Product · Purchase · Smart Recommender · Page Visit Methods · GDPR · **Mobile App Access** · **Message Center** · App Cards · Content Optimizer · Geofence · In-App Messages · Wishlist · Reinit
 
 The home App Cards section stays but, as in FlutterDemo `lib/insider/app_cards.dart`, its button becomes "Get Campaigns Data (Console)": it calls the plugin's App Cards `getCampaigns` and writes the count and each card (id, title, description, read, image and button counts) to the console, or the error. It no longer navigates. The App Cards page is reached only through Apps → App Cards, which saves `homeScrollY` before navigating, as the home button does today. Decided with the user on 2026-11-05.
 

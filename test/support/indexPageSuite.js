@@ -86,7 +86,7 @@ function describeIndexPage(platformId) {
     });
 
     test('index.html has the expected buttons', () => {
-      expect(BUTTON_IDS).toHaveLength(37);
+      expect(BUTTON_IDS).toHaveLength(36);
       expect(new Set(BUTTON_IDS).size).toBe(BUTTON_IDS.length);
     });
 
