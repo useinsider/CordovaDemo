@@ -1,78 +1,174 @@
 const taxonomy = ['taxonomy1', 'taxonomy2', 'taxonomy3'];
+// FIXME-INSIDER: Please change with your partner name.
+const PARTNER_NAME = 'your_partner_name';
+
+const PLAYGROUND_MAX_LINES = 200;
+const playgroundLines = [];
+
+function renderPlaygroundConsole() {
+    const output = document.getElementById('playgroundConsole');
+    if (!output) return;
+    output.textContent = playgroundLines.join('\n');
+    output.scrollTop = output.scrollHeight;
+}
+
+function appendPlaygroundLines(lines) {
+    lines.forEach((line) => {
+        playgroundLines.push(line);
+        console.log(line);
+    });
+    if (playgroundLines.length > PLAYGROUND_MAX_LINES) {
+        playgroundLines.splice(0, playgroundLines.length - PLAYGROUND_MAX_LINES);
+    }
+    renderPlaygroundConsole();
+}
+
+function appendPlaygroundLine(line) {
+    appendPlaygroundLines([line]);
+}
+
+function describeResult(result) {
+    if (result === undefined) return 'Method is triggered.';
+    if (typeof result === 'string') return result;
+    try {
+        return JSON.stringify(result);
+    } catch (e) {
+        return String(result);
+    }
+}
+
+function logInsider(method, result) {
+    appendPlaygroundLine('[INSIDER][' + method + ']: ' + describeResult(result));
+}
+
+function logInsiderError(method, error) {
+    const message = error && error.message ? error.message : error === undefined ? 'undefined' : describeResult(error);
+    appendPlaygroundLine('[INSIDER][' + method + '] error: ' + message);
+}
+
+function clearPlaygroundConsole() {
+    playgroundLines.length = 0;
+    renderPlaygroundConsole();
+}
+
+// Runs one SDK call of a multi-call handler so a failure names that call and the next calls still run.
+async function logCall(method, call) {
+    try {
+        logInsider(method, await call());
+    } catch (error) {
+        logInsiderError(method, error);
+    }
+}
+
+// Runs a button handler and reports a thrown or rejected call on the console instead of failing silently.
+function guarded(method, handler) {
+    return async function() {
+        try {
+            await handler.apply(this, arguments);
+        } catch (error) {
+            logInsiderError(method, error);
+        }
+    };
+}
+
+// Most plugin calls fire their native request and drop the promise, so a native failure only shows up here.
+window.addEventListener('unhandledrejection', (event) => logInsiderError('unhandled', event.reason));
 
 let app = {
     initialize: function() {
         document.addEventListener('deviceready', this.onDeviceReady.bind(this), false);
     },
     onDeviceReady: function() {
-        document.getElementById('userAttributes').addEventListener('click', userAttributes);
+        document.getElementById('clearConsole').addEventListener('click', clearPlaygroundConsole);
 
-        document.getElementById('login').addEventListener('click', userIdentifiers.login);
-        document.getElementById('logout').addEventListener('click', userIdentifiers.logout);
-        document.getElementById('logoutResettingInsiderID').addEventListener('click', userIdentifiers.logoutResettingInsiderID);
-        document.getElementById('signUpConfirmation').addEventListener('click', signUpConfirmation);
+        document.getElementById('miniAppsButton').addEventListener('click', openMiniApps);
+        document.getElementById('miniAppsBackdrop').addEventListener('click', closeMiniApps);
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && !document.getElementById('miniAppsSheet').hidden) closeMiniApps();
+        });
+        document.getElementById('miniAppAppCards').addEventListener('click', openAppCardsPage);
 
-        document.getElementById('triggerEvents').addEventListener('click', triggerEvents);
+        document.getElementById('userAttributes').addEventListener('click', guarded('currentUser', userAttributes));
 
-        document.getElementById('createProduct').addEventListener('click', createProduct);
+        document.getElementById('login').addEventListener('click', guarded('login', userIdentifiers.login));
+        document.getElementById('logout').addEventListener('click', guarded('logout', userIdentifiers.logout));
+        document.getElementById('logoutResettingInsiderID').addEventListener('click', guarded('logoutResettingInsiderID', userIdentifiers.logoutResettingInsiderID));
+        document.getElementById('signUpConfirmation').addEventListener('click', guarded('signUpConfirmation', signUpConfirmation));
 
-        document.getElementById('itemAddToCart').addEventListener('click', purchase.itemAddToCart);
-        document.getElementById('itemRemoveFromCart').addEventListener('click', purchase.itemRemoveFromCart);
-        document.getElementById('itemPurchase').addEventListener('click', purchase.itemPurchase);
-        document.getElementById('cartClear').addEventListener('click', purchase.cartClear);
+        document.getElementById('triggerEvents').addEventListener('click', guarded('tagEvent', triggerEvents));
 
-        document.getElementById('smartRecommender').addEventListener('click', smartRecommendation.getData);
-        document.getElementById('smartRecommenderWithIDs').addEventListener('click', smartRecommendation.withProductIDs);
-        document.getElementById('clickSmartRecommendationProduct').addEventListener('click', smartRecommendation.clickProduct);
+        document.getElementById('createProduct').addEventListener('click', guarded('createProduct', createProduct));
 
-        document.getElementById('socialProof').addEventListener('click', pageVisit.productPage);
+        document.getElementById('itemAddToCart').addEventListener('click', guarded('itemAddedToCart', purchase.itemAddToCart));
+        document.getElementById('itemRemoveFromCart').addEventListener('click', guarded('itemRemovedFromCart', purchase.itemRemoveFromCart));
+        document.getElementById('itemPurchase').addEventListener('click', guarded('itemPurchased', purchase.itemPurchase));
+        document.getElementById('cartClear').addEventListener('click', guarded('cartCleared', purchase.cartClear));
 
-        document.getElementById('homePage').addEventListener('click', pageVisit.homePage);
-        document.getElementById('productPage').addEventListener('click', pageVisit.productPage);
-        document.getElementById('cartPage').addEventListener('click', pageVisit.cartPage);
-        document.getElementById('categoryPage').addEventListener('click', pageVisit.categoryPage);
+        document.getElementById('smartRecommender').addEventListener('click', guarded('getSmartRecommendation', smartRecommendation.getData));
+        document.getElementById('smartRecommenderWithIDs').addEventListener('click', guarded('getSmartRecommendationWithProductIDs', smartRecommendation.withProductIDs));
+        document.getElementById('clickSmartRecommendationProduct').addEventListener('click', guarded('clickSmartRecommendationProduct', smartRecommendation.clickProduct));
 
-        document.getElementById('gdprTrue').addEventListener('click', gdpr.true);
-        document.getElementById('gdprFalse').addEventListener('click', gdpr.false);
+        document.getElementById('homePage').addEventListener('click', guarded('visitHomePage', pageVisit.homePage));
+        document.getElementById('productPage').addEventListener('click', guarded('visitProductDetailPage', pageVisit.productPage));
+        document.getElementById('cartPage').addEventListener('click', guarded('visitCartPage', pageVisit.cartPage));
+        document.getElementById('categoryPage').addEventListener('click', guarded('visitListingPage', pageVisit.categoryPage));
 
-        document.getElementById('mobileAppAccessTrue').addEventListener('click', mobileAppAccess.enable);
-        document.getElementById('mobileAppAccessFalse').addEventListener('click', mobileAppAccess.disable);
+        document.getElementById('gdprTrue').addEventListener('click', guarded('setGDPRConsent', gdpr.true));
+        document.getElementById('gdprFalse').addEventListener('click', guarded('setGDPRConsent', gdpr.false));
 
-        document.getElementById('messageCenter').addEventListener('click', getMessageCenterData);
-        document.getElementById('appCards').addEventListener('click', appCards);
-        document.getElementById('contentOptimizer').addEventListener('click', contentOptimizer);
-        document.getElementById('contentOptimizerNoCache').addEventListener('click', contentOptimizerNoCache);
+        document.getElementById('mobileAppAccessTrue').addEventListener('click', guarded('setMobileAppAccess', mobileAppAccess.enable));
+        document.getElementById('mobileAppAccessFalse').addEventListener('click', guarded('setMobileAppAccess', mobileAppAccess.disable));
 
-        document.getElementById('removeInapp').addEventListener('click', removeInapp);
+        document.getElementById('messageCenter').addEventListener('click', guarded('getMessageCenterData', getMessageCenterData));
+        document.getElementById('appCards').addEventListener('click', guarded('getCampaigns', getAppCardsCampaigns));
+        document.getElementById('contentOptimizer').addEventListener('click', guarded('contentOptimizer', contentOptimizer));
+        document.getElementById('contentOptimizerNoCache').addEventListener('click', guarded('contentOptimizerNoCache', contentOptimizerNoCache));
 
-        initInsider();
+        document.getElementById('startTrackingGeofence').addEventListener('click', guarded('startTrackingGeofence', geofence.startTracking));
+        document.getElementById('allowBackgroundLocationUpdates').addEventListener('click', guarded('setAllowsBackgroundLocationUpdates', geofence.allowBackgroundLocationUpdates));
+
+        document.getElementById('enableInApp').addEventListener('click', guarded('enableInAppMessages', inAppMessages.enable));
+        document.getElementById('disableInApp').addEventListener('click', guarded('disableInAppMessages', inAppMessages.disable));
+        document.getElementById('removeInapp').addEventListener('click', guarded('removeInapp', removeInapp));
+
+        document.getElementById('addToWishlist').addEventListener('click', guarded('itemAddedToWishlist', wishlist.add));
+        document.getElementById('removeFromWishlist').addEventListener('click', guarded('itemRemovedFromWishlist', wishlist.remove));
+        document.getElementById('clearWishlist').addEventListener('click', guarded('wishlistCleared', wishlist.clear));
+        document.getElementById('visitWishlistPage').addEventListener('click', guarded('visitWishlistPage', wishlist.visitPage));
+
+        document.getElementById('reinitWithPartnerName').addEventListener('click', guarded('reinitWithPartnerName', reinitWithPartnerName));
+
+        initInsider().catch((error) => logInsiderError('initialize', error));
     }
 };
 
 async function initInsider() {
-    // FIXME-INSIDER: Please change with your partner name and app group.
-    await window.Insider.init('your_partner_name', 'group.com.useinsider.cordovademo',
+    // FIXME-INSIDER: Please change with your app group.
+    await window.Insider.init(PARTNER_NAME, 'group.com.useinsider.cordovademo',
         (callback) => {
             switch ((callback.result || {}).type) {
                 case window.Insider.callbackType.NOTIFICATION_OPEN:
-                    console.log('[INSIDER][NOTIFICATION_OPEN]: ', callback.result || {});
+                    logInsider('NOTIFICATION_OPEN', callback.result || {});
                     break;
                 case window.Insider.callbackType.TEMP_STORE_CUSTOM_ACTION:
-                    console.log('[INSIDER][TEMP_STORE_CUSTOM_ACTION]: ', callback.result || {});
+                    logInsider('TEMP_STORE_CUSTOM_ACTION', callback.result || {});
                     break;
             }
         },
     );
 
     await window.Insider.registerWithQuietPermission(false);
-    window.Insider.setActiveForegroundPushView();
     window.Insider.startTrackingGeofence();
-    window.Insider.enableIDFACollection(true);
+    // The plugin's Android side rejects these iOS-only actions with "Invalid action".
+    if (window.cordova.platformId === 'ios') {
+        window.Insider.setActiveForegroundPushView();
+        window.Insider.enableIDFACollection(true);
+    }
     window.Insider.enableLocationCollection(true);
     window.Insider.enableIpCollection(true);
     window.Insider.enableCarrierCollection(true);
 
-    console.log("[INSIDER][initialize]: Method is triggered");
+    logInsider('initialize');
 }
 
 function userAttributes() {
@@ -104,7 +200,7 @@ function userAttributes() {
     currentUser.setCustomAttributeWithDate('date_parameter', new Date());
     currentUser.setCustomAttributeWithArray('key', stringArray);
 
-    console.log("[INSIDER][currentUser]: Method is triggered");
+    logInsider('currentUser');
 }
 
 const userIdentifiers = {
@@ -116,26 +212,30 @@ const userIdentifiers = {
         identifiers.addPhoneNumber("+909876543210");
         identifiers.addUserID("{crmID}");
 
-        currentUser.login(identifiers.getIdentifiers(), (id) => alert(id));
+        currentUser.login(identifiers.getIdentifiers(), (id) => {
+            logInsider('login', 'Insider ID: ' + id);
+            alert(id);
+        });
 
-        console.log("[INSIDER][login]: Method is triggered. Identifiers: ", identifiers);
+        logInsider('login');
     },
     logout: async function() {
         let currentUser = window.Insider.getCurrentUser();
 
         currentUser.logout();
 
-        console.log("[INSIDER][logout]: Method is triggered.");
+        logInsider('logout');
     },
     logoutResettingInsiderID: async function() {
         let currentUser = window.Insider.getCurrentUser();
 
         currentUser.logoutResettingInsiderID(null, (newInsiderID) => {
-            console.log("[INSIDER][logoutResettingInsiderID]: New Insider ID:", newInsiderID);
-            alert("Logout successful! New Insider ID: " + newInsiderID);
+            const message = "Logout successful! New Insider ID: " + newInsiderID;
+            logInsider('logoutResettingInsiderID', message);
+            alert(message);
         });
 
-        console.log("[INSIDER][logoutResettingInsiderID]: Method triggered");
+        logInsider('logoutResettingInsiderID');
     }
 }
 
@@ -145,26 +245,26 @@ const purchase = {
 
         await window.Insider.itemAddedToCart(product);
 
-        console.log("[INSIDER][itemAddToCart]: Method is triggered, Product: ", product);
+        logInsider('itemAddedToCart');
     },
     itemRemoveFromCart: async function() {
         const productID = 'product_id';
 
         await window.Insider.itemRemovedFromCart(productID);
 
-        console.log("[INSIDER][itemRemoveFromCart]: Method is triggered, Product ID: ", productID);
+        logInsider('itemRemovedFromCart', 'Product ID: ' + productID);
     },
     itemPurchase: async function() {
         let product = createNewProduct("product_id", "Pear", taxonomy, "ImageURL", 1000, "TRY");
 
         await window.Insider.itemPurchased('product_id', product);
 
-        console.log("[INSIDER][itemPurchase]: Method is triggered, Product: ", product);
+        logInsider('itemPurchased');
     },
     cartClear: async function() {
         window.Insider.cartCleared();
 
-        console.log("[INSIDER][cartClear]: Method is triggered.");
+        logInsider('cartCleared');
     }
 }
 
@@ -172,19 +272,19 @@ const pageVisit = {
     homePage: async function() {
         await window.Insider.visitHomePage();
 
-        console.log("[INSIDER][homePage]: Method is triggered.");
+        logInsider('visitHomePage');
     },
     categoryPage: async function() {
         await window.Insider.visitListingPage(taxonomy);
 
-        console.log("[INSIDER][categoryPage]: Method is triggered.");
+        logInsider('visitListingPage');
     },
     productPage: async function() {
         let product = createNewProduct("product1", "Pear", taxonomy, "ImageURL", 1000, "TRY");
 
         await window.Insider.visitProductDetailPage(product);
 
-        console.log("[INSIDER][productPage]: Method is triggered.");
+        logInsider('visitProductDetailPage');
     },
     cartPage: async function() {
         let product = createNewProduct("product1", "Pear", taxonomy, "ImageURL", 1000, "TRY");
@@ -194,7 +294,7 @@ const pageVisit = {
 
         await window.Insider.visitCartPage(insiderExampleProducts);
 
-        console.log("[INSIDER][cartPage]: Method is triggered.");
+        logInsider('visitCartPage');
     }
 }
 
@@ -202,34 +302,87 @@ const gdpr = {
     'true': async function() {
         window.Insider.setGDPRConsent(true);
 
-        console.log("[INSIDER][setGDPR]: true");
+        logInsider('setGDPRConsent', 'true');
     },
     'false': async function() {
         window.Insider.setGDPRConsent(false);
 
-        console.log("[INSIDER][setGDPR]: false");
+        logInsider('setGDPRConsent', 'false');
     }
 }
 
 const mobileAppAccess = {
     enable: function() {
         window.Insider.setMobileAppAccess(true);
-        console.log("[INSIDER][setMobileAppAccess]: true");
+        logInsider('setMobileAppAccess', 'true');
     },
     disable: function() {
         window.Insider.setMobileAppAccess(false);
-        console.log("[INSIDER][setMobileAppAccess]: false");
+        logInsider('setMobileAppAccess', 'false');
     }
 };
 
 async function signUpConfirmation() {
     await window.Insider.signUpConfirmation();
-    console.log("[INSIDER][signUpConfirmation]: Method triggered");
+    logInsider('signUpConfirmation');
+}
+
+const inAppMessages = {
+    enable: function() {
+        window.Insider.enableInAppMessages();
+        logInsider('enableInAppMessages');
+    },
+    disable: function() {
+        window.Insider.disableInAppMessages();
+        logInsider('disableInAppMessages');
+    }
+};
+
+const geofence = {
+    startTracking: function() {
+        window.Insider.startTrackingGeofence();
+        logInsider('startTrackingGeofence');
+    },
+    allowBackgroundLocationUpdates: function() {
+        if (window.cordova.platformId === 'android') {
+            logInsider('setAllowsBackgroundLocationUpdates', 'iOS only, no native call on Android');
+            return;
+        }
+        window.Insider.setAllowsBackgroundLocationUpdates(true);
+        logInsider('setAllowsBackgroundLocationUpdates', 'true');
+    }
+};
+
+const wishlist = {
+    add: function() {
+        const product = createNewProduct("product_id", "Pear", taxonomy, "ImageURL", 1000, "TRY");
+        window.Insider.itemAddedToWishlist(product);
+        logInsider('itemAddedToWishlist');
+    },
+    remove: function() {
+        window.Insider.itemRemovedFromWishlist('product_id');
+        logInsider('itemRemovedFromWishlist', 'Product ID: product_id');
+    },
+    clear: function() {
+        window.Insider.wishlistCleared();
+        logInsider('wishlistCleared');
+    },
+    visitPage: function() {
+        const product1 = createNewProduct("product1", "Pear", taxonomy, "ImageURL", 100, "TRY");
+        const product2 = createNewProduct("product2", "Apple", taxonomy, "ImageURL", 200, "TRY");
+        window.Insider.visitWishlistPage([product1, product2]);
+        logInsider('visitWishlistPage');
+    }
+};
+
+function reinitWithPartnerName() {
+    window.Insider.reinitWithPartnerName(PARTNER_NAME);
+    logInsider('reinitWithPartnerName', 'requested partner: ' + PARTNER_NAME + ' (same as init, the SDK skips reinit when the partner is unchanged)');
 }
 
 function removeInapp() {
     window.Insider.removeInapp();
-    console.log("[INSIDER][removeInapp]: Method triggered");
+    logInsider('removeInapp');
 }
 
 async function triggerEvents() {
@@ -257,24 +410,29 @@ async function triggerEvents() {
         ?.addParameterWithInt('int_parameter', 10)
         .build();
 
-    console.log("[INSIDER][triggerEvents]: Method is triggered.");
+    logInsider('tagEvent', 'event_name, second_event, third_event sent');
 }
 
 const smartRecommendation = {
     getData: async function() {
         // --- RECOMMENDATION ENGINE --- //
-        const smartData = await window.Insider.getSmartRecommendation(1, 'tr_TR', 'TRY');
-        console.log("[INSIDER][getSmartRecommendation]: ", smartData);
+        await logCall('getSmartRecommendation', () => window.Insider.getSmartRecommendation(1, 'tr_TR', 'TRY'));
+
+        const product = createNewProduct("product1", "Pear", taxonomy, "ImageURL", 1000, "TRY");
+        await logCall('getSmartRecommendationWithProduct', () => window.Insider.getSmartRecommendationWithProduct(product, 1, 'tr_TR'));
+
+        const productIDs = ['product1', 'product2', 'product3'];
+        await logCall('getSmartRecommendationWithProductIDs', () => window.Insider.getSmartRecommendationWithProductIDs(productIDs, 1, 'tr_TR', 'TRY'));
     },
     withProductIDs: async function() {
         const productIDs = ['product1', 'product2', 'product3'];
         const smartData = await window.Insider.getSmartRecommendationWithProductIDs(productIDs, 1, 'tr_TR', 'TRY');
-        console.log("[INSIDER][getSmartRecommendationWithProductIDs]: ", smartData);
+        logInsider('getSmartRecommendationWithProductIDs', smartData);
     },
     clickProduct: async function() {
         let product = createNewProduct("product1", "Pear", taxonomy, "ImageURL", 1000, "TRY");
         await window.Insider.clickSmartRecommendationProduct(product, 1);
-        console.log("[INSIDER][clickSmartRecommendationProduct]: Method is triggered.");
+        logInsider('clickSmartRecommendationProduct');
     }
 }
 
@@ -286,54 +444,87 @@ async function getMessageCenterData() {
 
     const data = await window.Insider.getMessageCenterData(100, startDate, endDate);
 
-    console.log("[INSIDER][messageCenter]: ", data);
+    logInsider('getMessageCenterData', data);
 }
 
-function appCards() {
-    // --- APP CARDS PAGE --- //
+async function getAppCardsCampaigns() {
+    // --- APP CARDS --- //
+    logInsider('getCampaigns', 'Method is triggered, waiting response...');
+
+    const response = await window.Insider.appCards.getCampaigns();
+
+    if (!response) {
+        logInsider('getCampaigns', 'No campaigns data received');
+        return;
+    }
+
+    const lines = [];
+    response.appCards.forEach((card) => {
+        const content = card.content || {};
+        lines.push(
+            '  - Card ID: ' + card.id,
+            '    Title: ' + (content.title || 'N/A'),
+            '    Description: ' + (content.description || 'N/A'),
+            '    Read: ' + card.isRead,
+            '    Images: ' + (card.images || []).length,
+            '    Buttons: ' + (card.buttons || []).length
+        );
+    });
+    // The count goes last so the 200-line cap never pushes it out of a large inbox.
+    lines.push('[INSIDER][getCampaigns]: Received ' + response.appCards.length + ' app cards');
+    appendPlaygroundLines(lines);
+}
+
+function openMiniApps() {
+    document.getElementById('miniAppsSheet').hidden = false;
+    // Cordova Android overrides the hardware back button only while a listener is attached.
+    document.addEventListener('backbutton', closeMiniApps);
+}
+
+function closeMiniApps() {
+    document.getElementById('miniAppsSheet').hidden = true;
+    document.removeEventListener('backbutton', closeMiniApps);
+}
+
+function openAppCardsPage() {
     try {
-        sessionStorage.setItem('homeScrollY', String(window.scrollY || window.pageYOffset || 0));
+        sessionStorage.setItem('homeScrollY', String(document.getElementById('playgroundSections').scrollTop || 0));
     } catch (e) { /* sessionStorage may be unavailable; navigation still works */ }
+    closeMiniApps();
+    logInsider('appCards', 'Opening app cards page');
     window.location.href = 'app-cards.html';
-    console.log("[INSIDER][appCards]: Opening app cards page");
 }
 
 async function contentOptimizer() {
     // --- CONTENT OPTIMIZER --- //
 
     // Integer
-    const contentOptimizerInt = await window.Insider.getContentIntWithName('int_variable_name', 10, Insider.contentOptimizerDataType.ELEMENT);
-    console.log("[INSIDER][getContentIntWithName]: ", contentOptimizerInt);
+    await logCall('getContentIntWithName', () => window.Insider.getContentIntWithName('int_variable_name', 10, Insider.contentOptimizerDataType.ELEMENT));
 
     // String
-    const contentOptimizerString = await window.Insider.getContentStringWithName('string_variable_name', 'defaultValue', Insider.contentOptimizerDataType.ELEMENT);
-    console.log("[INSIDER][getContentStringWithName]: ", contentOptimizerString);
+    await logCall('getContentStringWithName', () => window.Insider.getContentStringWithName('string_variable_name', 'defaultValue', Insider.contentOptimizerDataType.ELEMENT));
 
     // Boolean
-    const contentOptimizerBool = await window.Insider.getContentBoolWithName('bool_variable_name', true, Insider.contentOptimizerDataType.ELEMENT);
-    console.log("[INSIDER][getContentBoolWithName]: ", contentOptimizerBool);
+    await logCall('getContentBoolWithName', () => window.Insider.getContentBoolWithName('bool_variable_name', true, Insider.contentOptimizerDataType.ELEMENT));
 }
 
 async function contentOptimizerNoCache() {
     // --- CONTENT OPTIMIZER WITHOUT CACHE --- //
 
     // Integer
-    const contentOptimizerInt = await window.Insider.getContentIntWithoutCache('int_variable_name', 10, Insider.contentOptimizerDataType.ELEMENT);
-    console.log("[INSIDER][getContentIntWithoutCache]: ", contentOptimizerInt);
+    await logCall('getContentIntWithoutCache', () => window.Insider.getContentIntWithoutCache('int_variable_name', 10, Insider.contentOptimizerDataType.ELEMENT));
 
     // String
-    const contentOptimizerString = await window.Insider.getContentStringWithoutCache('string_variable_name', 'defaultValue', Insider.contentOptimizerDataType.ELEMENT);
-    console.log("[INSIDER][getContentStringWithoutCache]: ", contentOptimizerString);
+    await logCall('getContentStringWithoutCache', () => window.Insider.getContentStringWithoutCache('string_variable_name', 'defaultValue', Insider.contentOptimizerDataType.ELEMENT));
 
     // Boolean
-    const contentOptimizerBool = await window.Insider.getContentBoolWithoutCache('bool_variable_name', true, Insider.contentOptimizerDataType.ELEMENT);
-    console.log("[INSIDER][getContentBoolWithoutCache]: ", contentOptimizerBool);
+    await logCall('getContentBoolWithoutCache', () => window.Insider.getContentBoolWithoutCache('bool_variable_name', true, Insider.contentOptimizerDataType.ELEMENT));
 }
 
 function createProduct() {
     let product = createNewProduct("product1", "Pear", taxonomy, "ImageURL", 1000, "TRY");
 
-    console.log("[INSIDER][createProduct]: ", product);
+    logInsider('createProduct', product);
 }
 
 function createNewProduct(productId, productName, taxonomy, imageURL, price, currency) {
@@ -381,7 +572,10 @@ function createNewProduct(productId, productName, taxonomy, imageURL, price, cur
         if (saved === null) return;
         sessionStorage.removeItem('homeScrollY');
         var y = parseInt(saved, 10) || 0;
-        var applyScroll = function() { window.scrollTo(0, y); };
+        var applyScroll = function() {
+            var sections = document.getElementById('playgroundSections');
+            if (sections) sections.scrollTop = y;
+        };
         if (document.readyState === 'complete' || document.readyState === 'interactive') {
             applyScroll();
         } else {

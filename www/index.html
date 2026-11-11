@@ -24,101 +24,134 @@
         <meta name="format-detection" content="telephone=no">
         <meta name="msapplication-tap-highlight" content="no">
         <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
-        <meta name="color-scheme" content="light dark">
+        <meta name="color-scheme" content="light">
+        <link rel="stylesheet" href="css/tokens.css">
         <link rel="stylesheet" href="css/index.css">
         <title>Insider Cordova Demo</title>
     </head>
     <body>
-        <div class="app center">
-            <div class="header">
-                <div class="insider-logo">
-                    <img src="img/insider-logo.png" />
+        <div class="playground">
+            <header id="playgroundTopBar" class="playground-top-bar">
+                <img class="playground-logo" src="img/insider-one.png" alt="Insider One" />
+                <button id="clearConsole" class="playground-clear" type="button" aria-label="Clear console">&#x2715;</button>
+            </header>
+            <pre id="playgroundConsole" class="playground-console" aria-live="polite"></pre>
+            <main id="playgroundSections" class="playground-sections">
+            <section class="playground-section">
+                <h2 class="playground-title">User Attributes</h2>
+                <input class="insider-button" type="button" id="userAttributes" value="Set Attributes" />
+            </section>
+            <section class="playground-section">
+                <h2 class="playground-title">User Identifiers</h2>
+                <div class="insider-row">
+                    <input class="insider-button" type="button" id="login" value="Login" />
+                    <input class="insider-button" type="button" id="logout" value="Logout" />
                 </div>
-                <div class="description">
-                    <div class="insider-title">[Cordova] Insider SDK</div>
-                    <p>This Demo contains simple methods that you can use with the Insider SDK.</p>
+                <input class="insider-button" type="button" id="logoutResettingInsiderID" value="Logout Resetting Insider ID" />
+                <input class="insider-button" type="button" id="signUpConfirmation" value="Sign Up" />
+            </section>
+            <section class="playground-section">
+                <h2 class="playground-title">Event</h2>
+                <input class="insider-button" type="button" id="triggerEvents" value="Trigger Events" />
+            </section>
+            <section class="playground-section">
+                <h2 class="playground-title">Product</h2>
+                <input class="insider-button" type="button" id="createProduct" value="Create Product" />
+            </section>
+            <section class="playground-section">
+                <h2 class="playground-title">Purchase</h2>
+                <div class="insider-row">
+                    <input class="insider-button" type="button" id="itemAddToCart" value="Item Add To Cart" />
+                    <input class="insider-button" type="button" id="itemRemoveFromCart" value="Item Remove From Cart" />
+                    <input class="insider-button" type="button" id="itemPurchase" value="Item Purchase" />
+                    <input class="insider-button" type="button" id="cartClear" value="Cart Clear" />
                 </div>
-            </div>
-
-            <div class="insider-title">User Attibutes</div>
-            <input class="insider-button" type="submit" id="userAttributes" value="Set Attributes" />
-
-            <div class="insider-title">User Identifiers</div>
-            <div class="insider-row">
-                <input class="insider-button " type="submit" id="login" value="Login" />
-                <input class="insider-button" type="submit" style="background-color: rgba(229, 127, 116, 1);" id="logout" value="Logout" />
-            </div>
-            <input class="insider-button" type="submit" id="logoutResettingInsiderID" value="Logout Resetting Insider ID" />
-            <input class="insider-button" type="submit" id="signUpConfirmation" value="Sign Up" />
-
-            <div class="insider-title">Event</div>
-            <input class="insider-button" type="submit" id="triggerEvents" value="Trigger Events" />
-
-            <div class="insider-title">Product</div>
-            <input class="insider-button" type="submit" id="createProduct" value="Create Product" />
-
-            <div class="insider-title">Purchase</div>
-            <div class="insider-row">
-                <div class="insider-col">
-                    <input class="insider-button" type="submit" id="itemAddToCart" value="Item Add To Cart" />
-                    <input class="insider-button" type="submit" id="itemRemoveFromCart" value="Item Remove From Cart" />
+            </section>
+            <section class="playground-section">
+                <h2 class="playground-title">Smart Recommender</h2>
+                <input class="insider-button" type="button" id="smartRecommender" value="Get Smart Recommender Data" />
+                <input class="insider-button" type="button" id="smartRecommenderWithIDs" value="Smart Rec. with Product IDs" />
+                <input class="insider-button" type="button" id="clickSmartRecommendationProduct" value="Click Smart Rec Product" />
+            </section>
+            <section class="playground-section">
+                <h2 class="playground-title">Page Visit Methods</h2>
+                <div class="insider-row">
+                    <input class="insider-button" type="button" id="homePage" value="Home Page" />
+                    <input class="insider-button" type="button" id="productPage" value="Product Page" />
+                    <input class="insider-button" type="button" id="cartPage" value="Cart Page" />
+                    <input class="insider-button" type="button" id="categoryPage" value="Category Page" />
                 </div>
-                <div class="insider-col">
-                    <input class="insider-button" type="submit" id="itemPurchase" value="Item Purchase" />
-                    <input class="insider-button" type="submit" id="cartClear" value="Cart Clear" />
+            </section>
+            <section class="playground-section">
+                <h2 class="playground-title">GDPR</h2>
+                <div class="insider-row">
+                    <input class="insider-button" type="button" id="gdprTrue" value="GDPR True" />
+                    <input class="insider-button" type="button" id="gdprFalse" value="GDPR False" />
                 </div>
-            </div>
-
-            <div class="insider-title">Smart Recommender</div>
-            <input class="insider-button" type="submit" id="smartRecommender" value="Get Smart Recommender Data" />
-            <input class="insider-button" type="submit" id="smartRecommenderWithIDs" value="Smart Rec. with Product IDs" />
-            <input class="insider-button" type="submit" id="clickSmartRecommendationProduct" value="Click Smart Rec Product" />
-
-            <div class="insider-title">Social Proof</div>
-            <input class="insider-button" type="submit" id="socialProof" value="Trigger Social Proof" />
-
-            <div class="insider-title">Page Visit Methods</div>
-            <div class="insider-row">
-                <div class="insider-col">
-                    <input class="insider-button" type="submit" id="homePage" value="Home Page" />
-                    <input class="insider-button" type="submit" id="productPage" value="Product Page" />
+            </section>
+            <section class="playground-section">
+                <h2 class="playground-title">Mobile App Access</h2>
+                <div class="insider-row">
+                    <input class="insider-button" type="button" id="mobileAppAccessTrue" value="Mobile App Access True" />
+                    <input class="insider-button" type="button" id="mobileAppAccessFalse" value="Mobile App Access False" />
                 </div>
-                <div class="insider-col">
-                    <input class="insider-button" type="submit" id="cartPage" value="Cart Page" />
-                    <input class="insider-button" type="submit" id="categoryPage" value="Category Page" />
-                </div>
-            </div>
-
-            <div class="insider-title">GDPR</div>
-            <div class="insider-row">
-                <div class="insider-col">
-                    <input class="insider-button " type="submit" id="gdprTrue" value="GDPR True" />
-                    <input class="insider-button" type="submit" id="gdprFalse" value="GDPR False" />
-                </div>
-            </div>
-
-            <div class="insider-title">Mobile App Access</div>
-            <div class="insider-row">
-                <div class="insider-col">
-                    <input class="insider-button" type="submit" id="mobileAppAccessTrue" value="Mobile App Access True" />
-                    <input class="insider-button" type="submit" id="mobileAppAccessFalse" value="Mobile App Access False" />
-                </div>
-            </div>
-
-            <div class="insider-title">Message Center</div>
-            <input class="insider-button" type="submit" id="messageCenter" value="Get Message Center Data" />
-
-            <div class="insider-title">App Cards</div>
-            <input class="insider-button" type="submit" id="appCards" value="App Cards" />
-
-            <div class="insider-title">Content Optimizer</div>
-            <input class="insider-button" type="submit" id="contentOptimizer" value="Get Variable With Content Optimizer" />
-            <input class="insider-button" type="submit" id="contentOptimizerNoCache" value="Get Variable Without Cache" />
-
-            <div class="insider-title">In-App Messages</div>
-            <input class="insider-button" type="submit" id="removeInapp" value="Remove In-App" />
+            </section>
+            <section class="playground-section">
+                <h2 class="playground-title">Message Center</h2>
+                <input class="insider-button" type="button" id="messageCenter" value="Get Message Center Data" />
+            </section>
+            <section class="playground-section">
+                <h2 class="playground-title">App Cards</h2>
+                <input class="insider-button" type="button" id="appCards" value="Get Campaigns Data (Console)" />
+            </section>
+            <section class="playground-section">
+                <h2 class="playground-title">Content Optimizer</h2>
+                <input class="insider-button" type="button" id="contentOptimizer" value="Get Variable With Content Optimizer" />
+                <input class="insider-button" type="button" id="contentOptimizerNoCache" value="Get Variable Without Cache" />
+            </section>
+            <section class="playground-section">
+                <h2 class="playground-title">Geofence</h2>
+                <input class="insider-button" type="button" id="startTrackingGeofence" value="Start Tracking Geofence" />
+                <input class="insider-button" type="button" id="allowBackgroundLocationUpdates" value="Allow Background Location Updates" />
+            </section>
+            <section class="playground-section">
+                <h2 class="playground-title">In-App Messages</h2>
+                <input class="insider-button" type="button" id="enableInApp" value="Enable InApp" />
+                <input class="insider-button" type="button" id="disableInApp" value="Disable InApp" />
+                <input class="insider-button" type="button" id="removeInapp" value="Remove In-App" />
+            </section>
+            <section class="playground-section">
+                <h2 class="playground-title">Wishlist</h2>
+                <input class="insider-button" type="button" id="addToWishlist" value="Add to Wishlist" />
+                <input class="insider-button" type="button" id="removeFromWishlist" value="Remove from Wishlist" />
+                <input class="insider-button" type="button" id="clearWishlist" value="Clear Wishlist" />
+                <input class="insider-button" type="button" id="visitWishlistPage" value="Visit Wishlist Page" />
+            </section>
+            <section class="playground-section">
+                <h2 class="playground-title">Reinit</h2>
+                <input class="insider-button" type="button" id="reinitWithPartnerName" value="Reinit With Partner Name" />
+            </section>
+            </main>
         </div>
-
+        <button id="miniAppsButton" class="mini-apps-button" type="button" aria-haspopup="dialog" aria-controls="miniAppsSheet">
+            <span class="mini-apps-button-icon" aria-hidden="true">&#x25A6;</span>Apps
+        </button>
+        <div id="miniAppsSheet" class="mini-apps" role="dialog" aria-modal="true" aria-labelledby="miniAppsTitle" hidden>
+            <div id="miniAppsBackdrop" class="mini-apps-backdrop"></div>
+            <div class="mini-apps-panel">
+                <div class="mini-apps-grabber"></div>
+                <h2 id="miniAppsTitle" class="mini-apps-title">Mini-apps</h2>
+                <p class="mini-apps-subtitle">Jump into another experience</p>
+                <button id="miniAppAppCards" class="mini-app-card" type="button">
+                    <span class="mini-app-icon" aria-hidden="true">&#x2709;&#xFE0E;</span>
+                    <span class="mini-app-text">
+                        <span class="mini-app-title">App Cards</span>
+                        <span class="mini-app-subtitle">Inbox campaigns from the panel</span>
+                    </span>
+                    <span class="mini-app-chevron" aria-hidden="true">&#x203A;</span>
+                </button>
+            </div>
+        </div>
         <script src="cordova.js"></script>
         <script src="js/index.js"></script>
     </body>
