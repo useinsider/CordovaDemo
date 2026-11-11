@@ -84,7 +84,10 @@ function describeFeatureGap(platformId) {
     test('reinit uses the init partner name', async () => {
       const calls = await click('reinitWithPartnerName');
       expect(calls[0].args).toEqual(['your_partner_name']);
-      expect(consoleText()).toContain('active partner: your_partner_name');
+      expect(consoleText()).toContain(
+        '[INSIDER][reinitWithPartnerName]: requested partner: your_partner_name (same as init, the SDK skips reinit when the partner is unchanged)',
+      );
+      expect(consoleText()).not.toContain('active partner');
     });
 
     test('allowBackgroundLocationUpdates explains iOS-only on Android', async () => {

@@ -12,11 +12,8 @@ const NO_NATIVE_CALL = {
   android: new Set(['createProduct', 'allowBackgroundLocationUpdates']),
 };
 
-// iOS-only APIs the plugin JS still sends on Android; the Java side has no branch for them.
-const PLATFORM_ONLY_ACTIONS = {
-  android: new Set(['enableIDFACollection', 'setActiveForegroundPushView']),
-  ios: new Set(),
-};
+// iOS-only APIs the plugin JS still sends on Android; the Java side rejects them with "Invalid action".
+const IOS_ONLY_ACTIONS = ['enableIDFACollection', 'setActiveForegroundPushView'];
 
 const EXEC_RESULTS = {
   login: 'insider-id-000',
@@ -31,7 +28,7 @@ const EXEC_RESULTS = {
 function describeIndexPage(platformId) {
   const native = platformId === 'android' ? androidActions() : iosActions();
   const unimplemented = (actions) =>
-    actions.filter((action) => !native.has(action) && !PLATFORM_ONLY_ACTIONS[platformId].has(action));
+    actions.filter((action) => !native.has(action));
 
   describe(`index.html on ${platformId}`, () => {
     let page;
@@ -83,6 +80,15 @@ function describeIndexPage(platformId) {
       expect(actions).toEqual(expect.arrayContaining(['registerWithQuietPermission', 'startTrackingGeofence']));
       expect(unimplemented(actions)).toEqual([]);
       expect([...page.handlerErrors, ...logs.errors, ...logs.warnings]).toEqual([]);
+    });
+
+    test('deviceready sends the iOS-only init actions on iOS only', () => {
+      const actions = page.execCalls.map((call) => call.action);
+      if (platformId === 'android') {
+        expect(actions.filter((action) => IOS_ONLY_ACTIONS.includes(action))).toEqual([]);
+      } else {
+        expect(actions).toEqual(expect.arrayContaining(IOS_ONLY_ACTIONS));
+      }
     });
 
     test('index.html has the expected buttons', () => {

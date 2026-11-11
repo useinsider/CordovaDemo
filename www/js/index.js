@@ -155,9 +155,12 @@ async function initInsider() {
     );
 
     await window.Insider.registerWithQuietPermission(false);
-    window.Insider.setActiveForegroundPushView();
     window.Insider.startTrackingGeofence();
-    window.Insider.enableIDFACollection(true);
+    // The plugin's Android side rejects these iOS-only actions with "Invalid action".
+    if (window.cordova.platformId === 'ios') {
+        window.Insider.setActiveForegroundPushView();
+        window.Insider.enableIDFACollection(true);
+    }
     window.Insider.enableLocationCollection(true);
     window.Insider.enableIpCollection(true);
     window.Insider.enableCarrierCollection(true);
@@ -371,7 +374,7 @@ const wishlist = {
 
 function reinitWithPartnerName() {
     window.Insider.reinitWithPartnerName(PARTNER_NAME);
-    logInsider('reinitWithPartnerName', 'active partner: ' + PARTNER_NAME);
+    logInsider('reinitWithPartnerName', 'requested partner: ' + PARTNER_NAME + ' (same as init, the SDK skips reinit when the partner is unchanged)');
 }
 
 function removeInapp() {
