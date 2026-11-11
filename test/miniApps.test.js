@@ -36,6 +36,35 @@ describe('mini-apps sheet and App Cards console button', () => {
     expect(sheet().hidden).toBe(true);
   });
 
+  test('Android back closes the open sheet', async () => {
+    await click('miniAppsButton');
+    expect(sheet().hidden).toBe(false);
+    document.dispatchEvent(new Event('backbutton'));
+    expect(sheet().hidden).toBe(true);
+  });
+
+  test('back is only intercepted while the sheet is open', async () => {
+    const add = jest.spyOn(document, 'addEventListener');
+    const remove = jest.spyOn(document, 'removeEventListener');
+    try {
+      await click('miniAppsButton');
+      const added = add.mock.calls.filter(([type]) => type === 'backbutton');
+      expect(added).toHaveLength(1);
+      await click('miniAppsBackdrop');
+      expect(remove.mock.calls.filter(([type]) => type === 'backbutton')).toEqual([added[0]]);
+    } finally {
+      add.mockRestore();
+      remove.mockRestore();
+    }
+  });
+
+  test('Escape closes the open sheet', async () => {
+    await click('miniAppsButton');
+    expect(sheet().hidden).toBe(false);
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    expect(sheet().hidden).toBe(true);
+  });
+
   test('App Cards row saves the section scroll position and navigates', async () => {
     // jsdom does no layout and keeps scrollTop at 0, so stub it on the element.
     Object.defineProperty(document.getElementById('playgroundSections'), 'scrollTop', {

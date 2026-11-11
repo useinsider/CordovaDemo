@@ -83,6 +83,9 @@ let app = {
 
         document.getElementById('miniAppsButton').addEventListener('click', openMiniApps);
         document.getElementById('miniAppsBackdrop').addEventListener('click', closeMiniApps);
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && !document.getElementById('miniAppsSheet').hidden) closeMiniApps();
+        });
         document.getElementById('miniAppAppCards').addEventListener('click', openAppCardsPage);
 
         document.getElementById('userAttributes').addEventListener('click', guarded('currentUser', userAttributes));
@@ -474,10 +477,13 @@ async function getAppCardsCampaigns() {
 
 function openMiniApps() {
     document.getElementById('miniAppsSheet').hidden = false;
+    // Cordova Android overrides the hardware back button only while a listener is attached.
+    document.addEventListener('backbutton', closeMiniApps);
 }
 
 function closeMiniApps() {
     document.getElementById('miniAppsSheet').hidden = true;
+    document.removeEventListener('backbutton', closeMiniApps);
 }
 
 function openAppCardsPage() {
