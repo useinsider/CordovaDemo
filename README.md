@@ -14,24 +14,42 @@
 
 ## Description
 
-This Demo contains simple methods that you can use with the Insider SDK.
+This Demo contains simple methods that you can use with the Insider SDK. The home page follows the shared Insider demo design (FlutterDemo):
+
+- an output console under the logo bar: every button writes the SDK call's result (or error) there, so you can check a call without Xcode or logcat; the round button in the logo bar clears it,
+- one section per SDK area (user, events, products, purchase, Smart Recommender, page visits, GDPR, App Cards, Content Optimizer, geofence, in-app messages, wishlist, reinit and more),
+- an **Apps** button that opens the mini-apps sheet; **App Cards** opens the App Cards inbox page.
 
 ## Preview
 
 <table align="center">
-  <tbody>
-    <tr>
-      <td><img src="assets/preview.gif" width="250"></td>
-    </tr>
-  </tbody>
+  <tr>
+    <th colspan="2">iOS</th>
+    <th colspan="2">Android</th>
+  </tr>
+  <tr>
+    <td><img src="assets/readme/ios-home.png" width="200" alt="Home on iOS"></td>
+    <td><img src="assets/readme/ios-mini-apps.png" width="200" alt="Mini-apps sheet on iOS"></td>
+    <td><img src="assets/readme/android-home.png" width="200" alt="Home on Android"></td>
+    <td><img src="assets/readme/android-mini-apps.png" width="200" alt="Mini-apps sheet on Android"></td>
+  </tr>
 </table>
 
+## Requirements
+
+- Node.js 22 and the Cordova CLI 12 (`npm install -g cordova@12`)
+- `cordova-ios` ^6.2.0 and `cordova-android` ^14.0.1 (installed by `npm install`)
+- `cordova-plugin-insider` ^4.1.0 from npm
+- iOS: Xcode and CocoaPods
+- Android: JDK 17 and the Android SDK
 
 ## Installation
 
 Install all npm packages by running the `npm install` command in the home directory.
 
-Replace partner name and app group value in `www/js/index.js` with your info.
+Replace the partner name (`PARTNER_NAME` at the top of `www/js/index.js`) and the app group (in `initInsider`, same file) with your info.
+
+Run the unit tests with `npm test`.
 
 Note: Can easily find the warnings added as comments by searching the `FIXME-INSIDER` key in the project and you can quickly make the necessary arrangements for the project.
 

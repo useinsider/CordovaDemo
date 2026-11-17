@@ -5,13 +5,15 @@ const BUTTON_IDS = [...readWww('index.html').matchAll(/<input[^>]*class="insider
   ([, id]) => id,
 );
 
-const NO_NATIVE_CALL = new Set(['createProduct', 'appCards']);
-
-// iOS-only APIs the plugin JS still sends on Android; the Java side has no branch for them.
-const PLATFORM_ONLY_ACTIONS = {
-  android: new Set(['enableIDFACollection', 'setActiveForegroundPushView']),
-  ios: new Set(),
+// setAllowsBackgroundLocationUpdates is iOS-only: the plugin returns before cordova.exec on Android
+// (plugins/cordova-plugin-insider/www/InsiderPlugin.js), so that button makes no native call there.
+const NO_NATIVE_CALL = {
+  ios: new Set(['createProduct']),
+  android: new Set(['createProduct', 'allowBackgroundLocationUpdates']),
 };
+
+// iOS-only APIs the plugin JS still sends on Android; the Java side rejects them with "Invalid action".
+const IOS_ONLY_ACTIONS = ['enableIDFACollection', 'setActiveForegroundPushView'];
 
 const EXEC_RESULTS = {
   login: 'insider-id-000',
@@ -19,13 +21,14 @@ const EXEC_RESULTS = {
   getAppCardsCampaigns: { items: [] },
   getMessageCenterData: [],
   getSmartRecommendation: {},
+  getSmartRecommendationWithProduct: {},
   getSmartRecommendationWithProductIDs: {},
 };
 
 function describeIndexPage(platformId) {
   const native = platformId === 'android' ? androidActions() : iosActions();
   const unimplemented = (actions) =>
-    actions.filter((action) => !native.has(action) && !PLATFORM_ONLY_ACTIONS[platformId].has(action));
+    actions.filter((action) => !native.has(action));
 
   describe(`index.html on ${platformId}`, () => {
     let page;
@@ -51,12 +54,18 @@ function describeIndexPage(platformId) {
       page.execCalls.length = 0;
       page.handlerErrors.length = 0;
       logs.reset();
+      // Handlers catch their own errors and print them to the on-screen console, so read it back.
+      page.global('clearPlaygroundConsole')();
       document.getElementById(id).click();
       await page.settle();
+      const consoleErrors = document
+        .getElementById('playgroundConsole')
+        .textContent.split('\n')
+        .filter((line) => line.includes('] error:'));
       return {
         actions: page.execCalls.map((call) => call.action),
         services: [...new Set(page.execCalls.map((call) => call.service))],
-        failures: [...page.handlerErrors.map(String), ...logs.errors, ...logs.warnings],
+        failures: [...page.handlerErrors.map(String), ...logs.errors, ...logs.warnings, ...consoleErrors],
       };
     }
 
@@ -73,15 +82,24 @@ function describeIndexPage(platformId) {
       expect([...page.handlerErrors, ...logs.errors, ...logs.warnings]).toEqual([]);
     });
 
+    test('deviceready sends the iOS-only init actions on iOS only', () => {
+      const actions = page.execCalls.map((call) => call.action);
+      if (platformId === 'android') {
+        expect(actions.filter((action) => IOS_ONLY_ACTIONS.includes(action))).toEqual([]);
+      } else {
+        expect(actions).toEqual(expect.arrayContaining(IOS_ONLY_ACTIONS));
+      }
+    });
+
     test('index.html has the expected buttons', () => {
-      expect(BUTTON_IDS).toHaveLength(28);
+      expect(BUTTON_IDS).toHaveLength(36);
       expect(new Set(BUTTON_IDS).size).toBe(BUTTON_IDS.length);
     });
 
     test.each(BUTTON_IDS)('#%s runs without errors and only calls implemented native actions', async (id) => {
       const result = await click(id);
       expect(result.failures).toEqual([]);
-      if (!NO_NATIVE_CALL.has(id)) expect(result.actions.length).toBeGreaterThan(0);
+      if (!NO_NATIVE_CALL[platformId].has(id)) expect(result.actions.length).toBeGreaterThan(0);
       expect(result.services.filter((service) => service !== 'InsiderPlugin')).toEqual([]);
       expect(unimplemented(result.actions)).toEqual([]);
     });
@@ -106,9 +124,9 @@ function describeIndexPage(platformId) {
       expect(window.alert).toHaveBeenCalledWith('Logout successful! New Insider ID: insider-id-001');
     });
 
-    test('appCards saves the scroll position before navigating', async () => {
+    test('the mini-apps App Cards row saves the scroll position before navigating', async () => {
       sessionStorage.removeItem('homeScrollY');
-      await click('appCards');
+      await click('miniAppAppCards');
       expect(sessionStorage.getItem('homeScrollY')).toBe('0');
     });
   });
