@@ -13,7 +13,7 @@ const NO_NATIVE_CALL = {
 };
 
 // iOS-only APIs the plugin JS still sends on Android; the Java side rejects them with "Invalid action".
-const IOS_ONLY_ACTIONS = ['enableIDFACollection', 'setActiveForegroundPushView'];
+const IOS_ONLY_ACTIONS = ['setActiveForegroundPushView'];
 
 const EXEC_RESULTS = {
   login: 'insider-id-000',
