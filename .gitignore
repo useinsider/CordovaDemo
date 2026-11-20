@@ -37,3 +37,7 @@ GoogleService-Info.plist
 *.mobileprovision
 !ci/fixtures/google-services.json
 
+# Local AI tooling output
+docs/superpowers/
+.superpowers/
+.claude/settings.local.json
