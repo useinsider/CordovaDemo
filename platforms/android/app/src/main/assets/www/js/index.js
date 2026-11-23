@@ -159,10 +159,9 @@ async function initInsider() {
 
     await window.Insider.registerWithQuietPermission(false);
     window.Insider.startTrackingGeofence();
-    // The plugin's Android side rejects these iOS-only actions with "Invalid action".
+    // The plugin's Android side rejects this iOS-only action with "Invalid action".
     if (window.cordova.platformId === 'ios') {
         window.Insider.setActiveForegroundPushView();
-        window.Insider.enableIDFACollection(true);
     }
     window.Insider.enableLocationCollection(true);
     window.Insider.enableIpCollection(true);
