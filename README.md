@@ -70,3 +70,7 @@ Note: Can easily find the warnings added as comments by searching the `FIXME-INS
 4. Replace `yourpartnername` in the `insider` URL scheme (`insideryourpartnername`, `config.xml` → `platform ios` → `CFBundleURLTypes`) with your partner name, then run `cordova prepare ios`. (This step is important to add test device with QR or Email in the panel.)
 5. Change APP_GROUP variables value in `InsiderNotificationService/NotificationService.m` and `InsiderNotificationContent/NotificationViewController.m` files.
 6. Run project with `cordova run ios` command. If the default simulator is not installed, pick one explicitly: `cordova run ios --emulator --target="iPhone-17"` (list them with `cordova run ios --list`). 
+
+## License
+
+This demo is released under the MIT License (see `LICENSE`). The Apache Cordova platform code that Cordova copies into `platforms/` (for example `platforms/android/CordovaLib` and `platforms/ios/packages/cordova-ios`) keeps its own Apache License 2.0 notices.
