@@ -56,7 +56,6 @@ interface InsiderPlugin {
     setAllowsBackgroundLocationUpdates(allowsBackgroundLocationUpdates: boolean): void;
     setGDPRConsent(gdprConsent: boolean): void;
     setMobileAppAccess(mobileAppAccess: boolean): void;
-    enableIDFACollection(idfaCollection: boolean): void;
     removeInapp(): void;
     registerWithQuietPermission(booleanValue: boolean): void;
     setPushToken(token: string): void;

@@ -4,7 +4,7 @@ function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Can
 function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
 function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
-function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+function _toPrimitive(t, e) { if ("object" != _typeof(t) || !t) return t; var r; if ("undefined" != typeof Symbol && void 0 !== (r = t[Symbol.toPrimitive])) { var i = r.call(t, e || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === e ? String : Number)(t); }
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -484,6 +484,10 @@ var User = /*#__PURE__*/function () {
         Utils.showParameterWarningLog(this.constructor.name + '-setCustomAttributeWithInt');
         return this;
       }
+      if (Utils.isOutOfInt32Range(value)) {
+        Utils.showIntRangeWarningLog(this.constructor.name + '-setCustomAttributeWithInt');
+        return this;
+      }
       try {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.SET_CUSTOM_ATTRIBUTE_WITH_INT, [key, value]);
       } catch (error) {
@@ -576,6 +580,127 @@ var User = /*#__PURE__*/function () {
       }
       try {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.SET_CUSTOM_ATTRIBUTE_WITH_ARRAY, [key, value]);
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
+    }
+
+    // Appends objects to an array-of-objects custom attribute. Keys that cannot cross the bridge
+    // are dropped from their object, named in a warning, and the rest is still sent.
+  }, {
+    key: "addObjectsToCustomAttribute",
+    value: function addObjectsToCustomAttribute(key, objects) {
+      if (Utils.checkParameters([{
+        type: 'string',
+        value: key
+      }]) || !Array.isArray(objects)) {
+        Utils.showParameterWarningLog(this.constructor.name + '-addObjectsToCustomAttribute');
+        return this;
+      }
+      try {
+        var _Utils$parseObjectArr = Utils.parseObjectArrayWithNestedTypes(objects),
+          typedObjects = _Utils$parseObjectArr.typedObjects,
+          paths = _Utils$parseObjectArr.paths;
+
+        // Nothing survived, so the call would succeed and write nothing; refuse it instead.
+        if (typedObjects.length === 0) {
+          if (paths.length > 0) {
+            Utils.showDroppedValuesWarningLog('addObjectsToCustomAttribute', paths, false);
+          } else {
+            Utils.showParameterWarningLog(this.constructor.name + '-addObjectsToCustomAttribute');
+          }
+          return this;
+        }
+        if (paths.length > 0) {
+          Utils.showDroppedValuesWarningLog('addObjectsToCustomAttribute', paths);
+        }
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.ADD_OBJECTS_TO_CUSTOM_ATTRIBUTE, [key, typedObjects]);
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
+    }
+
+    // Merges `value` into every object matching `match`. A match that lost a key during
+    // serialization would match more objects than requested, so the whole call is refused.
+  }, {
+    key: "mergeObjectsInCustomAttribute",
+    value: function mergeObjectsInCustomAttribute(key, match, value) {
+      if (Utils.checkParameters([{
+        type: 'string',
+        value: key
+      }]) || !Utils.isPlainObject(match) || !Utils.isPlainObject(value)) {
+        Utils.showParameterWarningLog(this.constructor.name + '-mergeObjectsInCustomAttribute');
+        return this;
+      }
+
+      // An explicit empty match is invalid input, not the wildcard.
+      if (Object.keys(match).length === 0) {
+        Utils.showParameterWarningLog(this.constructor.name + '-mergeObjectsInCustomAttribute');
+        return this;
+      }
+      try {
+        var typedMatch = Utils.parseObjectWithNestedTypes(match);
+        if (!Utils.isLosslessTypedObject(match, typedMatch)) {
+          Utils.showLossyMatchWarningLog('mergeObjectsInCustomAttribute', Utils.droppedKeyPaths(match, typedMatch));
+          return this;
+        }
+        var typedValue = Utils.parseObjectWithNestedTypes(value);
+        var valuePaths = Utils.droppedKeyPaths(value, typedValue);
+
+        // A value that serializes to nothing writes nothing, which is a no-op on a
+        // destructive-adjacent API (the match can still rewrite objects). Refuse it loudly
+        // instead of forwarding an empty payload, mirroring the empty-match guard above.
+        if (typedValue.length === 0) {
+          if (valuePaths.length > 0) {
+            Utils.showDroppedValuesWarningLog('mergeObjectsInCustomAttribute', valuePaths, false);
+          } else {
+            Utils.showParameterWarningLog(this.constructor.name + '-mergeObjectsInCustomAttribute');
+          }
+          return this;
+        }
+        if (valuePaths.length > 0) {
+          Utils.showDroppedValuesWarningLog('mergeObjectsInCustomAttribute', valuePaths);
+        }
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.MERGE_OBJECTS_IN_CUSTOM_ATTRIBUTE, [key, typedMatch, typedValue]);
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
+    }
+
+    // Removes every object matching `match`. Omitting the match removes every object of the
+    // attribute, which cannot be undone.
+  }, {
+    key: "removeObjectsFromCustomAttribute",
+    value: function removeObjectsFromCustomAttribute(key, match) {
+      var hasMatch = match !== null && match !== undefined;
+      if (Utils.checkParameters([{
+        type: 'string',
+        value: key
+      }]) || hasMatch && !Utils.isPlainObject(match)) {
+        Utils.showParameterWarningLog(this.constructor.name + '-removeObjectsFromCustomAttribute');
+        return this;
+      }
+
+      // An explicit empty match is invalid input, not the wildcard: only an omitted or null
+      // match reaches the wildcard remove-everything path below.
+      if (hasMatch && Object.keys(match).length === 0) {
+        Utils.showParameterWarningLog(this.constructor.name + '-removeObjectsFromCustomAttribute');
+        return this;
+      }
+      try {
+        if (!hasMatch) {
+          Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.REMOVE_OBJECTS_FROM_CUSTOM_ATTRIBUTE, [key, null]);
+          return this;
+        }
+        var typedMatch = Utils.parseObjectWithNestedTypes(match);
+        if (!Utils.isLosslessTypedObject(match, typedMatch)) {
+          Utils.showLossyMatchWarningLog('removeObjectsFromCustomAttribute', Utils.droppedKeyPaths(match, typedMatch));
+          return this;
+        }
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.REMOVE_OBJECTS_FROM_CUSTOM_ATTRIBUTE, [key, typedMatch]);
       } catch (error) {
         Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
       }

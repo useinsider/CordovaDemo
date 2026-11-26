@@ -10,7 +10,7 @@
 
     <platform name="ios">
         <!-- InsiderMobile 16.x requires iOS 12.2; cordova-ios 6 defaults to 11.0 and pod install fails. -->
-        <preference name="deployment-target" value="12.2" />
+        <preference name="deployment-target" value="15.0" />
         <!-- Cordova regenerates the Podfile on every plugin add/rm and drops the extension targets. -->
         <hook type="after_plugin_add" src="scripts/ios-extension-pods.js" />
         <hook type="after_prepare" src="scripts/ios-extension-pods.js" />

@@ -4,6 +4,7 @@ import {
   InsiderAppCardButton,
 } from './InsiderAppCard';
 import { InsiderAppCardsError } from './InsiderAppCardsError';
+import { Identifier } from './Identifier';
 
 /**
  * Main API for accessing and managing app cards functionality.
@@ -77,6 +78,51 @@ export interface InsiderAppCards {
    * ```
    */
   getCampaigns(): Promise<InsiderAppCardsCampaignResponse>;
+
+  /**
+   * Retrieves the app cards campaigns of the user matching the given identifiers.
+   *
+   * Unlike `getCampaigns`, this does not use the current user. Identifier values are not
+   * validated here; the native SDK decides the result for empty or invalid identifiers.
+   *
+   * @param identifiers - Identifiers built with `Insider.identifier()`; `null` or `undefined` means no identifiers
+   * and resolves an empty response. Any other value fails with `InsiderAppCardsErrorCode.INVALID_PARAMETER`.
+   * @param completion - A completion handler called with an `InsiderAppCardsError` or the campaign response.
+   *
+   * @example
+   * ```typescript
+   * const identifiers = Insider.identifier().addEmail('user@example.com');
+   * Insider.appCards.getCampaignsWithIdentifiers(identifiers, (error, response) => {
+   *   if (error) {
+   *     console.log('Failed:', error.code, error.message);
+   *   } else {
+   *     console.log('App cards:', response.appCards.length);
+   *   }
+   * });
+   * ```
+   */
+  getCampaignsWithIdentifiers(
+    identifiers: Identifier | null | undefined,
+    completion: (
+      error?: InsiderAppCardsError,
+      response?: InsiderAppCardsCampaignResponse
+    ) => void
+  ): void;
+
+  /**
+   * Retrieves the app cards campaigns of the user matching the given identifiers and returns a promise.
+   *
+   * @param identifiers - Identifiers built with `Insider.identifier()`; `null` or omitted means no identifiers.
+   * @returns A Promise that resolves with the campaign response or rejects with an `InsiderAppCardsError`.
+   *
+   * @example
+   * ```typescript
+   * const response = await Insider.appCards.getCampaignsWithIdentifiers(
+   *   Insider.identifier().addUserID('user-1')
+   * );
+   * ```
+   */
+  getCampaignsWithIdentifiers(identifiers?: Identifier | null): Promise<InsiderAppCardsCampaignResponse>;
 
   /**
    * Marks specified app cards as read.

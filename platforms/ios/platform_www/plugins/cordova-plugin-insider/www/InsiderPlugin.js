@@ -7,7 +7,7 @@ function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), 
 function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
-function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+function _toPrimitive(t, e) { if ("object" != _typeof(t) || !t) return t; var r; if ("undefined" != typeof Symbol && void 0 !== (r = t[Symbol.toPrimitive])) { var i = r.call(t, e || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === e ? String : Number)(t); }
 var InsiderProduct = require("./Product");
 var InsiderEvent = require("./Event");
 var InsiderUser = require("./User");
@@ -221,7 +221,7 @@ var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
     }, {
       type: 'object',
       value: endDate
-    }]) || startDate.getTime() >= endDate.getTime()) {
+    }]) || !Number.isFinite(limit) || Utils.isOutOfInt32Range(limit) || !Utils.isValidDate(startDate) || !Utils.isValidDate(endDate) || startDate.getTime() >= endDate.getTime()) {
       Utils.showParameterWarningLog(_this.constructor.name + '-getMessageCenterData');
       return;
     }
@@ -244,7 +244,7 @@ var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
     }, {
       type: 'object',
       value: identifiers
-    }]) || startDate.getTime() >= endDate.getTime()) {
+    }]) || identifiers === null || Array.isArray(identifiers) || !Number.isFinite(limit) || Utils.isOutOfInt32Range(limit) || !Utils.isValidDate(startDate) || !Utils.isValidDate(endDate) || startDate.getTime() >= endDate.getTime()) {
       Utils.showParameterWarningLog(_this.constructor.name + '-getMessageCenterDataWithIdentifiers');
       return;
     }
@@ -584,20 +584,6 @@ var InsiderPlugin = /*#__PURE__*/_createClass(function InsiderPlugin() {
     }
     try {
       Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.SET_MOBILE_APP_ACCESS, [mobileAppAccess.toString().toLowerCase()]);
-    } catch (error) {
-      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
-    }
-  });
-  _defineProperty(this, "enableIDFACollection", function (idfaCollection) {
-    if (Utils.checkParameters([{
-      type: 'boolean',
-      value: idfaCollection
-    }])) {
-      Utils.showParameterWarningLog(_this.constructor.name + '-enableIDFACollection');
-      return;
-    }
-    try {
-      Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.ENABLE_IDFA_COLLECTION, [idfaCollection.toString().toLowerCase()]);
     } catch (error) {
       Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
     }

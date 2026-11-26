@@ -14,8 +14,8 @@
   "license": "MIT",
   "devDependencies": {
     "cordova-android": "^14.0.1",
-    "cordova-ios": "^6.2.0",
-    "cordova-plugin-insider": "^4.1.0",
+    "cordova-ios": "^8.2.0",
+    "cordova-plugin-insider": "^4.2.0",
     "jest": "^30.5.2",
     "jest-environment-jsdom": "^30.5.2"
   },

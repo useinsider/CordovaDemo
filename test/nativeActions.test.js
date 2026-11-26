@@ -16,8 +16,7 @@ describe('native action lookup', () => {
 
   test('Android lookup resolves literals, Constants.java and InsiderHybridMethods references', () => {
     const android = androidActions();
-    expect(android.literals.size).toBeGreaterThan(30);
-    expect(android.hybridMethodNames.size).toBeGreaterThan(30);
+    expect(android.literals.size + android.hybridMethodNames.size).toBeGreaterThan(80);
     expect(android.has('init')).toBe(true);
     expect(android.has('handleNotification')).toBe(true);
     expect(android.has('tagEvent')).toBe(true);

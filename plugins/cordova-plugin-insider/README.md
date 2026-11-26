@@ -21,20 +21,92 @@ cordova plugin add cordova-plugin-insider
 | Platform | Minimum |
 |----------|---------|
 | Cordova | `>=7.0.0` |
-| cordova-android | `>=6.3.0` |
-| cordova-ios | `>=4.3.0` |
+| cordova-android | `>=13.0.0` |
+| cordova-ios | `>=7.0.0` |
 | Android | `minSdk 24`, `compileSdk 36` |
-| iOS | deployment target `12.2` |
+| iOS | deployment target `13.0` (CocoaPods and Swift Package Manager) |
 
-On iOS the pods are pinned by the plugin (`InsiderMobile 16.2.1`,
-`InsiderGeofence 1.3.0`, `InsiderHybrid 1.8.0`). InsiderMobile 16 needs iOS 12.2,
-so set `<preference name="deployment-target" value="12.2" />` in your app's
-`config.xml` (cordova-ios 6 and 7 default to 11.0 and `pod install` fails).
-After adding the platform, run:
+On iOS the plugin installs the Insider SDKs through one of two channels,
+chosen by your `cordova-ios` version. You do not need to configure anything.
 
-```bash
-cd platforms/ios && pod install
-```
+| cordova-ios | Channel | What you do |
+|-------------|---------|-------------|
+| `>=8.0.0` | Swift Package Manager (`Package.swift`) | Use `cordova-plugin-insider` `4.2.0` or later. Set the iOS deployment target to `13.0` or later. Xcode resolves the package on build; CocoaPods is not needed for Insider. |
+| `<8.0.0` | CocoaPods (`InsiderMobile 16.5.1`, `InsiderGeofence 1.3.0`) | Set the iOS deployment target to `13.0` or later, then run `cd platforms/ios && pod install` after adding the platform. |
+
+InsiderMobile 16.5 needs iOS 13.0, so on the CocoaPods channel set
+`<preference name="deployment-target" value="13.0" />` in your app's
+`config.xml` (cordova-ios 6 and 7 default to 11.0). If `pod install` fails
+with a platform-version error after you upgrade the plugin, your app is still
+below 13.0: set this preference and run `pod install` again.
+
+### Moving to Swift Package Manager
+
+CocoaPods trunk becomes read-only on December 2, 2026. Apps that use CocoaPods
+keep building and published pods stay installable, but new Insider iOS SDK
+versions ship only through Swift Package Manager, so we recommend moving to
+`cordova-ios` 8. Android is not affected.
+
+Requirements: `cordova-plugin-insider` `4.2.0` or later, `cordova-ios` `8.0.0`
+or later, Node.js `20.17.0` or later on Node 20 (or
+`22.9.0` or later), and an iOS deployment target of `13.0` or later. With
+Xcode 27 or later, `cordova-ios` 8 raises the deployment target to `15.0`.
+
+1. **Back up your extensions.** `cordova platform rm ios` deletes
+   `platforms/ios`, including Notification Service and Content extension
+   targets you added in Xcode. Back up their folders (source, `Info.plist`,
+   bridging header, entitlements) and note their bundle IDs, App Group and
+   signing.
+2. **Move to cordova-ios 8.** Set
+   `<preference name="deployment-target" value="13.0" />` in `config.xml`,
+   update this plugin, then:
+
+   ```bash
+   cordova platform rm ios
+   cordova platform add ios@8
+   ```
+
+   The Insider pods are no longer in the `Podfile`; the SDK arrives through
+   Swift Package Manager. cordova-ios 8 names the Xcode project and app target
+   `App`.
+3. **Notification extensions** (only if you use them):
+   - Add the `InsiderMobileAdvancedNotification` library of the Insider iOS
+     SDK package to the **`App` target** (Up to Next Major Version, minimum
+     `2.5.1`). Add nothing to the extension targets: a library added only to
+     the extensions is not embedded, and the extensions crash at launch. The
+     plugin does not add this library for you.
+   - Add the extension targets again and copy back their code; the code does
+     not change.
+   - Run `cordova build ios` once, then copy `InsiderInterface.storyboard`
+     from
+     `~/Library/Developer/Xcode/DerivedData/App-*/SourcePackages/checkouts/Insider-iOS-SDK/`
+     into the Content extension target. The package does not add it. Open
+     the storyboard and check **Inherit Module From Target** in the Identity
+     Inspector.
+4. **Clean build.** Delete `~/Library/Developer/Xcode/DerivedData/App-*` and
+   run `cordova build ios`. Repeat whenever the native SDK version changes.
+5. **Verify.** After `cordova build ios --emulator`,
+   `platforms/ios/build/Debug-iphonesimulator/<YourAppName>.app/Frameworks`
+   contains `InsiderMobile`, `InsiderGeofence` and (with extensions)
+   `InsiderMobileAdvancedNotification`, and `platforms/ios/Podfile` has no
+   Insider pod. Then test rich and interactive push on a physical device.
+
+**Rollback.** Run `cordova platform rm ios` and `cordova platform add ios@7`,
+then add the extension targets again without the copied storyboard (the pod
+ships it). In `platforms/ios/Podfile`, put `use_frameworks!` at the top and add
+`pod 'InsiderMobileAdvancedNotification'` with `inherit! :search_paths` to both
+extension targets. Run `pod install` and build from the `.xcworkspace`.
+`cordova build` regenerates the Podfile and drops the extension blocks; restore
+them and run `pod install` again after each build.
+
+| Symptom | Fix |
+|---------|-----|
+| `unable to resolve module dependency: 'InsiderMobileAdvancedNotification'` | Add the library to the `App` target. |
+| Extension crashes: `dyld: Library not loaded: @rpath/InsiderMobileAdvancedNotification.framework` | Move the library from the extension targets to `App`. |
+| Content extension crashes; push shows without its image | Copy `InsiderInterface.storyboard` into the Content extension target. |
+| `Insider.h has been modified since the module file … was built` | Delete `DerivedData/App-*` and build again. |
+| Rollback: `Cycle inside NotificationContent` | Remove the copied storyboard; the pod provides it. |
+| Rollback: `InsiderPushNotification.h' file not found` after `cordova build` | Restore the extension blocks in the Podfile and run `pod install`. |
 
 On Android the plugin pulls in Firebase Messaging, Google Play Services
 location and Huawei HMS push as transitive dependencies. The
@@ -112,11 +184,18 @@ Insider.initWithCustomEndpoint('YOUR_PARTNER_NAME', 'group.com.example.app', 'ht
 | Content optimizer | `getContentStringWithName`, `getContentIntWithName`, `getContentBoolWithName`, `markContentOptimizerAsSeen` |
 | Push notifications | `setPushToken` (Android), `handleNotification`, `setForegroundPushCallback` (iOS) |
 | Message center | `getMessageCenterData`, `getMessageCenterDataWithIdentifiers` |
-| App Cards | `Insider.appCards` → `getCampaigns`, `markAsRead`, `view`, `click`, `clickButton`, `delete` |
+| App Cards | `Insider.appCards` → `getCampaigns`, `getCampaignsWithIdentifiers`, `markAsRead`, `view`, `click`, `clickButton`, `delete` |
 | In-app messages | `enableInAppMessages`, `disableInAppMessages`, `removeInapp` |
 | Geofencing | `startTrackingGeofence` |
-| GDPR / privacy | `setGDPRConsent`, `setMobileAppAccess`, `enableIDFACollection`, `enableIpCollection`, `enableLocationCollection`, `enableCarrierCollection` |
+| GDPR / privacy | `setGDPRConsent`, `setMobileAppAccess`, `enableIpCollection`, `enableLocationCollection`, `enableCarrierCollection` |
 | Insider ID | `getInsiderID`, `registerInsiderIDListener` |
+
+**Breaking:** `enableIDFACollection` was removed on every platform, so no IDFA is collected through
+the plugin; remove any call to it when upgrading.
+
+**Breaking (iOS):** the plugin no longer requests App Tracking Transparency permission. An app that
+relied on it to show the ATT prompt must now request that permission itself
+(`ATTrackingManager.requestTrackingAuthorization`).
 
 TypeScript definitions for the full surface ship with the package under
 `types/`.

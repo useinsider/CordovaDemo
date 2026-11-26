@@ -19,7 +19,7 @@
   },
   "installed_plugins": {
     "cordova-plugin-insider": {
-      "PACKAGE_NAME": "com.useinsider.cordovademo.InsiderNotificationService"
+      "PACKAGE_NAME": "com.useinsider.cordovademo"
     }
   },
   "dependent_plugins": {},
@@ -104,6 +104,6 @@
     }
   ],
   "plugin_metadata": {
-    "cordova-plugin-insider": "4.1.0"
+    "cordova-plugin-insider": "4.2.0"
   }
 }

@@ -3,6 +3,7 @@
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 var Utils = require('./Utils');
 var Constants = require('./Constants');
+var Identifier = require('./Identifier');
 var _require = require('./InsiderAppCard'),
   InsiderAppCardsCampaignResponse = _require.InsiderAppCardsCampaignResponse,
   InsiderAppCard = _require.InsiderAppCard,
@@ -26,6 +27,30 @@ var InsiderAppCards = Object.freeze({
   getCampaigns: function getCampaigns(completion) {
     var promise = new Promise(function (resolve, reject) {
       Utils.asyncExec(Constants.CLASS, Constants.GET_APP_CARDS_CAMPAIGNS, []).then(function (result) {
+        resolve(new InsiderAppCardsCampaignResponse(result));
+      }).catch(function (error) {
+        reject(InsiderAppCardsError.from(error));
+      });
+    });
+    return Utils.resolveWithCallback(promise, completion);
+  },
+  /**
+   * Retrieves the app cards campaigns of the user matching the given identifiers.
+   *
+   * @param {Identifier|null} [identifiers] - Identifiers built with `Insider.identifier()`; `null` or omitted means no identifiers.
+   * @param {Function} [completion] - Completion handler.
+   * @returns {Promise<InsiderAppCardsCampaignResponse>|undefined}
+   */
+  getCampaignsWithIdentifiers: function getCampaignsWithIdentifiers(identifiers, completion) {
+    var promise = new Promise(function (resolve, reject) {
+      if (identifiers != null && !(identifiers instanceof Identifier)) {
+        reject(new InsiderAppCardsError(InsiderAppCardsErrorCode.INVALID_PARAMETER, 'identifiers must be an Insider.identifier() instance or null/undefined.'));
+        return;
+      }
+
+      // Identifier contents are left to native, which decides the result for empty or invalid values.
+      var identifiersMap = identifiers == null ? null : identifiers.getIdentifiers();
+      Utils.asyncExec(Constants.CLASS, Constants.GET_APP_CARDS_CAMPAIGNS_WITH_IDENTIFIERS, [identifiersMap]).then(function (result) {
         resolve(new InsiderAppCardsCampaignResponse(result));
       }).catch(function (error) {
         reject(InsiderAppCardsError.from(error));

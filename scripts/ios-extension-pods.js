@@ -15,8 +15,18 @@ module.exports = function (context) {
         return;
     }
 
+    const iosDir = path.dirname(podfile);
+    const project = fs.readdirSync(iosDir).find((entry) => entry.endsWith('.xcodeproj'));
+    const pbxproj = project ? fs.readFileSync(path.join(iosDir, project, 'project.pbxproj'), 'utf8') : '';
     const content = fs.readFileSync(podfile, 'utf8');
-    const missing = EXTENSION_TARGETS.filter((target) => !content.includes(`target '${target}'`));
+    // A freshly added platform has no extension targets yet, and pod install fails on a target it cannot find.
+    const absent = EXTENSION_TARGETS.filter((target) => !pbxproj.includes(`name = ${target};`));
+    if (absent.length > 0) {
+        console.warn(`[ios-extension-pods] ${absent.join(', ')} not in the Xcode project: rich push will not work. ` +
+            'Run `ruby scripts/ios-extension-targets.rb`, then `cordova prepare ios`.');
+    }
+    const missing = EXTENSION_TARGETS.filter((target) =>
+        !content.includes(`target '${target}'`) && !absent.includes(target));
 
     if (missing.length === 0) {
         return;

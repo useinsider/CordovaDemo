@@ -80,6 +80,6 @@ cordova.define('cordova/plugin_list', function(require, exports, module) {
     }
   ];
   module.exports.metadata = {
-    "cordova-plugin-insider": "4.1.0"
+    "cordova-plugin-insider": "4.2.0"
   };
 });

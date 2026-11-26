@@ -28,9 +28,6 @@ import com.useinsider.insider.InsiderProduct;
 import com.useinsider.insider.InsiderUser;
 import com.useinsider.insider.MessageCenterData;
 import com.useinsider.insider.RecommendationEngine;
-import com.useinsider.insiderhybrid.InsiderHybrid;
-import com.useinsider.insiderhybrid.InsiderHybridUtils;
-import com.useinsider.insiderhybrid.constants.InsiderHybridMethods;
 import com.useinsider.insider.InsiderIDListener;
 import com.useinsider.insider.InsiderEventListener;
 import com.useinsider.insider.InsiderAppCardButton;
@@ -613,7 +610,7 @@ public class InsiderPlugin extends CordovaPlugin {
                 Insider.Instance.markContentOptimizerAsSeen(args.getString(0));
             } else if (action.equals("removeInapp")) {
                 Insider.Instance.removeInapp(this.cordova.getActivity());
-            } else if (action.equals(InsiderHybridMethods.ITEM_PURCHASED)) {
+            } else if (action.equals(Constants.ITEM_PURCHASED)) {
                 if (args.get(0) == null || args.getString(1) == null || args.getString(2) == null || args.get(3) == null)
                     return false;
 
@@ -639,7 +636,7 @@ public class InsiderPlugin extends CordovaPlugin {
                         }
                     }
                 });
-            } else if (action.equals(InsiderHybridMethods.ITEM_ADDED_TO_CART)) {
+            } else if (action.equals(Constants.ITEM_ADDED_TO_CART)) {
                 if (args.get(0) == null || args.getString(1) == null || args.get(2) == null)
                     return false;
 
@@ -665,7 +662,7 @@ public class InsiderPlugin extends CordovaPlugin {
                         }
                     }
                 });
-            } else if (action.equals(InsiderHybridMethods.ITEM_REMOVED_FROM_CART)) {
+            } else if (action.equals(Constants.ITEM_REMOVED_FROM_CART)) {
                 if (args.get(0) == null)
                     return false;
 
@@ -691,7 +688,7 @@ public class InsiderPlugin extends CordovaPlugin {
                         }
                     }
                 });
-            } else if (action.equals(InsiderHybridMethods.CART_CLEARED)) {
+            } else if (action.equals(Constants.CART_CLEARED)) {
                 cordova.getThreadPool().execute(new Runnable() {
                     @Override
                     public void run() {
@@ -710,7 +707,7 @@ public class InsiderPlugin extends CordovaPlugin {
                         }
                     }
                 });
-            } else if (action.equals(InsiderHybridMethods.GET_MESSAGE_CENTER_DATA)) {
+            } else if (action.equals(Constants.GET_MESSAGE_CENTER_DATA)) {
                 if (args.get(0) == null || args.get(1) == null || args.get(2) == null)
                     return false;
 
@@ -720,13 +717,13 @@ public class InsiderPlugin extends CordovaPlugin {
                         long startDateEpoch = Long.parseLong(args.getString(1));
                         long endDateEpoch = Long.parseLong(args.getString(2));
 
-                        InsiderHybrid.getMessageCenterData(limit, startDateEpoch, endDateEpoch, new MessageCenterData() {
+                        CDVUtils.getMessageCenterData(limit, startDateEpoch, endDateEpoch, new MessageCenterData() {
                             @Override
                             public void loadMessageCenterData(JSONArray jsonArray) {
                                 callbackSuccess(callbackContext, jsonArray.toString());
                             }
                         });
-                    } catch (JSONException e) {
+                    } catch (Exception e) {
                         callbackFailure(callbackContext, e.toString());
                         Insider.Instance.putException(e);
                     }
@@ -754,14 +751,35 @@ public class InsiderPlugin extends CordovaPlugin {
                                         callbackSuccess(callbackContext, jsonArray.toString());
                                     }
                                 });
-                    } catch (JSONException e) {
+                    } catch (Exception e) {
                         callbackFailure(callbackContext, e.toString());
+                        Insider.Instance.putException(e);
                     }
                 });
             } else if (action.equals("getAppCardsCampaigns")) {
                 cordova.getThreadPool().execute(() -> {
                     try {
                         Insider.Instance.appCards().getCampaigns((responseObject, error) -> {
+                            if (error != null || responseObject == null) {
+                                callbackFailure(callbackContext, CDVUtils.appCardsErrorToJSON(error != null ? error : new Exception("Unknown error.")));
+                            } else {
+                                JSONObject jsonObject = responseObject.toJSONObject();
+                                callbackSuccess(callbackContext, jsonObject);
+                            }
+                        });
+                    } catch (Exception e) {
+                        callbackFailure(callbackContext, CDVUtils.appCardsErrorToJSON(e));
+                        Insider.Instance.putException(e);
+                    }
+                });
+            } else if (action.equals("getAppCardsCampaignsWithIdentifiers")) {
+                cordova.getThreadPool().execute(() -> {
+                    try {
+                        InsiderIdentifiers insiderIdentifiers = args.isNull(0)
+                                ? null
+                                : buildInsiderIdentifiers(CDVUtils.convertJSONToMap(args.getString(0)));
+
+                        Insider.Instance.appCards().getCampaigns(insiderIdentifiers, (responseObject, error) -> {
                             if (error != null || responseObject == null) {
                                 callbackFailure(callbackContext, CDVUtils.appCardsErrorToJSON(error != null ? error : new Exception("Unknown error.")));
                             } else {
@@ -901,7 +919,7 @@ public class InsiderPlugin extends CordovaPlugin {
                         Insider.Instance.putException(e);
                     }
                 });
-            } else if (action.equals(InsiderHybridMethods.GET_SMART_RECOMMENDATION)) {
+            } else if (action.equals(Constants.GET_SMART_RECOMMENDATION)) {
                 if (args.get(0) == null || args.get(1) == null || args.get(2) == null)
                     return false;
 
@@ -920,7 +938,7 @@ public class InsiderPlugin extends CordovaPlugin {
                         Insider.Instance.putException(e);
                     }
                 });
-            } else if (action.equals(InsiderHybridMethods.GET_SMART_RECOMMENDATION_WITH_PRODUCT)) {
+            } else if (action.equals(Constants.GET_SMART_RECOMMENDATION_WITH_PRODUCT)) {
                 if (args.get(0) == null || args.get(1) == null || args.get(2) == null || args.get(3) == null || args.get(4) == null)
                     return false;
 
@@ -974,7 +992,7 @@ public class InsiderPlugin extends CordovaPlugin {
                         }
                     }
                 });
-            } else if (action.equals(InsiderHybridMethods.CLICK_SMART_RECOMMENDATION_PRODUCT)) {
+            } else if (action.equals(Constants.CLICK_SMART_RECOMMENDATION_PRODUCT)) {
                 if (args.get(0) == null || args.get(1) == null || args.get(2) == null || args.get(3) == null)
                     return false;
 
@@ -994,7 +1012,7 @@ public class InsiderPlugin extends CordovaPlugin {
                         }
                     }
                 });
-            } else if (action.equals(InsiderHybridMethods.TAG_EVENT)) {
+            } else if (action.equals(Constants.TAG_EVENT)) {
                 if (args.get(0) == null)
                     return false;
 
@@ -1017,7 +1035,7 @@ public class InsiderPlugin extends CordovaPlugin {
                     }
                 });
 
-            } else if (action.equals(InsiderHybridMethods.VISIT_HOME_PAGE)) {
+            } else if (action.equals(Constants.VISIT_HOME_PAGE)) {
                 cordova.getThreadPool().execute(new Runnable() {
                     @Override
                     public void run() {
@@ -1036,7 +1054,7 @@ public class InsiderPlugin extends CordovaPlugin {
                         }
                     }
                 });
-            } else if (action.equals(InsiderHybridMethods.VISIT_LISTING_PAGE)) {
+            } else if (action.equals(Constants.VISIT_LISTING_PAGE)) {
                 if (args.get(0) == null)
                     return false;
 
@@ -1059,7 +1077,7 @@ public class InsiderPlugin extends CordovaPlugin {
                         }
                     }
                 });
-            } else if (action.equals(InsiderHybridMethods.VISIT_PRODUCT_DETAIL_PAGE)) {
+            } else if (action.equals(Constants.VISIT_PRODUCT_DETAIL_PAGE)) {
                 if (args.get(0) == null || args.get(1) == null || args.get(2) == null)
                     return false;
 
@@ -1085,7 +1103,7 @@ public class InsiderPlugin extends CordovaPlugin {
                         }
                     }
                 });
-            } else if (action.equals(InsiderHybridMethods.VISIT_CART_PAGE)) {
+            } else if (action.equals(Constants.VISIT_CART_PAGE)) {
                 if (args.get(0) == null)
                     return false;
 
@@ -1132,12 +1150,12 @@ public class InsiderPlugin extends CordovaPlugin {
                         }
                     }
                 });
-            } else if (action.equals(InsiderHybridMethods.SET_GENDER)) {
+            } else if (action.equals(Constants.SET_GENDER)) {
                 if (args.get(0) == null)
                     return false;
 
-                InsiderHybrid.setGender((args.getInt(0)));
-            } else if (action.equals(InsiderHybridMethods.SET_BIRTHDAY)) {
+                CDVUtils.setGender((args.getInt(0)));
+            } else if (action.equals(Constants.SET_BIRTHDAY)) {
                 if (args.get(0) == null)
                     return false;
 
@@ -1146,42 +1164,42 @@ public class InsiderPlugin extends CordovaPlugin {
                 long birthdayEpoch = Long.parseLong(epochString);
                 Date birthdayDate = new Date(birthdayEpoch);
                 Insider.Instance.getCurrentUser().setBirthday(birthdayDate);
-            } else if (action.equals(InsiderHybridMethods.SET_NAME)) {
+            } else if (action.equals(Constants.SET_NAME)) {
                 if (args.get(0) == null)
                     return false;
 
                 Insider.Instance.getCurrentUser().setName(args.getString(0));
-            } else if (action.equals(InsiderHybridMethods.SET_SURNAME)) {
+            } else if (action.equals(Constants.SET_SURNAME)) {
                 if (args.get(0) == null)
                     return false;
 
                 Insider.Instance.getCurrentUser().setSurname(args.getString(0));
-            } else if (action.equals(InsiderHybridMethods.SET_AGE)) {
+            } else if (action.equals(Constants.SET_AGE)) {
                 if (args.get(0) == null)
                     return false;
 
                 Insider.Instance.getCurrentUser().setAge(args.getInt(0));
-            } else if (action.equals(InsiderHybridMethods.SET_SMS_OPTIN)) {
+            } else if (action.equals(Constants.SET_SMS_OPTIN)) {
                 if (args.get(0) == null)
                     return false;
 
                 Insider.Instance.getCurrentUser().setSMSOptin(args.getBoolean(0));
-            } else if (action.equals(InsiderHybridMethods.SET_EMAIL_OPTIN)) {
+            } else if (action.equals(Constants.SET_EMAIL_OPTIN)) {
                 if (args.get(0) == null)
                     return false;
 
                 Insider.Instance.getCurrentUser().setEmailOptin(args.getBoolean(0));
-            } else if (action.equals(InsiderHybridMethods.SET_PUSH_OPTIN)) {
+            } else if (action.equals(Constants.SET_PUSH_OPTIN)) {
                 if (args.get(0) == null)
                     return false;
 
                 Insider.Instance.getCurrentUser().setPushOptin(args.getBoolean(0));
-            } else if (action.equals(InsiderHybridMethods.SET_LOCATION_OPTIN)) {
+            } else if (action.equals(Constants.SET_LOCATION_OPTIN)) {
                 if (args.get(0) == null)
                     return false;
 
                 Insider.Instance.getCurrentUser().setLocationOptin(args.getBoolean(0));
-            } else if (action.equals(InsiderHybridMethods.SET_WHATSAPP_OPTIN)) {
+            } else if (action.equals(Constants.SET_WHATSAPP_OPTIN)) {
                 if (args.get(0) == null)
                     return false;
 
@@ -1191,47 +1209,55 @@ public class InsiderPlugin extends CordovaPlugin {
                     return false;
 
                 Insider.Instance.getCurrentUser().setPromotionalOptin(args.getBoolean(0));
-            } else if (action.equals(InsiderHybridMethods.SET_LANGUAGE)) {
+            } else if (action.equals(Constants.SET_LANGUAGE)) {
                 if (args.get(0) == null)
                     return false;
 
                 Insider.Instance.getCurrentUser().setLanguage(args.getString(0));
-            } else if (action.equals(InsiderHybridMethods.SET_LOCALE)) {
+            } else if (action.equals(Constants.SET_LOCALE)) {
                 if (args.get(0) == null)
                     return false;
 
                 Insider.Instance.getCurrentUser().setLocale(args.getString(0));
-            } else if (action.equals(InsiderHybridMethods.SET_FACEBOOK_ID)) {
+            } else if (action.equals(Constants.SET_FACEBOOK_ID)) {
                 if (args.get(0) == null)
                     return false;
 
                 Insider.Instance.getCurrentUser().setFacebookID(args.getString(0));
-            } else if (action.equals(InsiderHybridMethods.SET_TWITTER_ID)) {
+            } else if (action.equals(Constants.SET_TWITTER_ID)) {
                 if (args.get(0) == null)
                     return false;
 
                 Insider.Instance.getCurrentUser().setTwitterID(args.getString(0));
-            } else if (action.equals(InsiderHybridMethods.SET_CUSTOM_ATTRIBUTE_WITH_STRING)) {
+            } else if (action.equals(Constants.SET_CUSTOM_ATTRIBUTE_WITH_STRING)) {
                 if (args.get(0) == null || args.get(1) == null)
                     return false;
 
                 Insider.Instance.getCurrentUser().setCustomAttributeWithString(args.getString(0), args.getString(1));
-            } else if (action.equals(InsiderHybridMethods.SET_CUSTOM_ATTRIBUTE_WITH_DOUBLE)) {
+            } else if (action.equals(Constants.SET_CUSTOM_ATTRIBUTE_WITH_DOUBLE)) {
                 if (args.get(0) == null || args.get(1) == null)
                     return false;
 
                 Insider.Instance.getCurrentUser().setCustomAttributeWithDouble(args.getString(0), args.getDouble(1));
-            } else if (action.equals(InsiderHybridMethods.SET_CUSTOM_ATTRIBUTE_WITH_INT)) {
+            } else if (action.equals(Constants.SET_CUSTOM_ATTRIBUTE_WITH_INT)) {
                 if (args.get(0) == null || args.get(1) == null)
                     return false;
 
-                Insider.Instance.getCurrentUser().setCustomAttributeWithInt(args.getString(0), args.getInt(1));
-            } else if (action.equals(InsiderHybridMethods.SET_CUSTOM_ATTRIBUTE_WITH_BOOLEAN)) {
+                // setCustomAttributeWithInt takes an int; getInt would wrap a larger value silently.
+                long intAttributeValue = args.getLong(1);
+                if (CDVUtils.isOutOfIntRange(intAttributeValue)) {
+                    Insider.Instance.putException(new IllegalArgumentException(
+                            "setCustomAttributeWithInt: value is outside the int range"));
+                    return false;
+                }
+
+                Insider.Instance.getCurrentUser().setCustomAttributeWithInt(args.getString(0), (int) intAttributeValue);
+            } else if (action.equals(Constants.SET_CUSTOM_ATTRIBUTE_WITH_BOOLEAN)) {
                 if (args.get(0) == null || args.get(1) == null)
                     return false;
 
                 Insider.Instance.getCurrentUser().setCustomAttributeWithBoolean(args.getString(0), args.getBoolean(1));
-            } else if (action.equals(InsiderHybridMethods.SET_CUSTOM_ATTRIBUTE_WITH_DATE)) {
+            } else if (action.equals(Constants.SET_CUSTOM_ATTRIBUTE_WITH_DATE)) {
                 if (args.get(0) == null || args.get(1) == null)
                     return false;
                 // value is epoch milliseconds as string
@@ -1240,19 +1266,98 @@ public class InsiderPlugin extends CordovaPlugin {
                 Date dateValue = new Date(dateEpoch);
                 
                 Insider.Instance.getCurrentUser().setCustomAttributeWithDate(args.getString(0), dateValue);
-            } else if (action.equals(InsiderHybridMethods.SET_CUSTOM_ATTRIBUTE_WITH_ARRAY)) {
+            } else if (action.equals(Constants.SET_CUSTOM_ATTRIBUTE_WITH_ARRAY)) {
                 if (args.get(0) == null || args.get(1) == null)
                     return false;
 
                 ArrayList<String> arrayList = CDVUtils.convertJSONToArrayList(args.getString(1));
 
                 Insider.Instance.getCurrentUser().setCustomAttributeWithArray(args.getString(0), arrayList.toArray(new String[arrayList.size()]));
-            } else if (action.equals(InsiderHybridMethods.UNSET_CUSTOM_ATTRIBUTE)) {
+            } else if (action.equals(Constants.ADD_OBJECTS_TO_CUSTOM_ATTRIBUTE)) {
+                if (args.get(0) == null || args.get(1) == null)
+                    return false;
+
+                List<Map<String, Object>> objects = CDVUtils.parseCustomParametersList(args.getJSONArray(1));
+
+                // Native backstop for the JS refusal of a payload with nothing to append.
+                if (objects.isEmpty()) {
+                    Insider.Instance.putException(new IllegalArgumentException(
+                            "addObjectsToCustomAttribute: objects must not be empty"));
+                    return false;
+                }
+
+                Insider.Instance.getCurrentUser().addObjectsToCustomAttribute(args.getString(0), objects);
+            } else if (action.equals(Constants.MERGE_OBJECTS_IN_CUSTOM_ATTRIBUTE)) {
+                if (args.get(0) == null || args.get(1) == null || args.get(2) == null)
+                    return false;
+
+                JSONArray matchArray = args.getJSONArray(1);
+
+                // An explicit empty match is invalid input, not the wildcard.
+                if (matchArray.length() == 0) {
+                    Insider.Instance.putException(new IllegalArgumentException(
+                            "mergeObjectsInCustomAttribute: match must not be empty"));
+                    return false;
+                }
+
+                // A match that decoded to fewer keys than it carried, at any level, would merge
+                // into objects the caller never targeted, so refuse the call instead of widening it.
+                if (!CDVUtils.isLosslessMatch(matchArray)) {
+                    Insider.Instance.putException(new IllegalArgumentException(
+                            "mergeObjectsInCustomAttribute: match contains an invalid entry"));
+                    return false;
+                }
+
+                Map<String, Object> match = CDVUtils.parseCustomParameters(matchArray);
+
+                // Checked on the decoded map, not the raw array: entries that fail to decode leave
+                // the array non-empty while the value that reaches the SDK is empty.
+                Map<String, Object> value = CDVUtils.parseCustomParameters(args.getJSONArray(2));
+
+                // Native backstop for the JS empty-value refusal.
+                if (value.isEmpty()) {
+                    Insider.Instance.putException(new IllegalArgumentException(
+                            "mergeObjectsInCustomAttribute: value must not be empty"));
+                    return false;
+                }
+
+                Insider.Instance.getCurrentUser().mergeObjectsInCustomAttribute(
+                        args.getString(0), match, value);
+            } else if (action.equals(Constants.REMOVE_OBJECTS_FROM_CUSTOM_ATTRIBUTE)) {
+                if (args.get(0) == null)
+                    return false;
+
+                if (args.isNull(1)) {
+                    // A missing match is the native wildcard remove: every object of the attribute.
+                    Insider.Instance.getCurrentUser().removeObjectsFromCustomAttribute(args.getString(0));
+                } else {
+                    JSONArray removeMatchArray = args.getJSONArray(1);
+
+                    // An explicit empty match is invalid input, not the wildcard; only the
+                    // args.isNull(1) branch above reaches it.
+                    if (removeMatchArray.length() == 0) {
+                        Insider.Instance.putException(new IllegalArgumentException(
+                                "removeObjectsFromCustomAttribute: match must not be empty"));
+                        return false;
+                    }
+
+                    // Same fail-closed guard as merge: a widened match deletes untargeted objects.
+                    if (!CDVUtils.isLosslessMatch(removeMatchArray)) {
+                        Insider.Instance.putException(new IllegalArgumentException(
+                                "removeObjectsFromCustomAttribute: match contains an invalid entry"));
+                        return false;
+                    }
+
+                    Map<String, Object> removeMatch = CDVUtils.parseCustomParameters(removeMatchArray);
+
+                    Insider.Instance.getCurrentUser().removeObjectsFromCustomAttribute(args.getString(0), removeMatch);
+                }
+            } else if (action.equals(Constants.UNSET_CUSTOM_ATTRIBUTE)) {
                 if (args.get(0) == null)
                     return false;
                 Insider.Instance.getCurrentUser().unsetCustomAttribute(args.getString(0));
 
-            } else if (action.equals(InsiderHybridMethods.LOGIN)) {
+            } else if (action.equals(Constants.LOGIN)) {
                 if (args.get(0) == null) {
                     return false;
                 }
@@ -1263,13 +1368,13 @@ public class InsiderPlugin extends CordovaPlugin {
 
                 for (String key : identifiers.keySet()) {
                     switch (key) {
-                        case InsiderHybridMethods.ADD_EMAIL:
+                        case Constants.ADD_EMAIL:
                             insiderIdentifiers.addEmail(String.valueOf(identifiers.get(key)));
                             break;
-                        case InsiderHybridMethods.ADD_PHONE_NUMBER:
+                        case Constants.ADD_PHONE_NUMBER:
                             insiderIdentifiers.addPhoneNumber(String.valueOf(identifiers.get(key)));
                             break;
-                        case InsiderHybridMethods.ADD_USER_ID:
+                        case Constants.ADD_USER_ID:
                             insiderIdentifiers.addUserID(String.valueOf(identifiers.get(key)));
                             break;
                         default:
@@ -1292,9 +1397,8 @@ public class InsiderPlugin extends CordovaPlugin {
                 }
 
                 Insider.Instance.getCurrentUser().login(insiderIdentifiers);
-            } else if (action.equals(InsiderHybridMethods.LOGOUT)) {
+            } else if (action.equals(Constants.LOGOUT)) {
                 Insider.Instance.getCurrentUser().logout();
-            // TODO: Use InsiderHybridMethods.LOGOUT_RESETTING_INSIDER_ID constant when insiderhybrid is upgraded to version with this constant
             } else if (action.equals("logoutResettingInsiderID")) {
                 InsiderIdentifiers[] identifiers = null;
 
@@ -1414,7 +1518,7 @@ public class InsiderPlugin extends CordovaPlugin {
                     }
                 });
 
-            } else if (action.equals(InsiderHybridMethods.REGISTER_WITH_QUIET_PERMISSION)) {
+            } else if (action.equals(Constants.REGISTER_WITH_QUIET_PERMISSION)) {
                 return true;
             } else if (action.equals("signUpConfirmation")) {
                 cordova.getThreadPool().execute(new Runnable() {
@@ -1725,13 +1829,13 @@ public class InsiderPlugin extends CordovaPlugin {
         InsiderIdentifiers insiderIdentifiers = new InsiderIdentifiers();
         for (String key : identifiersMap.keySet()) {
             switch (key) {
-                case InsiderHybridMethods.ADD_EMAIL:
+                case Constants.ADD_EMAIL:
                     insiderIdentifiers.addEmail(String.valueOf(identifiersMap.get(key)));
                     break;
-                case InsiderHybridMethods.ADD_PHONE_NUMBER:
+                case Constants.ADD_PHONE_NUMBER:
                     insiderIdentifiers.addPhoneNumber(String.valueOf(identifiersMap.get(key)));
                     break;
-                case InsiderHybridMethods.ADD_USER_ID:
+                case Constants.ADD_USER_ID:
                     insiderIdentifiers.addUserID(String.valueOf(identifiersMap.get(key)));
                     break;
                 default:
@@ -1757,13 +1861,13 @@ public class InsiderPlugin extends CordovaPlugin {
                 Map<String, Object> identifierData = CDVUtils.convertJSONToMap(identifierMap.toString());
                 for (String key : identifierData.keySet()) {
                     switch (key) {
-                        case InsiderHybridMethods.ADD_EMAIL:
+                        case Constants.ADD_EMAIL:
                             insiderIdentifiers.addEmail(String.valueOf(identifierData.get(key)));
                             break;
-                        case InsiderHybridMethods.ADD_PHONE_NUMBER:
+                        case Constants.ADD_PHONE_NUMBER:
                             insiderIdentifiers.addPhoneNumber(String.valueOf(identifierData.get(key)));
                             break;
-                        case InsiderHybridMethods.ADD_USER_ID:
+                        case Constants.ADD_USER_ID:
                             insiderIdentifiers.addUserID(String.valueOf(identifierData.get(key)));
                             break;
                         default:
