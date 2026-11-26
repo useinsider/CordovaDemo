@@ -39,6 +39,16 @@
     <allow-intent href="https://*/*" />
     <hook src="scripts/ios-extension-pods.js" type="after_plugin_add" />
     <hook src="scripts/ios-extension-pods.js" type="after_prepare" />
+    <config-file parent="com.apple.security.application-groups" target="*/Entitlements-Debug.plist">
+        <array>
+            <string>group.com.useinsider.mobile-ios</string>
+        </array>
+    </config-file>
+    <config-file parent="com.apple.security.application-groups" target="*/Entitlements-Release.plist">
+        <array>
+            <string>group.com.useinsider.mobile-ios</string>
+        </array>
+    </config-file>
     <config-file parent="CFBundleURLTypes" target="*-Info.plist">
         <array>
             <dict>

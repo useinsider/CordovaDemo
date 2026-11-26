@@ -20,7 +20,27 @@
           "CFBundleURLTypes": [
             {
               "xml": "<array><dict><key>CFBundleURLName</key><string>insider</string><key>CFBundleURLSchemes</key><array><string>insideryourpartnername</string></array></dict></array>",
-              "count": 6
+              "count": 7
+            }
+          ]
+        }
+      },
+      "*/Entitlements-Debug.plist": {
+        "parents": {
+          "com.apple.security.application-groups": [
+            {
+              "xml": "<array><string>group.com.useinsider.mobile-ios</string></array>",
+              "count": 1
+            }
+          ]
+        }
+      },
+      "*/Entitlements-Release.plist": {
+        "parents": {
+          "com.apple.security.application-groups": [
+            {
+              "xml": "<array><string>group.com.useinsider.mobile-ios</string></array>",
+              "count": 1
             }
           ]
         }

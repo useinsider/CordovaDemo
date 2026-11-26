@@ -26,6 +26,7 @@ def apply_settings(target, name, app_settings, deployment)
     s['PRODUCT_BUNDLE_IDENTIFIER'] = "#{app_settings['PRODUCT_BUNDLE_IDENTIFIER']}.#{name}"
     s['INFOPLIST_FILE'] = "#{name}/Info.plist"
     s['GENERATE_INFOPLIST_FILE'] = 'YES'
+    s['CODE_SIGN_ENTITLEMENTS'] = "#{name}/#{name}.entitlements"
     s['INFOPLIST_KEY_CFBundleDisplayName'] = name
     s['MARKETING_VERSION'] = app_settings['MARKETING_VERSION'] if app_settings['MARKETING_VERSION']
     s['CURRENT_PROJECT_VERSION'] = app_settings['CURRENT_PROJECT_VERSION'] if app_settings['CURRENT_PROJECT_VERSION']
@@ -42,6 +43,10 @@ specs.each do |name, spec|
   existing = project.targets.find { |t| t.name == name }
   if existing
     apply_settings(existing, name, app_settings, deployment)
+    group = project.main_group.find_subpath(name, false)
+    if group && group.files.none? { |f| f.path == "#{name}.entitlements" }
+      group.new_reference("#{name}.entitlements")
+    end
     puts "#{name}: already in #{File.basename(project_path)}, build settings refreshed"
     next
   end
@@ -53,6 +58,7 @@ specs.each do |name, spec|
   group.set_path(name)
   spec[:headers].each { |h| group.new_reference(h) }
   group.new_reference('Info.plist')
+  group.new_reference("#{name}.entitlements")
   target.add_file_references(spec[:sources].map { |s| group.new_reference(s) })
   spec[:storyboards].each do |sb|
     variant = group.new_variant_group(sb)
