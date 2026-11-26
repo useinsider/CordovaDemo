@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <!-- android-packageName: the shared Firebase project (google-services.json) has a client for this package only. -->
 <widget id="com.useinsider.demo.external" android-packageName="com.useinsider.ecommerce" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>HelloCordova</name>
+    <name>CordovaDemo</name>
     <description>This Demo contains simple methods that you can use with the Insider SDK.</description>
 
     <content src="index.html" />

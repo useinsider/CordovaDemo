@@ -20,7 +20,7 @@
           "CFBundleURLTypes": [
             {
               "xml": "<array><dict><key>CFBundleURLName</key><string>insider</string><key>CFBundleURLSchemes</key><array><string>insideryourpartnername</string></array></dict></array>",
-              "count": 9
+              "count": 11
             }
           ]
         }
@@ -30,7 +30,7 @@
           "com.apple.security.application-groups": [
             {
               "xml": "<array><string>group.com.useinsider.mobile-ios</string></array>",
-              "count": 3
+              "count": 5
             }
           ]
         }
@@ -40,7 +40,7 @@
           "com.apple.security.application-groups": [
             {
               "xml": "<array><string>group.com.useinsider.mobile-ios</string></array>",
-              "count": 3
+              "count": 5
             }
           ]
         }

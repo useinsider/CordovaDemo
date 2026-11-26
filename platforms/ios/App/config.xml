@@ -32,7 +32,7 @@
     <feature name="InsiderPlugin">
         <param name="ios-package" value="InsiderPlugin" />
     </feature>
-    <name>HelloCordova</name>
+    <name>CordovaDemo</name>
     <description>This Demo contains simple methods that you can use with the Insider SDK.</description>
     <content src="index.html" />
     <allow-intent href="http://*/*" />
