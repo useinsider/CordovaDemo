@@ -29,6 +29,9 @@
         <param name="ios-package" value="CDVStatusBarInternal" />
         <param name="onload" value="true" />
     </feature>
+    <feature name="InsiderPlugin">
+        <param name="ios-package" value="InsiderPlugin" />
+    </feature>
     <name>HelloCordova</name>
     <description>This Demo contains simple methods that you can use with the Insider SDK.</description>
     <content src="index.html" />
@@ -45,7 +48,4 @@
     <preference name="SuppressesLongPressGesture" value="false" />
     <preference name="Suppresses3DTouchGesture" value="false" />
     <preference name="deployment-target" value="15.0" />
-    <feature name="InsiderPlugin">
-        <param name="ios-package" value="InsiderPlugin" />
-    </feature>
 </widget>
