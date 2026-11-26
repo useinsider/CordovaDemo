@@ -1,11 +1,24 @@
 {
   "name": "cordova-plugin-insider",
-  "version": "1.4.0",
+  "version": "4.2.0",
   "description": "A plugin that you can use Insider SDK with Cordova and Ionic",
   "cordova_name": "Insider Cordova Plugin",
   "cordova": {
     "id": "cordova-plugin-insider",
-    "platforms": ["android","ios"]
+    "platforms": [
+      "android",
+      "ios"
+    ]
+  },
+  "scripts": {
+    "build": "babel js --out-dir www --copy-files --ignore '**/__tests__/**'",
+    "lint": "eslint . && bash devops/check_test_groups.sh",
+    "test": "jest",
+    "test:unit": "jest --selectProjects unit",
+    "test:integration": "jest --selectProjects integration",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:mutation": "stryker run"
   },
   "keywords": [
     "cordova-plugin-insider",
@@ -15,5 +28,19 @@
   "main": "www/InsiderPlugin.js",
   "typings": "types/InsiderPlugin.d.ts",
   "author": "useinsider",
-  "license": "ISC"
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/cli": "^7.28.6",
+    "@babel/core": "^7.29.0",
+    "@babel/preset-env": "^7.29.5",
+    "@eslint/js": "^9.39.5",
+    "@stryker-mutator/core": "^9.6.1",
+    "@stryker-mutator/jest-runner": "^9.6.1",
+    "eslint": "^9.39.5",
+    "globals": "^17.13.0",
+    "jest": "^30.4.2"
+  },
+  "overrides": {
+    "qs": "^6.16.0"
+  }
 }

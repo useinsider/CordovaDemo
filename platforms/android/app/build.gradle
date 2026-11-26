@@ -1,27 +1,31 @@
 /*
-       Licensed to the Apache Software Foundation (ASF) under one
-       or more contributor license agreements.  See the NOTICE file
-       distributed with this work for additional information
-       regarding copyright ownership.  The ASF licenses this file
-       to you under the Apache License, Version 2.0 (the
-       "License"); you may not use this file except in compliance
-       with the License.  You may obtain a copy of the License at
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
 
-         http://www.apache.org/licenses/LICENSE-2.0
+        http://www.apache.org/licenses/LICENSE-2.0
 
-       Unless required by applicable law or agreed to in writing,
-       software distributed under the License is distributed on an
-       "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-       KIND, either express or implied.  See the License for the
-       specific language governing permissions and limitations
-       under the License.
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
 */
 
 apply plugin: 'com.android.application'
 
 if (cordovaConfig.IS_GRADLE_PLUGIN_KOTLIN_ENABLED) {
     apply plugin: 'kotlin-android'
-    apply plugin: 'kotlin-android-extensions'
+
+    if(!cdvHelpers.isVersionGreaterThanEqual(cordovaConfig.KOTLIN_VERSION, '1.8.0')) {
+        println "Kotlin version < 1.8.0 detected. Applying kotlin-android-extensions plugin."
+        apply plugin: 'kotlin-android-extensions'
+    }
 }
 
 buildscript {
@@ -109,7 +113,7 @@ ext {
 }
 
 // PLUGIN GRADLE EXTENSIONS START
-apply from: "../cordova-plugin-insider/cordovademo-build-extras.gradle"
+apply from: "../cordova-plugin-insider/ecommerce-build-extras.gradle"
 // PLUGIN GRADLE EXTENSIONS END
 
 def hasBuildExtras1 = file('build-extras.gradle').exists()
@@ -180,10 +184,15 @@ task cdvPrintProps {
 }
 
 android {
+    namespace = cordovaConfig.PACKAGE_NAMESPACE
+
+    buildFeatures {
+        buildConfig = true
+    }
+
     defaultConfig {
         versionCode cdvVersionCode ?: new BigInteger("" + privateHelpers.extractIntFromManifest("versionCode"))
-        // FIXME-INSIDER: Please change with your application ID.
-        applicationId "com.useinsider.cordovademo"
+        applicationId cordovaConfig.PACKAGE_NAMESPACE
 
         // FIXME-INSIDER: Please change with your partner name.
         manifestPlaceholders = [ partner: "your_partner_name" ]
@@ -197,7 +206,7 @@ android {
     }
 
     lintOptions {
-      abortOnError false
+      abortOnError = false
     }
 
     buildToolsVersion cordovaConfig.BUILD_TOOLS_VERSION
@@ -251,8 +260,19 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaLanguageVersion.of(cordovaConfig.JAVA_SOURCE_COMPATIBILITY)
+        targetCompatibility JavaLanguageVersion.of(cordovaConfig.JAVA_TARGET_COMPATIBILITY)
+    }
+
+    if (cordovaConfig.IS_GRADLE_PLUGIN_KOTLIN_ENABLED) {
+        // If KOTLIN_JVM_TARGET is null, fallback to JAVA_TARGET_COMPATIBILITY,
+        // as they generally should be equal
+        cordovaConfig.KOTLIN_JVM_TARGET = cordovaConfig.KOTLIN_JVM_TARGET ?:
+                cordovaConfig.JAVA_TARGET_COMPATIBILITY
+
+        kotlinOptions {
+            jvmTarget = JavaLanguageVersion.of(cordovaConfig.KOTLIN_JVM_TARGET)
+        }
     }
 
     // FIXME-INSIDER: Please change with your key store information.
@@ -275,7 +295,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
-            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
@@ -303,14 +322,20 @@ dependencies {
     implementation "androidx.core:core-splashscreen:${cordovaConfig.ANDROIDX_CORE_SPLASHSCREEN_VERSION}"
 
     if (cordovaConfig.IS_GRADLE_PLUGIN_KOTLIN_ENABLED) {
-        implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${cordovaConfig.KOTLIN_VERSION}"
+        implementation "org.jetbrains.kotlin:kotlin-stdlib:${cordovaConfig.KOTLIN_VERSION}"
+    }
+
+    constraints {
+        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:${cordovaConfig.KOTLIN_VERSION}") {
+            because("kotlin-stdlib-jdk7 is now a part of kotlin-stdlib")
+        }
+        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${cordovaConfig.KOTLIN_VERSION}") {
+            because("kotlin-stdlib-jdk8 is now a part of kotlin-stdlib")
+        }
     }
 
     // SUB-PROJECT DEPENDENCIES START
     implementation(project(path: ":CordovaLib"))
-    implementation platform("com.google.firebase:firebase-bom:30.3.1")
-    implementation "com.google.firebase:firebase-messaging"
-    implementation "me.leolin:ShortcutBadger:1.1.22@aar"
     // SUB-PROJECT DEPENDENCIES END
 }
 

@@ -1,22 +1,23 @@
 /*
-       Licensed to the Apache Software Foundation (ASF) under one
-       or more contributor license agreements.  See the NOTICE file
-       distributed with this work for additional information
-       regarding copyright ownership.  The ASF licenses this file
-       to you under the Apache License, Version 2.0 (the
-       "License"); you may not use this file except in compliance
-       with the License.  You may obtain a copy of the License at
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
 
-         http://www.apache.org/licenses/LICENSE-2.0
+        http://www.apache.org/licenses/LICENSE-2.0
 
-       Unless required by applicable law or agreed to in writing,
-       software distributed under the License is distributed on an
-       "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-       KIND, either express or implied.  See the License for the
-       specific language governing permissions and limitations
-       under the License.
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
 */
 
+import groovy.xml.XmlParser
 import java.util.regex.Pattern
 import io.github.g00fy2.versioncompare.Version
 
@@ -41,6 +42,10 @@ String doGetProjectTarget() {
 
 Boolean isVersionValid(version) {
     return !(new Version(version)).isEqual('0.0.0')
+}
+
+Boolean isVersionGreaterThanEqual(versionX, versionY) {
+    return (new Version(versionX)) >= (new Version(versionY))
 }
 
 String doFindLatestInstalledBuildTools(String minBuildToolsVersionString) {
@@ -83,9 +88,9 @@ String doFindLatestInstalledBuildTools(String minBuildToolsVersionString) {
 String getAndroidSdkDir() {
     def rootDir = project.rootDir
     def androidSdkDir = null
-    String envVar = System.getenv("ANDROID_SDK_ROOT")
+    String envVar = System.getenv("ANDROID_HOME")
     if (envVar == null) {
-        envVar = System.getenv("ANDROID_HOME")
+        envVar = System.getenv("ANDROID_SDK_ROOT")
     }
 
     def localProperties = new File(rootDir, 'local.properties')
@@ -125,14 +130,6 @@ def doExtractIntFromManifest(name) {
     return new BigInteger(matcher.group(1))
 }
 
-def doExtractStringFromManifest(name) {
-    def manifestFile = file(android.sourceSets.main.manifest.srcFile)
-    def pattern = Pattern.compile(name + "=\"(\\S+)\"")
-    def matcher = pattern.matcher(manifestFile.getText())
-    matcher.find()
-    return matcher.group(1)
-}
-
 def doGetConfigXml() {
     def xml = file("src/main/res/xml/config.xml").getText()
     // Disable namespace awareness since Cordova doesn't use them properly
@@ -154,7 +151,7 @@ def doGetConfigPreference(name, defaultValue) {
 }
 
 def doApplyCordovaConfigCustomization() {
-    // Apply user overide properties that comes from the "--gradleArg=-P" parameters
+    // Apply user override properties that comes from the "--gradleArg=-P" parameters
     if (project.hasProperty('cdvMinSdkVersion')) {
         cordovaConfig.MIN_SDK_VERSION = Integer.parseInt('' + cdvMinSdkVersion)
     }
@@ -231,7 +228,6 @@ ext {
     privateHelpers.getProjectTarget = { doGetProjectTarget() }
     privateHelpers.applyCordovaConfigCustomization = { doApplyCordovaConfigCustomization() }
     privateHelpers.extractIntFromManifest = { name -> doExtractIntFromManifest(name) }
-    privateHelpers.extractStringFromManifest = { name -> doExtractStringFromManifest(name) }
     privateHelpers.ensureValueExists = { filePath, props, key -> doEnsureValueExists(filePath, props, key) }
 
     // These helpers can be used by plugins / projects and will not change.
@@ -245,10 +241,8 @@ ext {
 }
 
 buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
+    apply from: 'repositories.gradle'
+    repositories repos
 
     dependencies {
         classpath 'io.github.g00fy2:versioncompare:1.4.1@jar'

@@ -1,0 +1,4 @@
+<resources>
+    <dimen name="ins_car_im_size">180dp</dimen>
+    <dimen name="ins_car_disc_size">160dp</dimen>
+</resources>

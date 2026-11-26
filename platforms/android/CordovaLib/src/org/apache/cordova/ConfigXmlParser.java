@@ -1,20 +1,20 @@
 /*
-       Licensed to the Apache Software Foundation (ASF) under one
-       or more contributor license agreements.  See the NOTICE file
-       distributed with this work for additional information
-       regarding copyright ownership.  The ASF licenses this file
-       to you under the Apache License, Version 2.0 (the
-       "License"); you may not use this file except in compliance
-       with the License.  You may obtain a copy of the License at
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
 
-         http://www.apache.org/licenses/LICENSE-2.0
+        http://www.apache.org/licenses/LICENSE-2.0
 
-       Unless required by applicable law or agreed to in writing,
-       software distributed under the License is distributed on an
-       "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-       KIND, either express or implied.  See the License for the
-       specific language governing permissions and limitations
-       under the License.
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
 */
 
 package org.apache.cordova;
@@ -34,6 +34,7 @@ public class ConfigXmlParser {
     private static String SCHEME_HTTP = "http";
     private static String SCHEME_HTTPS = "https";
     private static String DEFAULT_HOSTNAME = "localhost";
+    private static final String DEFAULT_CONTENT_SRC = "index.html";
 
     private String launchUrl;
     private String contentSrc;
@@ -78,6 +79,14 @@ public class ConfigXmlParser {
 
         pluginEntries.add(
             new PluginEntry(
+                SystemBarPlugin.PLUGIN_NAME,
+                "org.apache.cordova.SystemBarPlugin",
+                true
+            )
+        );
+
+        pluginEntries.add(
+            new PluginEntry(
                 SplashScreenPlugin.PLUGIN_NAME,
                 "org.apache.cordova.SplashScreenPlugin",
                 true
@@ -110,6 +119,18 @@ public class ConfigXmlParser {
                 e.printStackTrace();
             }
         }
+
+        onPostParse();
+    }
+
+    private void onPostParse() {
+        // After parsing, if contentSrc is still null, it signals
+        // that <content> tag was completely missing. In this case,
+        // default it.
+        // https://github.com/apache/cordova-android/issues/1432
+        if (contentSrc == null) {
+            contentSrc = DEFAULT_CONTENT_SRC;
+        }
     }
 
     public void handleStartTag(XmlPullParser xml) {
@@ -140,7 +161,7 @@ public class ConfigXmlParser {
                 contentSrc = src;
             } else {
                 // Default
-                contentSrc = "index.html";
+                contentSrc = DEFAULT_CONTENT_SRC;
             }
         }
     }

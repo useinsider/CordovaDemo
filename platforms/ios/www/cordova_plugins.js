@@ -14,6 +14,11 @@ cordova.define('cordova/plugin_list', function(require, exports, module) {
       "pluginId": "cordova-plugin-insider"
     },
     {
+      "id": "cordova-plugin-insider.CloseButtonPosition",
+      "file": "plugins/cordova-plugin-insider/www/CloseButtonPosition.js",
+      "pluginId": "cordova-plugin-insider"
+    },
+    {
       "id": "cordova-plugin-insider.ContentOptimizerDataType",
       "file": "plugins/cordova-plugin-insider/www/ContentOptimizerDataType.js",
       "pluginId": "cordova-plugin-insider"
@@ -54,16 +59,27 @@ cordova.define('cordova/plugin_list', function(require, exports, module) {
       "pluginId": "cordova-plugin-insider"
     },
     {
-      "id": "cordova-plugin-firebase-messaging.FirebaseMessaging",
-      "file": "plugins/cordova-plugin-firebase-messaging/www/FirebaseMessaging.js",
-      "pluginId": "cordova-plugin-firebase-messaging",
-      "merges": [
-        "cordova.plugins.firebase.messaging"
-      ]
+      "id": "cordova-plugin-insider.InsiderAppCards",
+      "file": "plugins/cordova-plugin-insider/www/InsiderAppCards.js",
+      "pluginId": "cordova-plugin-insider"
+    },
+    {
+      "id": "cordova-plugin-insider.InsiderAppCard",
+      "file": "plugins/cordova-plugin-insider/www/InsiderAppCard.js",
+      "pluginId": "cordova-plugin-insider"
+    },
+    {
+      "id": "cordova-plugin-insider.InsiderAppCardsError",
+      "file": "plugins/cordova-plugin-insider/www/InsiderAppCardsError.js",
+      "pluginId": "cordova-plugin-insider"
+    },
+    {
+      "id": "cordova-plugin-insider.InsiderEvents",
+      "file": "plugins/cordova-plugin-insider/www/InsiderEvents.js",
+      "pluginId": "cordova-plugin-insider"
     }
   ];
   module.exports.metadata = {
-    "cordova-plugin-insider": "1.4.0",
-    "cordova-plugin-firebase-messaging": "7.0.4"
+    "cordova-plugin-insider": "4.2.0"
   };
 });

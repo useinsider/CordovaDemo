@@ -1,20 +1,21 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.useinsider.cordovademo" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <feature name="FirebaseMessaging">
-        <param name="android-package" value="by.chemerisuk.cordova.firebase.FirebaseMessagingPlugin" />
-        <param name="onload" value="true" />
-    </feature>
+<widget android-packageName="com.useinsider.ecommerce" id="com.useinsider.demo.external" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <feature name="InsiderPlugin">
         <param name="android-package" value="com.useinsider.cordova.InsiderPlugin" />
         <param name="onload" value="true" />
     </feature>
-    <name>HelloCordova</name>
+    <name>CordovaDemo</name>
     <description>This Demo contains simple methods that you can use with the Insider SDK.</description>
     <content src="index.html" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
+    <hook src="scripts/ios-extension-check.js" type="after_prepare" />
+    <icon background="res/icons/android/mdpi-background.png" density="mdpi" foreground="res/icons/android/mdpi-foreground.png" monochrome="res/icons/android/mdpi-monochrome.png" src="res/icons/android/mdpi-legacy.png" />
+    <icon background="res/icons/android/hdpi-background.png" density="hdpi" foreground="res/icons/android/hdpi-foreground.png" monochrome="res/icons/android/hdpi-monochrome.png" src="res/icons/android/hdpi-legacy.png" />
+    <icon background="res/icons/android/xhdpi-background.png" density="xhdpi" foreground="res/icons/android/xhdpi-foreground.png" monochrome="res/icons/android/xhdpi-monochrome.png" src="res/icons/android/xhdpi-legacy.png" />
+    <icon background="res/icons/android/xxhdpi-background.png" density="xxhdpi" foreground="res/icons/android/xxhdpi-foreground.png" monochrome="res/icons/android/xxhdpi-monochrome.png" src="res/icons/android/xxhdpi-legacy.png" />
+    <icon background="res/icons/android/xxxhdpi-background.png" density="xxxhdpi" foreground="res/icons/android/xxxhdpi-foreground.png" monochrome="res/icons/android/xxxhdpi-monochrome.png" src="res/icons/android/xxxhdpi-legacy.png" />
     <preference name="loglevel" value="DEBUG" />
-    <preference name="AndroidXEnabled" value="true" />
     <preference name="GradlePluginGoogleServicesEnabled" value="true" />
-    <preference name="GradlePluginGoogleServicesVersion" value="4.3.10" />
+    <preference name="GradlePluginGoogleServicesVersion" value="4.4.2" />
 </widget>

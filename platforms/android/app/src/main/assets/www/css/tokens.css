@@ -1,0 +1,71 @@
+@font-face {
+    font-family: 'Kufam';
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+    src: url('../fonts/Kufam-Regular.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Kufam';
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+    src: url('../fonts/Kufam-Medium.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Kufam';
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+    src: url('../fonts/Kufam-SemiBold.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Kufam';
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+    src: url('../fonts/Kufam-Bold.ttf') format('truetype');
+}
+
+:root {
+    --navy: #1b1f3b;
+    --navy-dark: #0e1027;
+    --orange: #ff5c35;
+    --surface: #f7f8fc;
+    --surface-variant: #edeff7;
+    --on-surface: #1b1f3b;
+    --on-surface-variant: #5b6075;
+    --outline: #d6dae8;
+    --white: #ffffff;
+    --ios-canvas: #efebe4;
+    --ios-text-primary: #18181b;
+    --ios-accent: #f4482b;
+    --ios-gradient-red: #e92e2f;
+    --ios-gradient-orange: #ff6126;
+    --ios-border: #18181b1f;
+    --accent-inbox: #f59e0b;
+    --on-navy-variant: #b9bed6;
+    --navy-card-outline: #ffffff26;
+    --navy-chevron: #ffffff80;
+    --scrim: #0000008a;
+    --danger: #d64545;
+    --danger-ink: #b83232;
+    --danger-surface: #fdecec;
+    --danger-outline: #f6cccc;
+
+    --radius-card: 18px;
+    --radius-control: 14px;
+    --radius-control-compact: 12px;
+    --stroke: 1px;
+    --button-height: 60px;
+    --console-height: 124px;
+    --font: 'Kufam', -apple-system, sans-serif;
+    --font-mono: Menlo, Courier, monospace;
+}
+
+body {
+    font-family: var(--font);
+}

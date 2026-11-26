@@ -1,9 +1,53 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.useinsider.cordovademo" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>HelloCordova</name>
+<!-- android-packageName: the shared Firebase project (google-services.json) has a client for this package only. -->
+<widget id="com.useinsider.demo.external" android-packageName="com.useinsider.ecommerce" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>CordovaDemo</name>
     <description>This Demo contains simple methods that you can use with the Insider SDK.</description>
 
     <content src="index.html" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
+
+    <!-- Warns when the notification extension targets are missing from the iOS project.
+         Top-level, because cordova-lib skips hooks inside <platform> when no single platform is named. -->
+    <hook type="after_prepare" src="scripts/ios-extension-check.js" />
+
+    <platform name="android">
+        <icon density="mdpi" src="res/icons/android/mdpi-legacy.png" background="res/icons/android/mdpi-background.png" foreground="res/icons/android/mdpi-foreground.png" monochrome="res/icons/android/mdpi-monochrome.png" />
+        <icon density="hdpi" src="res/icons/android/hdpi-legacy.png" background="res/icons/android/hdpi-background.png" foreground="res/icons/android/hdpi-foreground.png" monochrome="res/icons/android/hdpi-monochrome.png" />
+        <icon density="xhdpi" src="res/icons/android/xhdpi-legacy.png" background="res/icons/android/xhdpi-background.png" foreground="res/icons/android/xhdpi-foreground.png" monochrome="res/icons/android/xhdpi-monochrome.png" />
+        <icon density="xxhdpi" src="res/icons/android/xxhdpi-legacy.png" background="res/icons/android/xxhdpi-background.png" foreground="res/icons/android/xxhdpi-foreground.png" monochrome="res/icons/android/xxhdpi-monochrome.png" />
+        <icon density="xxxhdpi" src="res/icons/android/xxxhdpi-legacy.png" background="res/icons/android/xxxhdpi-background.png" foreground="res/icons/android/xxxhdpi-foreground.png" monochrome="res/icons/android/xxxhdpi-monochrome.png" />
+    </platform>
+
+    <platform name="ios">
+        <icon src="res/icons/ios/icon.png" foreground="res/icons/ios/icon-dark.png" monochrome="res/icons/ios/icon-tinted.png" />
+        <!-- InsiderMobile 16.5.1 requires iOS 15.0; a lower target fails to resolve or build the SDK. -->
+        <preference name="deployment-target" value="15.0" />
+        <!-- The SDK and the notification extensions share data through this App Group (also in their .entitlements). -->
+        <config-file target="*/Entitlements-Debug.plist" parent="com.apple.security.application-groups">
+            <array>
+                <string>group.com.useinsider.mobile-ios</string>
+            </array>
+        </config-file>
+        <config-file target="*/Entitlements-Release.plist" parent="com.apple.security.application-groups">
+            <array>
+                <string>group.com.useinsider.mobile-ios</string>
+            </array>
+        </config-file>
+        <!-- Test-device pairing opens insider<partner>://; Android gets the same scheme from manifestPlaceholders. -->
+        <config-file target="*-Info.plist" parent="CFBundleURLTypes">
+            <array>
+                <dict>
+                    <key>CFBundleURLName</key>
+                    <string>insider</string>
+                    <key>CFBundleURLSchemes</key>
+                    <array>
+                        <!-- FIXME-INSIDER: Please change with insider + your partner name. -->
+                        <string>insideryourpartnername</string>
+                    </array>
+                </dict>
+            </array>
+        </config-file>
+    </platform>
 </widget>

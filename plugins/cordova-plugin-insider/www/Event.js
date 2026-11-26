@@ -1,96 +1,271 @@
 "use strict";
 
-const Utils = require("./Utils");
-const InsiderConstants = require("./Constants");
-
-class Event {
-    name = '';
-    parameters = {};
-
-    constructor(name) {
-        this.name = name;
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
+function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
+function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
+function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
+function _toPrimitive(t, e) { if ("object" != _typeof(t) || !t) return t; var r; if ("undefined" != typeof Symbol && void 0 !== (r = t[Symbol.toPrimitive])) { var i = r.call(t, e || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === e ? String : Number)(t); }
+var Utils = require("./Utils");
+var InsiderConstants = require("./Constants");
+var Event = /*#__PURE__*/function () {
+  function Event(name) {
+    _classCallCheck(this, Event);
+    // Stryker disable next-line StringLiteral: the constructor unconditionally overwrites this
+    // with `this.name = name` right after the field initializer runs, so its value is never
+    // observable — any string here is equivalent.
+    _defineProperty(this, "name", '');
+    _defineProperty(this, "parameters", []);
+    this.name = name;
+  }
+  return _createClass(Event, [{
+    key: "addParameterWithString",
+    value: function addParameterWithString(key, value) {
+      if (Utils.checkParameters([{
+        type: 'string',
+        value: key
+      }, {
+        type: 'string',
+        value: value
+      }])) {
+        Utils.showParameterWarningLog(this.constructor.name + '-addParameterWithString');
+        return this;
+      }
+      try {
+        this.parameters.push({
+          type: 'string',
+          key: key,
+          value: value
+        });
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
+    }
+  }, {
+    key: "addParameterWithInt",
+    value: function addParameterWithInt(key, value) {
+      if (Utils.checkParameters([{
+        type: 'string',
+        value: key
+      }, {
+        type: 'number',
+        value: value
+      }]) || !Number.isFinite(value)) {
+        Utils.showParameterWarningLog(this.constructor.name + '-addParameterWithInt');
+        return this;
+      }
+      if (Utils.isOutOfInt32Range(value)) {
+        Utils.showIntRangeWarningLog(this.constructor.name + '-addParameterWithInt');
+        return this;
+      }
+      try {
+        this.parameters.push({
+          type: 'integer',
+          key: key,
+          value: value
+        });
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
+    }
+  }, {
+    key: "addParameterWithDouble",
+    value: function addParameterWithDouble(key, value) {
+      if (Utils.checkParameters([{
+        type: 'string',
+        value: key
+      }, {
+        type: 'number',
+        value: value
+      }]) || !Number.isFinite(value)) {
+        Utils.showParameterWarningLog(this.constructor.name + '-addParameterWithDouble');
+        return this;
+      }
+      try {
+        this.parameters.push({
+          type: 'double',
+          key: key,
+          value: value
+        });
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
+    }
+  }, {
+    key: "addParameterWithBoolean",
+    value: function addParameterWithBoolean(key, value) {
+      if (Utils.checkParameters([{
+        type: 'string',
+        value: key
+      }, {
+        type: 'boolean',
+        value: value
+      }])) {
+        Utils.showParameterWarningLog(this.constructor.name + '-addParameterWithBoolean');
+        return this;
+      }
+      try {
+        this.parameters.push({
+          type: 'boolean',
+          key: key,
+          value: value
+        });
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
+    }
+  }, {
+    key: "addParameterWithDate",
+    value: function addParameterWithDate(key, value) {
+      if (Utils.checkParameters([{
+        type: 'string',
+        value: key
+      }, {
+        type: 'object',
+        value: value
+      }])) {
+        Utils.showParameterWarningLog(this.constructor.name + '-addParameterWithDate');
+        return this;
+      }
+      try {
+        // Use epoch milliseconds as string instead of ISO string
+        this.parameters.push({
+          type: 'date',
+          key: key,
+          value: value.getTime().toString()
+        });
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
+    }
+  }, {
+    key: "addParameterWithArray",
+    value: function addParameterWithArray(key, value) {
+      if (Utils.checkParameters([{
+        type: 'string',
+        value: key
+      }, {
+        type: 'object',
+        value: value
+      }])) {
+        Utils.showParameterWarningLog(this.constructor.name + '-addParameterWithArray');
+        return this;
+      }
+      try {
+        // Default to strings array for backward compatibility
+        this.parameters.push({
+          type: 'strings',
+          key: key,
+          value: value
+        });
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
+    }
+  }, {
+    key: "addParameterWithStringArray",
+    value: function addParameterWithStringArray(key, value) {
+      if (Utils.checkParameters([{
+        type: 'string',
+        value: key
+      }, {
+        type: 'string_array',
+        value: value
+      }])) {
+        Utils.showParameterWarningLog(this.constructor.name + '-addParameterWithStringArray');
+        return this;
+      }
+      try {
+        this.parameters.push({
+          type: 'strings',
+          key: key,
+          value: value
+        });
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
+    }
+  }, {
+    key: "addParameterWithNumericArray",
+    value: function addParameterWithNumericArray(key, value) {
+      if (Utils.checkParameters([{
+        type: 'string',
+        value: key
+      }, {
+        type: 'numeric_array',
+        value: value
+      }])) {
+        Utils.showParameterWarningLog(this.constructor.name + '-addParameterWithNumericArray');
+        return this;
+      }
+      try {
+        this.parameters.push({
+          type: 'numbers',
+          key: key,
+          value: value
+        });
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
     }
 
-    addParameterWithString(key, value) {
-        if (key === null || value === null || Utils.isEmpty(key) || Utils.isEmpty(value)){ Utils.showWarning(this.constructor.name + '-addParameterWithString key or value'); return this;}
+    // Array-of-objects event parameters are insert-only: they travel as a plain list, without the
+    // action envelope the attribute side uses.
+  }, {
+    key: "addParameterWithObjectArray",
+    value: function addParameterWithObjectArray(key, value) {
+      if (Utils.checkParameters([{
+        type: 'string',
+        value: key
+      }]) || !Array.isArray(value)) {
+        Utils.showParameterWarningLog(this.constructor.name + '-addParameterWithObjectArray');
+        return this;
+      }
+      try {
+        var _Utils$parseObjectArr = Utils.parseObjectArrayWithNestedTypes(value),
+          typedObjects = _Utils$parseObjectArr.typedObjects,
+          paths = _Utils$parseObjectArr.paths;
 
-        try {
-            this.parameters[key] = value;
-
-            return this;
-        } catch (error) {
-            Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+        // Nothing survived, so the parameter would be inserted empty; refuse it instead.
+        if (typedObjects.length === 0) {
+          if (paths.length > 0) {
+            Utils.showDroppedValuesWarningLog('addParameterWithObjectArray', paths, false);
+          } else {
+            Utils.showParameterWarningLog(this.constructor.name + '-addParameterWithObjectArray');
+          }
+          return this;
         }
-    }
-
-    addParameterWithInt(key, value) {
-        if (key === null || value === null || Utils.isEmpty(key) || Utils.isEmpty(value)){ Utils.showWarning(this.constructor.name + '-addParameterWithInt key or value'); return this;}
-
-        try {
-            this.parameters[key] = value;
-
-            return this;
-        } catch (error) {
-            Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+        if (paths.length > 0) {
+          Utils.showDroppedValuesWarningLog('addParameterWithObjectArray', paths);
         }
+        this.parameters.push({
+          type: 'objects',
+          key: key,
+          value: typedObjects
+        });
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
+      return this;
     }
-
-    addParameterWithDouble(key, value) {
-        if (key === null || value === null || Utils.isEmpty(key) || Utils.isEmpty(value)){ Utils.showWarning(this.constructor.name + '-addParameterWithDouble key or value'); return this;}
-
-        try {
-            this.parameters[key] = value;
-
-            return this;
-        } catch (error) {
-            Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
-        }
+  }, {
+    key: "build",
+    value: function build() {
+      try {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.TAG_EVENT, [this.name, this.parameters]);
+      } catch (error) {
+        Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
+      }
     }
-
-    addParameterWithBoolean(key, value) {
-        if (key === null || value === null || Utils.isEmpty(key)|| Utils.isEmpty(value)){ Utils.showWarning(this.constructor.name + '-addParameterWithBoolean key or value'); return this;}
-
-        try {
-            this.parameters[key] = value;
-
-            return this;
-        } catch (error) {
-            Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
-        }
-    }
-
-    addParameterWithDate(key, value) {
-        if (key === null || value === null || Utils.isEmpty(key) || Utils.isEmpty(value)){ Utils.showWarning(this.constructor.name + '-addParameterWithDate key or value'); return this;}
-
-        try {
-
-            this.parameters[key] = value.toISOString();
-
-            return this;
-        } catch (error) {
-            Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
-        }
-    }
-
-    addParameterWithArray(key, value) {
-        if (key === null || value === null || Utils.isEmpty(key) || Utils.isEmpty(value)){ Utils.showWarning(this.constructor.name + '-addParameterWithArray key or value'); return this;}
-
-        try {
-            this.parameters[key] = value;
-
-            return this;
-        } catch (error) {
-            Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
-        }
-    }
-
-    build() {
-        try {
-            Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.TAG_EVENT, [this.name, this.parameters]);
-        } catch (error) {
-            Utils.asyncExec(InsiderConstants.CLASS, InsiderConstants.PUT_ERROR_LOG, [Utils.generateJSONErrorString(error)]);
-        }
-    }
-}
-
+  }]);
+}();
 module.exports = Event;

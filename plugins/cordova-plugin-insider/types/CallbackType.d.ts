@@ -4,4 +4,6 @@ export interface CallbackType {
     TEMP_STORE_PURCHASE: number,
     TEMP_STORE_ADDED_TO_CART: number,
     TEMP_STORE_CUSTOM_ACTION: number,
+    INAPP_SEEN: number,
+    SESSION_STARTED: number,
 }

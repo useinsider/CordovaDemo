@@ -1,23 +1,30 @@
 {
   "name": "com.useinsider.cordovademo",
-  "displayName": "HelloCordova",
+  "displayName": "CordovaDemo",
   "version": "1.0.0",
   "description": "A sample Apache Cordova application that responds to the deviceready event.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --ci"
   },
   "keywords": [
     "ecosystem:cordova"
   ],
-  "author": "Apache Cordova Team",
-  "license": "Apache-2.0",
+  "author": "Insider",
+  "license": "MIT",
   "devDependencies": {
-    "cordova-android": "^11.0.0",
-    "cordova-ios": "^6.2.0",
-    "cordova-plugin-firebase-messaging": "^7.0.4",
-    "cordova-plugin-insider": "^1.4.0",
-    "cordova-support-android-plugin": "~2.0.4"
+    "cordova-android": "^15.1.0",
+    "cordova-ios": "^8.2.0",
+    "cordova-plugin-insider": "^4.2.0",
+    "jest": "^30.5.2",
+    "jest-environment-jsdom": "^30.5.2"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "roots": [
+      "<rootDir>/test"
+    ],
+    "transform": {}
   },
   "cordova": {
     "platforms": [
@@ -25,10 +32,7 @@
       "android"
     ],
     "plugins": {
-      "cordova-plugin-insider": {},
-      "cordova-plugin-firebase-messaging": {
-        "ANDROID_FIREBASE_BOM_VERSION": "30.3.1"
-      }
+      "cordova-plugin-insider": {}
     }
   }
 }
