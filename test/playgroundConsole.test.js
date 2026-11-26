@@ -89,19 +89,19 @@ describe('home output console', () => {
     expect(page.handlerErrors).toEqual([]);
   });
 
-  test('notification callbacks write NOTIFICATION_OPEN and TEMP_STORE_CUSTOM_ACTION lines', () => {
-    const { NOTIFICATION_OPEN, TEMP_STORE_CUSTOM_ACTION } = window.Insider.callbackType;
+  test('notification callbacks write NOTIFICATION_OPEN and SESSION_STARTED lines', () => {
+    const { NOTIFICATION_OPEN, SESSION_STARTED, TEMP_STORE_CUSTOM_ACTION } = window.Insider.callbackType;
     const dispatch = (result) => {
       const event = new Event('ins_notification_handle');
       event.result = result;
       document.dispatchEvent(event);
     };
     dispatch({ type: NOTIFICATION_OPEN, url: 'demo://open' });
+    dispatch({ type: SESSION_STARTED });
     dispatch({ type: TEMP_STORE_CUSTOM_ACTION, action: 'promo' });
     expect(consoleText()).toContain(`[INSIDER][NOTIFICATION_OPEN]: {"type":${NOTIFICATION_OPEN},"url":"demo://open"}`);
-    expect(consoleText()).toContain(
-      `[INSIDER][TEMP_STORE_CUSTOM_ACTION]: {"type":${TEMP_STORE_CUSTOM_ACTION},"action":"promo"}`,
-    );
+    expect(consoleText()).toContain(`[INSIDER][SESSION_STARTED]: {"type":${SESSION_STARTED}}`);
+    expect(consoleText()).not.toContain('[INSIDER][TEMP_STORE_CUSTOM_ACTION]');
   });
 
   test('login writes the native Insider ID to the console', async () => {

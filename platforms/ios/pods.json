@@ -1,31 +1,5 @@
 {
-    "declarations": {
-        "use_frameworks!": {
-            "declaration": "use_frameworks!",
-            "count": 1
-        }
-    },
-    "sources": {
-        "https://cdn.cocoapods.org/": {
-            "source": "https://cdn.cocoapods.org/",
-            "count": 1
-        }
-    },
-    "libraries": {
-        "InsiderMobile": {
-            "name": "InsiderMobile",
-            "spec": "16.2.1",
-            "count": 1
-        },
-        "InsiderGeofence": {
-            "name": "InsiderGeofence",
-            "spec": "1.3.0",
-            "count": 1
-        },
-        "InsiderHybrid": {
-            "name": "InsiderHybrid",
-            "spec": "1.8.0",
-            "count": 1
-        }
-    }
+    "declarations": {},
+    "sources": {},
+    "libraries": {}
 }

@@ -1,8 +1,7 @@
+#import <Cordova/CDVPlugin.h>
 #import <InsiderMobile/Insider.h>
-#import <InsiderHybrid/InsiderHybrid.h>
 #import <InsiderMobile/InsiderCallbackTypeEnum.h>
 #import <InsiderGeofence/InsiderGeofence.h>
-#import "IDFAHelper.h"
 #import <UserNotifications/UserNotifications.h>
 
 @interface InsiderPlugin : CDVPlugin
@@ -11,7 +10,6 @@
 - (void) initWithLaunchOptions:(CDVInvokedUrlCommand *)command;
 - (void) reinitWithPartnerName:(CDVInvokedUrlCommand *)command;
 - (void) registerWithQuietPermission:(CDVInvokedUrlCommand *)command;
-- (void) enableIDFACollection:(CDVInvokedUrlCommand *)command;
 - (void) setGDPRConsent:(CDVInvokedUrlCommand *)command;
 - (void) setMobileAppAccess:(CDVInvokedUrlCommand *)command;
 - (void) startTrackingGeofence:(CDVInvokedUrlCommand *)command;
@@ -61,6 +59,9 @@
 - (void) setCustomAttributeWithBoolean:(CDVInvokedUrlCommand *)command;
 - (void) setCustomAttributeWithDate:(CDVInvokedUrlCommand *)command;
 - (void) setCustomAttributeWithArray:(CDVInvokedUrlCommand *)command;
+- (void) addObjectsToCustomAttribute:(CDVInvokedUrlCommand *)command;
+- (void) mergeObjectsInCustomAttribute:(CDVInvokedUrlCommand *)command;
+- (void) removeObjectsFromCustomAttribute:(CDVInvokedUrlCommand *)command;
 - (void) unsetCustomAttribute:(CDVInvokedUrlCommand *)command;
 - (void) login:(CDVInvokedUrlCommand *)command;
 - (void) logout:(CDVInvokedUrlCommand *)command;
@@ -79,6 +80,7 @@
 - (void) showNativeAppReview:(CDVInvokedUrlCommand *)command;
 - (void) handleURL:(CDVInvokedUrlCommand *)command;
 - (void) getAppCardsCampaigns:(CDVInvokedUrlCommand *)command;
+- (void) getAppCardsCampaignsWithIdentifiers:(CDVInvokedUrlCommand *)command;
 - (void) markAppCardAsRead:(CDVInvokedUrlCommand *)command;
 - (void) markAppCardAsUnread:(CDVInvokedUrlCommand *)command;
 - (void) viewAppCard:(CDVInvokedUrlCommand *)command;

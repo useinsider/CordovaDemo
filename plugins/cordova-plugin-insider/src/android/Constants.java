@@ -5,10 +5,56 @@ class Constants {
         throw new IllegalStateException("Utility class");
     }
     
+    static final String ADD_OBJECTS_TO_CUSTOM_ATTRIBUTE = "addObjectsToCustomAttribute";
+    static final String MERGE_OBJECTS_IN_CUSTOM_ATTRIBUTE = "mergeObjectsInCustomAttribute";
+    static final String REMOVE_OBJECTS_FROM_CUSTOM_ATTRIBUTE = "removeObjectsFromCustomAttribute";
     static final String HANDLE_NOTIFICATION = "handleNotification";
     static final String TRIGGER_PUSH_PROCESS_WITH_NOTIFICATION_DATA = "triggerPushProcessWithNotificationData";
     static final String SET_INTERNAL_BROWSER_CLOSE_BUTTON_POSITION = "setInternalBrowserCloseButtonPosition";
     static final String SET_PROMOTIONAL_OPTIN = "setPromotionalOptin";
+
+    // Action names sent by js/Constants.js; changing a value breaks the bridge.
+    static final String ADD_EMAIL = "addEmail";
+    static final String ADD_PHONE_NUMBER = "addPhoneNumber";
+    static final String ADD_USER_ID = "addUserID";
+    static final String CART_CLEARED = "cartCleared";
+    static final String CLICK_SMART_RECOMMENDATION_PRODUCT = "clickSmartRecommendationProduct";
+    static final String GET_MESSAGE_CENTER_DATA = "getMessageCenterData";
+    static final String GET_SMART_RECOMMENDATION = "getSmartRecommendation";
+    static final String GET_SMART_RECOMMENDATION_WITH_PRODUCT = "getSmartRecommendationWithProduct";
+    static final String ITEM_ADDED_TO_CART = "itemAddedToCart";
+    static final String ITEM_PURCHASED = "itemPurchased";
+    static final String ITEM_REMOVED_FROM_CART = "itemRemovedFromCart";
+    static final String LOGIN = "login";
+    static final String LOGOUT = "logout";
+    static final String REGISTER_WITH_QUIET_PERMISSION = "registerWithQuietPermission";
+    static final String SET_AGE = "setAge";
+    static final String SET_BIRTHDAY = "setBirthday";
+    static final String SET_CUSTOM_ATTRIBUTE_WITH_ARRAY = "setCustomAttributeWithArray";
+    static final String SET_CUSTOM_ATTRIBUTE_WITH_BOOLEAN = "setCustomAttributeWithBoolean";
+    static final String SET_CUSTOM_ATTRIBUTE_WITH_DATE = "setCustomAttributeWithDate";
+    static final String SET_CUSTOM_ATTRIBUTE_WITH_DOUBLE = "setCustomAttributeWithDouble";
+    static final String SET_CUSTOM_ATTRIBUTE_WITH_INT = "setCustomAttributeWithInt";
+    static final String SET_CUSTOM_ATTRIBUTE_WITH_STRING = "setCustomAttributeWithString";
+    static final String SET_EMAIL_OPTIN = "setEmailOptin";
+    static final String SET_FACEBOOK_ID = "setFacebookID";
+    static final String SET_GENDER = "setGender";
+    static final String SET_LANGUAGE = "setLanguage";
+    static final String SET_LOCALE = "setLocale";
+    static final String SET_LOCATION_OPTIN = "setLocationOptin";
+    static final String SET_NAME = "setName";
+    static final String SET_PUSH_OPTIN = "setPushOptin";
+    static final String SET_SMS_OPTIN = "setSMSOptin";
+    static final String SET_SURNAME = "setSurname";
+    static final String SET_TWITTER_ID = "setTwitterID";
+    static final String SET_WHATSAPP_OPTIN = "setWhatsappOptin";
+    static final String TAG_EVENT = "tagEvent";
+    static final String UNSET_CUSTOM_ATTRIBUTE = "unsetCustomAttribute";
+    static final String VISIT_CART_PAGE = "visitCartPage";
+    static final String VISIT_HOME_PAGE = "visitHomePage";
+    static final String VISIT_LISTING_PAGE = "visitListingPage";
+    static final String VISIT_PRODUCT_DETAIL_PAGE = "visitProductDetailPage";
+
     static final String ERROR = "error";
     static final String DEFAULT_VALUE = "defaultValue";
     static final String VARIABLE_NAME = "variableName";

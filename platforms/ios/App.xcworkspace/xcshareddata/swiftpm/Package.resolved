@@ -1,0 +1,15 @@
+{
+  "originHash" : "fef65da81c0939fe6ac62a3afeb864bf1f7082ba7f03ba577ed661cafbf43496",
+  "pins" : [
+    {
+      "identity" : "insider-ios-sdk",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/useinsider/Insider-iOS-SDK.git",
+      "state" : {
+        "revision" : "d00df4d0ae3fa2b90dd45011dfc6072cfa351492",
+        "version" : "2.5.1"
+      }
+    }
+  ],
+  "version" : 3
+}

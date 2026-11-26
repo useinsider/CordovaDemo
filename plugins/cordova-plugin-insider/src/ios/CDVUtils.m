@@ -28,6 +28,14 @@
         }
         else if ([type isEqualToString:@"integer"] && [value isKindOfClass:[NSNumber class]]) {
             NSNumber *numberValue = value;
+
+            // addParameterWithInt takes an int; the cast below would wrap a larger value silently.
+            if ([self isOutOfIntRange:numberValue]) {
+                [self reportRefusedValueWithReason:@"addParameterWithInt: value is outside the int range"
+                                              desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+                continue;
+            }
+
             int integerValue = (int)(numberValue != nil ? numberValue.integerValue : 0);
             event.addParameterWithInt(key, integerValue);
         }
@@ -54,6 +62,18 @@
         else if ([type isEqualToString:@"numbers"] && [value isKindOfClass:[NSArray class]]) {
             NSArray * numbersValue = value;
             event.addParameterWithNumericArray(key, numbersValue);
+        }
+        else if ([type isEqualToString:@"objects"]) {
+            // A malformed value decodes to an empty list. A list with nothing to insert is
+            // skipped for this parameter alone, as the JS layer and Android do.
+            NSArray<NSDictionary<NSString *, id> *> *eventObjects = [self parseCustomParametersList:value];
+            if (eventObjects.count == 0) {
+                [self reportRefusedValueWithReason:@"addParameterWithObjectArray: nothing to insert"
+                                              desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+                continue;
+            }
+
+            event.addParameterWithObjectArray(key, eventObjects);
         }
     }
 
@@ -190,6 +210,14 @@
         }
         else if ([type isEqualToString:@"integer"] && [value isKindOfClass:[NSNumber class]]) {
             NSNumber *numberValue = (NSNumber *)value;
+
+            // setCustomAttributeWithInt takes an int; the cast below would wrap a larger value silently.
+            if ([self isOutOfIntRange:numberValue]) {
+                [self reportRefusedValueWithReason:@"setCustomAttributeWithInt: value is outside the int range"
+                                              desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+                continue;
+            }
+
             int intValue = (int)numberValue.integerValue;
             product.setCustomAttributeWithInt(key, intValue);
         }
@@ -257,9 +285,79 @@
             NSArray *arrayValue = (NSArray *)value;
             mappedCustomParameters[key] = arrayValue;
         }
+        else if ([type isEqualToString:@"object"] && [value isKindOfClass:[NSArray class]]) {
+            mappedCustomParameters[key] = [self parseCustomParameters:(NSArray *)value];
+        }
     }
 
     return mappedCustomParameters;
+}
+
+// True when the match decodes with no lost entry at every nesting level. The count check also
+// catches an unrecognized `type`, which parseCustomParameters: skips. A widened match would
+// rewrite or delete untargeted objects, so callers fail closed even without the JS check.
++ (BOOL)isLosslessMatch:(nullable NSArray *)matchParameters {
+    if (![matchParameters isKindOfClass:[NSArray class]]) {
+        return NO;
+    }
+
+    NSDictionary *decoded = [self parseCustomParameters:matchParameters];
+    if (decoded.count != matchParameters.count) {
+        return NO;
+    }
+
+    for (id item in matchParameters) {
+        if (![item isKindOfClass:[NSDictionary class]]) {
+            return NO;
+        }
+
+        NSDictionary *parameter = (NSDictionary *)item;
+        NSString *type = [parameter[@"type"] isKindOfClass:[NSString class]] ? parameter[@"type"] : nil;
+
+        if ([type isEqualToString:@"object"]) {
+            id nested = parameter[@"value"];
+            if (![nested isKindOfClass:[NSArray class]] || ![self isLosslessMatch:(NSArray *)nested]) {
+                return NO;
+            }
+        }
+    }
+
+    return YES;
+}
+
++ (nonnull NSArray<NSDictionary<NSString *, id> *> *)parseCustomParametersList:(nullable NSArray *)list {
+    NSMutableArray<NSDictionary<NSString *, id> *> *objects = [NSMutableArray array];
+
+    if (![list isKindOfClass:[NSArray class]]) {
+        return objects;
+    }
+
+    for (id item in list) {
+        if (![item isKindOfClass:[NSArray class]]) continue;
+
+        // An object that decodes to nothing would be written as an empty object.
+        NSDictionary<NSString *, id> *object = [self parseCustomParameters:(NSArray *)item];
+        if (object.count == 0) continue;
+
+        [objects addObject:object];
+    }
+
+    return objects;
+}
+
+// doubleValue, not longLongValue: converting a double beyond the long long range is undefined.
++ (BOOL)isOutOfIntRange:(nullable NSNumber *)number {
+    if (![number isKindOfClass:[NSNumber class]]) {
+        return NO;
+    }
+
+    double value = number.doubleValue;
+    return value < INT_MIN || value > INT_MAX;
+}
+
+// A refused value is reported to the native SDK instead of being dropped silently.
++ (void)reportRefusedValueWithReason:(NSString *)reason desc:(NSString *)desc {
+    [Insider sendError:[NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil] desc:desc];
 }
 
 + (NSDictionary *)dictionaryFromJSONString:(NSString *)jsonString {
@@ -379,6 +477,54 @@
     }
 
     return [value description];
+}
+
++ (InsiderGender)genderFromInt:(int)gender {
+    switch (gender) {
+        case 0:
+            return InsiderGenderMale;
+        case 1:
+            return InsiderGenderFemale;
+        default:
+            return InsiderGenderOther;
+    }
+}
+
++ (void)setGender:(int)gender {
+    @try {
+        [Insider getCurrentUser].setGender([self genderFromInt:gender]);
+    } @catch (NSException *e) {
+        [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+    }
+}
+
++ (NSString *)dictToJson:(NSDictionary *)dict {
+    @try {
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dict options:NSJSONWritingPrettyPrinted error:nil];
+        if (!jsonData) {
+            return @"{}";
+        }
+        return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    } @catch (NSException *e) {
+        [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+        return @"{}";
+    }
+}
+
++ (void)getMessageCenterDataWithLimit:(NSInteger)limit
+                       startDateEpoch:(NSInteger)startDateEpoch
+                         endDateEpoch:(NSInteger)endDateEpoch
+                              success:(void (^)(NSArray *))completionBlock {
+    @try {
+        NSDate *startDate = [NSDate dateWithTimeIntervalSince1970:startDateEpoch / 1000.0];
+        NSDate *endDate = [NSDate dateWithTimeIntervalSince1970:endDateEpoch / 1000.0];
+
+        [Insider getMessageCenterDataWithLimit:limit startDate:startDate endDate:endDate success:^(NSArray *messageCenterData) {
+            completionBlock(@[@{@"data": messageCenterData ?: @[]}]);
+        }];
+    } @catch (NSException *e) {
+        [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+    }
 }
 
 @end

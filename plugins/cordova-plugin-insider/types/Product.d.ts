@@ -21,6 +21,7 @@ export interface Product {
     setInStock(isInStock: boolean):Product;
     setProductURL(productURL: string):Product;
     setCustomAttributeWithString(key: string, value: string):Product;
+    /** A value outside the 32-bit integer range is ignored with a console warning. */
     setCustomAttributeWithInt(key: string, value: number):Product;
     setCustomAttributeWithBoolean(key: string, value: boolean):Product;
     setCustomAttributeWithDouble(key: string, value: number):Product;

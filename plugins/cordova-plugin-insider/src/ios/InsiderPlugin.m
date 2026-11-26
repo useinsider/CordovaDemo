@@ -201,7 +201,7 @@
         if (!callbackDictionary || [callbackDictionary count] == 0)
             return;
         InsiderCallbackType type = (InsiderCallbackType)[[callbackDictionary objectForKey:@"type"] intValue];
-        NSString* callbackData = [InsiderHybrid dictToJson:callbackDictionary];
+        NSString* callbackData = [CDVUtils dictToJson:callbackDictionary];
         
         NSString *js;
         switch (type) {
@@ -254,20 +254,6 @@
         [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
     }
 }
-
-- (void) enableIDFACollection:(CDVInvokedUrlCommand *)command {
-    @try {
-        [self.commandDelegate runInBackground:^{
-            [[IDFAHelper alloc] requestPermission];
-            NSString* booleanValueByString = [[command arguments] objectAtIndex:0];
-            [Insider enableIDFACollection:[booleanValueByString isEqualToString: @"true"]];
-            [self sendSuccessResultWithString:@"SUCCESS" andCommand:command];
-        }];
-    } @catch (NSException *exception) {
-        [Insider sendError:exception desc:@"Insider.m - enableIDFACollection"];
-    }
-}
-
 
 - (void) setGDPRConsent:(CDVInvokedUrlCommand *)command {
     @try {
@@ -761,11 +747,16 @@
     @try {
         [self.commandDelegate runInBackground:^{
             if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1] || ![command.arguments objectAtIndex:2]) return;
-            
+
+            if (![[command.arguments objectAtIndex:0] isKindOfClass:[NSNumber class]] || ![[command.arguments objectAtIndex:1] isKindOfClass:[NSNumber class]] || ![[command.arguments objectAtIndex:2] isKindOfClass:[NSNumber class]]) {
+                [self sendErrorResultWithString:@"Limit must be a number, start and end dates must be valid dates" andCommand:command];
+                return;
+            }
+
             NSInteger startDateEpoch = [[command.arguments objectAtIndex:1] integerValue];
             NSInteger endDateEpoch = [[command.arguments objectAtIndex:2] integerValue];
             
-            [InsiderHybrid getMessageCenterDataWithLimit:[[command.arguments objectAtIndex:0] intValue] startDate:startDateEpoch endDate:endDateEpoch success:^(NSArray *messageCenterData) {
+            [CDVUtils getMessageCenterDataWithLimit:[[command.arguments objectAtIndex:0] intValue] startDateEpoch:startDateEpoch endDateEpoch:endDateEpoch success:^(NSArray *messageCenterData) {
                 [self sendSuccessResultWithArray:messageCenterData andCommand:command];
             }];
         }];
@@ -778,6 +769,11 @@
     @try {
         [self.commandDelegate runInBackground:^{
             if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1] || ![command.arguments objectAtIndex:2] || ![command.arguments objectAtIndex:3]) return;
+
+            if (![[command.arguments objectAtIndex:0] isKindOfClass:[NSNumber class]] || ![[command.arguments objectAtIndex:1] isKindOfClass:[NSNumber class]] || ![[command.arguments objectAtIndex:2] isKindOfClass:[NSNumber class]] || ![[command.arguments objectAtIndex:3] isKindOfClass:[NSDictionary class]]) {
+                [self sendErrorResultWithString:@"Limit must be a number, start and end dates must be valid dates, identifiers must be an object" andCommand:command];
+                return;
+            }
 
             NSTimeInterval startDateEpoch = [[command.arguments objectAtIndex:1] doubleValue] / 1000.0;
             NSTimeInterval endDateEpoch = [[command.arguments objectAtIndex:2] doubleValue] / 1000.0;
@@ -814,6 +810,29 @@
     } @catch (NSException *e) {
         [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
     }
+}
+
+- (void)getAppCardsCampaignsWithIdentifiers:(CDVInvokedUrlCommand *)command {
+    [self.commandDelegate runInBackground:^{
+        @try {
+            id identifiersMap = command.arguments.count > 0 ? [command.arguments objectAtIndex:0] : nil;
+            InsiderIdentifiers *insiderIdentifiers = [identifiersMap isKindOfClass:[NSDictionary class]]
+                ? [self buildInsiderIdentifiersFromMap:identifiersMap]
+                : nil;
+
+            [[Insider appCards] getCampaignsWithIdentifiers:insiderIdentifiers completion:^(InsiderAppCardCampaignsResponseModel *inbox, NSError *error) {
+                if (error) {
+                    [self sendErrorResultWithDictionary:[CDVUtils appCardsErrorToDictionary:error] andCommand:command];
+                } else {
+                    NSDictionary *inboxDict = [inbox toDictionary] ?: @{};
+                    [self sendSuccessResultWithDictionary:inboxDict andCommand:command];
+                }
+            }];
+        } @catch (NSException *e) {
+            [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+            [self sendErrorResultWithString:[NSString stringWithFormat:@"Exception: %@", e.reason] andCommand:command];
+        }
+    }];
 }
 
 - (void)markAppCardAsRead:(CDVInvokedUrlCommand *)command {
@@ -978,7 +997,7 @@
     @try {
         [self.commandDelegate runInBackground:^{
             if (![command.arguments objectAtIndex:0]) return;
-            [InsiderHybrid setGender:[[command.arguments objectAtIndex:0] intValue]];
+            [CDVUtils setGender:[[command.arguments objectAtIndex:0] intValue]];
         }];
     } @catch (NSException *e) {
         [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
@@ -1153,6 +1172,14 @@
 - (void)setCustomAttributeWithInt:(CDVInvokedUrlCommand *)command {
     @try {
         if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1]) return;
+
+        // setCustomAttributeWithInt takes an int; intValue would wrap a larger value silently.
+        if ([CDVUtils isOutOfIntRange:[command.arguments objectAtIndex:1]]) {
+            [CDVUtils reportRefusedValueWithReason:@"setCustomAttributeWithInt: value is outside the int range"
+                                              desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+            return;
+        }
+
         [Insider getCurrentUser].setCustomAttributeWithInt([command.arguments objectAtIndex:0], [[command.arguments objectAtIndex:1] intValue]);
         
     } @catch (NSException *e) {
@@ -1199,7 +1226,140 @@
     @try {
         if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1]) return;
         [Insider getCurrentUser].setCustomAttributeWithArray([command.arguments objectAtIndex:0], [command.arguments objectAtIndex:1]);
-        
+
+    } @catch (NSException *e) {
+        [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+    }
+}
+
+- (void)addObjectsToCustomAttribute:(CDVInvokedUrlCommand *)command {
+    @try {
+        if (![command.arguments objectAtIndex:0] || ![command.arguments objectAtIndex:1]) return;
+
+        NSArray<NSDictionary<NSString *, id> *> *objects = [CDVUtils parseCustomParametersList:[command.arguments objectAtIndex:1]];
+
+        // Native backstop for the JS refusal of a payload with nothing to append.
+        if (objects.count == 0) {
+            [self reportRefusedMatchInMethod:@"addObjectsToCustomAttribute"
+                                      reason:@"objects must not be empty"
+                                        desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+            return;
+        }
+
+        [Insider getCurrentUser].addObjectsToCustomAttribute([command.arguments objectAtIndex:0], objects);
+
+    } @catch (NSException *e) {
+        [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+    }
+}
+
+// A refused array-of-objects match is reported to the native SDK instead of returning silently.
+- (void)reportRefusedMatchInMethod:(NSString *)methodName reason:(NSString *)reason desc:(NSString *)desc {
+    NSString *message = [NSString stringWithFormat:@"%@: %@", methodName, reason];
+    [Insider sendError:[NSException exceptionWithName:NSInvalidArgumentException reason:message userInfo:nil] desc:desc];
+}
+
+- (void)mergeObjectsInCustomAttribute:(CDVInvokedUrlCommand *)command {
+    @try {
+        if (![command.arguments objectAtIndex:0]) return;
+
+        id match = [command.arguments objectAtIndex:1];
+        id value = [command.arguments objectAtIndex:2];
+
+        // Merge has no wildcard semantics, so anything that is not a real array is refused.
+        if (![match isKindOfClass:[NSArray class]]) {
+            [self reportRefusedMatchInMethod:@"mergeObjectsInCustomAttribute"
+                                      reason:@"match must be an array"
+                                        desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+            return;
+        }
+
+        NSArray *matchParameters = (NSArray *)match;
+
+        // An explicit empty match is invalid input, not the wildcard.
+        if (matchParameters.count == 0) {
+            [self reportRefusedMatchInMethod:@"mergeObjectsInCustomAttribute"
+                                      reason:@"match must not be empty"
+                                        desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+            return;
+        }
+
+        // A malformed entry at any level decodes to fewer keys than the array carried; merging
+        // with the reduced dictionary would rewrite objects the caller never targeted.
+        if (![CDVUtils isLosslessMatch:matchParameters]) {
+            [self reportRefusedMatchInMethod:@"mergeObjectsInCustomAttribute"
+                                      reason:@"match contains an invalid entry"
+                                        desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+            return;
+        }
+
+        NSDictionary *matchDictionary = [CDVUtils parseCustomParameters:matchParameters];
+
+        // Checked on the decoded dictionary, not the raw array: entries that fail to decode leave
+        // the array non-empty while the value that reaches the SDK is empty.
+        NSArray *valueParameters = [value isKindOfClass:[NSArray class]] ? (NSArray *)value : @[];
+        NSDictionary *valueDictionary = [CDVUtils parseCustomParameters:valueParameters];
+
+        // Native backstop for the JS empty-value refusal.
+        if (valueDictionary.count == 0) {
+            [self reportRefusedMatchInMethod:@"mergeObjectsInCustomAttribute"
+                                      reason:@"value must not be empty"
+                                        desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+            return;
+        }
+
+        [Insider getCurrentUser].mergeObjectsInCustomAttribute([command.arguments objectAtIndex:0],
+                                                               matchDictionary,
+                                                               valueDictionary);
+    } @catch (NSException *e) {
+        [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+    }
+}
+
+- (void)removeObjectsFromCustomAttribute:(CDVInvokedUrlCommand *)command {
+    @try {
+        if (![command.arguments objectAtIndex:0]) return;
+
+        // argumentAtIndex: returns nil both for a short argument list and for an explicit
+        // NSNull (Cordova's encoding of JS null), unlike objectAtIndex: which raises for the
+        // former. Either way, a missing match is the native wildcard remove; any other
+        // non-array value is refused rather than silently widened.
+        id match = [command argumentAtIndex:1];
+
+        if (match == nil) {
+            [Insider getCurrentUser].removeObjectsFromCustomAttribute([command.arguments objectAtIndex:0], nil);
+            return;
+        }
+
+        if (![match isKindOfClass:[NSArray class]]) {
+            [self reportRefusedMatchInMethod:@"removeObjectsFromCustomAttribute"
+                                      reason:@"match must be an array"
+                                        desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+            return;
+        }
+
+        NSArray *matchParameters = (NSArray *)match;
+
+        // An explicit empty match is invalid input, not the wildcard; only the match == nil
+        // branch above reaches it.
+        if (matchParameters.count == 0) {
+            [self reportRefusedMatchInMethod:@"removeObjectsFromCustomAttribute"
+                                      reason:@"match must not be empty"
+                                        desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+            return;
+        }
+
+        // Same fail-closed guard as merge: a widened match deletes untargeted objects.
+        if (![CDVUtils isLosslessMatch:matchParameters]) {
+            [self reportRefusedMatchInMethod:@"removeObjectsFromCustomAttribute"
+                                      reason:@"match contains an invalid entry"
+                                        desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
+            return;
+        }
+
+        NSDictionary *matchDictionary = [CDVUtils parseCustomParameters:matchParameters];
+
+        [Insider getCurrentUser].removeObjectsFromCustomAttribute([command.arguments objectAtIndex:0], matchDictionary);
     } @catch (NSException *e) {
         [Insider sendError:e desc:[NSString stringWithFormat:@"%s:%d", __func__, __LINE__]];
     }
@@ -1312,7 +1472,7 @@
 
 - (void)foregroundPushCallback:(UNNotification *) notification {
     @try {
-        NSString *jsCode = [NSString stringWithFormat:@"cordova.fireDocumentEvent('ins_foreground_push_callback',%@);", [InsiderHybrid dictToJson:notification.request.content.userInfo]];
+        NSString *jsCode = [NSString stringWithFormat:@"cordova.fireDocumentEvent('ins_foreground_push_callback',%@);", [CDVUtils dictToJson:notification.request.content.userInfo]];
         
         [self.commandDelegate evalJs:jsCode];
     } @catch (NSException *exception) {

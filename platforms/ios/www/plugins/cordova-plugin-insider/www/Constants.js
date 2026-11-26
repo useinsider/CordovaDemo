@@ -32,6 +32,9 @@ module.exports = {
   SET_CUSTOM_ATTRIBUTE_WITH_DATE: 'setCustomAttributeWithDate',
   SET_CUSTOM_ATTRIBUTE_WITH_ARRAY: 'setCustomAttributeWithArray',
   UNSET_CUSTOM_ATTRIBUTE: 'unsetCustomAttribute',
+  ADD_OBJECTS_TO_CUSTOM_ATTRIBUTE: 'addObjectsToCustomAttribute',
+  MERGE_OBJECTS_IN_CUSTOM_ATTRIBUTE: 'mergeObjectsInCustomAttribute',
+  REMOVE_OBJECTS_FROM_CUSTOM_ATTRIBUTE: 'removeObjectsFromCustomAttribute',
   // User Identifier
   ADD_EMAIL: 'addEmail',
   ADD_PHONE_NUMBER: 'addPhoneNumber',
@@ -47,6 +50,7 @@ module.exports = {
   GET_MESSAGE_CENTER_DATA: 'getMessageCenterData',
   GET_MESSAGE_CENTER_DATA_WITH_IDENTIFIERS: 'getMessageCenterDataWithIdentifiers',
   GET_APP_CARDS_CAMPAIGNS: 'getAppCardsCampaigns',
+  GET_APP_CARDS_CAMPAIGNS_WITH_IDENTIFIERS: 'getAppCardsCampaignsWithIdentifiers',
   MARK_APP_CARD_AS_READ: 'markAppCardAsRead',
   MARK_APP_CARD_AS_UNREAD: 'markAppCardAsUnread',
   VIEW_APP_CARD: 'viewAppCard',
@@ -75,7 +79,6 @@ module.exports = {
   REMOVE_IN_APP: 'removeInapp',
   REGISTER_WITH_QUIET_PERMISSION: 'registerWithQuietPermission',
   SET_HYBRID_PUSH_TOKEN: 'setPushToken',
-  ENABLE_IDFA_COLLECTION: 'enableIDFACollection',
   ENABLE_LOCATION_COLLECTION: 'enableLocationCollection',
   ENABLE_IP_COLLECTION: 'enableIpCollection',
   ENABLE_CARRIER_COLLECTION: 'enableCarrierCollection',
@@ -130,6 +133,6 @@ module.exports = {
   // Reinit
   REINIT_WITH_PARTNER_NAME: 'reinitWithPartnerName',
   // SDK Version
-  SDK_VERSION: 'CDV-4.1.0'
+  SDK_VERSION: 'CDV-4.2.0'
 };
 });

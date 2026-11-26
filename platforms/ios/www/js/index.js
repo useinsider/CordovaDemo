@@ -144,14 +144,14 @@ let app = {
 
 async function initInsider() {
     // FIXME-INSIDER: Please change with your app group.
-    await window.Insider.init(PARTNER_NAME, 'group.com.useinsider.cordovademo',
+    await window.Insider.init(PARTNER_NAME, 'group.com.useinsider.mobile-ios',
         (callback) => {
             switch ((callback.result || {}).type) {
                 case window.Insider.callbackType.NOTIFICATION_OPEN:
                     logInsider('NOTIFICATION_OPEN', callback.result || {});
                     break;
-                case window.Insider.callbackType.TEMP_STORE_CUSTOM_ACTION:
-                    logInsider('TEMP_STORE_CUSTOM_ACTION', callback.result || {});
+                case window.Insider.callbackType.SESSION_STARTED:
+                    logInsider('SESSION_STARTED', callback.result || {});
                     break;
             }
         },
