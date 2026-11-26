@@ -33,6 +33,7 @@ def apply_settings(target, name, app_settings, deployment)
     s['TARGETED_DEVICE_FAMILY'] = '1,2'
     s['SKIP_INSTALL'] = 'YES'
     s['CODE_SIGN_STYLE'] = 'Automatic'
+    s['DEVELOPMENT_TEAM'] = app_settings['DEVELOPMENT_TEAM'] if app_settings['DEVELOPMENT_TEAM']
     s['LD_RUNPATH_SEARCH_PATHS'] = ['$(inherited)', '@executable_path/Frameworks', '@executable_path/../../Frameworks']
   end
 end
