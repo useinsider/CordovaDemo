@@ -22,4 +22,4 @@ GoogleService-Info.plist
 # Local AI tooling output
 docs/superpowers/
 .superpowers/
-.claude/settings.local.json
+.claude/
