@@ -32,7 +32,15 @@
       "android"
     ],
     "plugins": {
-      "cordova-plugin-insider": {}
+      "cordova-plugin-insider": {},
+      "cordova-plugin-firebase-messaging": {
+        "ANDROID_FIREBASE_BOM_VERSION": "34.19.0",
+        "IOS_FIREBASE_SDK_VERSION": "12.19.1"
+      }
     }
+  },
+  "dependencies": {
+    "cordova-plugin-firebase-messaging": "9.2.0",
+    "cordova-support-android-plugin": "2.0.4"
   }
 }

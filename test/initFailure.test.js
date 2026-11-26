@@ -4,7 +4,7 @@ test('an init call that throws is written to the console instead of failing sile
   const logs = captureConsole();
   try {
     loadDemoPage({ html: 'index.html', script: 'js/index.js', platformId: 'ios', respond: ({ success }) => success() });
-    window.Insider.registerWithQuietPermission = () => {
+    window.Insider.startTrackingGeofence = () => {
       throw new Error('boom');
     };
     document.dispatchEvent(new Event('deviceready'));

@@ -11,6 +11,10 @@
             {
               "xml": "<feature name=\"InsiderPlugin\"><param name=\"ios-package\" value=\"InsiderPlugin\" /></feature>",
               "count": 1
+            },
+            {
+              "xml": "<feature name=\"FirebaseMessaging\"><param name=\"ios-package\" value=\"FirebaseMessagingPlugin\" /><param name=\"onload\" value=\"true\" /></feature>",
+              "count": 1
             }
           ]
         }
@@ -20,7 +24,13 @@
           "CFBundleURLTypes": [
             {
               "xml": "<array><dict><key>CFBundleURLName</key><string>insider</string><key>CFBundleURLSchemes</key><array><string>insideryourpartnername</string></array></dict></array>",
-              "count": 13
+              "count": 14
+            }
+          ],
+          "UIBackgroundModes": [
+            {
+              "xml": "<array><string>remote-notification</string></array>",
+              "count": 1
             }
           ]
         }
@@ -30,7 +40,7 @@
           "com.apple.security.application-groups": [
             {
               "xml": "<array><string>group.com.useinsider.mobile-ios</string></array>",
-              "count": 7
+              "count": 8
             }
           ]
         }
@@ -40,7 +50,27 @@
           "com.apple.security.application-groups": [
             {
               "xml": "<array><string>group.com.useinsider.mobile-ios</string></array>",
-              "count": 7
+              "count": 8
+            }
+          ]
+        }
+      },
+      "*-Debug.plist": {
+        "parents": {
+          "aps-environment": [
+            {
+              "xml": "<string>development</string>",
+              "count": 1
+            }
+          ]
+        }
+      },
+      "*-Release.plist": {
+        "parents": {
+          "aps-environment": [
+            {
+              "xml": "<string>production</string>",
+              "count": 1
             }
           ]
         }
@@ -50,6 +80,10 @@
   "installed_plugins": {
     "cordova-plugin-insider": {
       "PACKAGE_NAME": "com.useinsider.cordovademo"
+    },
+    "cordova-plugin-firebase-messaging": {
+      "IOS_FIREBASE_SDK_VERSION": "12.19.1",
+      "PACKAGE_NAME": "com.useinsider.demo.external"
     }
   },
   "dependent_plugins": {},
@@ -131,9 +165,18 @@
       "id": "cordova-plugin-insider.InsiderEvents",
       "file": "plugins/cordova-plugin-insider/www/InsiderEvents.js",
       "pluginId": "cordova-plugin-insider"
+    },
+    {
+      "id": "cordova-plugin-firebase-messaging.FirebaseMessaging",
+      "file": "plugins/cordova-plugin-firebase-messaging/www/FirebaseMessaging.js",
+      "pluginId": "cordova-plugin-firebase-messaging",
+      "merges": [
+        "cordova.plugins.firebase.messaging"
+      ]
     }
   ],
   "plugin_metadata": {
-    "cordova-plugin-insider": "4.2.0"
+    "cordova-plugin-insider": "4.2.0",
+    "cordova-plugin-firebase-messaging": "9.2.0"
   }
 }

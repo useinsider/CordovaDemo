@@ -38,3 +38,6 @@ let package = Package(
 
 package.dependencies.append(.package(name: "cordova-plugin-insider", path: "../cordova-plugin-insider"))
 package.targets.first?.dependencies.append(.product(name: "cordova-plugin-insider", package: "cordova-plugin-insider"))
+
+package.dependencies.append(.package(name: "cordova-plugin-firebase-messaging", path: "../cordova-plugin-firebase-messaging"))
+package.targets.first?.dependencies.append(.product(name: "cordova-plugin-firebase-messaging", package: "cordova-plugin-firebase-messaging"))

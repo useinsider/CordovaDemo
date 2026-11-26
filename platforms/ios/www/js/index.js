@@ -139,6 +139,7 @@ let app = {
         document.getElementById('reinitWithPartnerName').addEventListener('click', guarded('reinitWithPartnerName', reinitWithPartnerName));
 
         initInsider().catch((error) => logInsiderError('initialize', error));
+        initFirebase();
     }
 };
 
@@ -157,7 +158,6 @@ async function initInsider() {
         },
     );
 
-    await window.Insider.registerWithQuietPermission(false);
     window.Insider.startTrackingGeofence();
     // The plugin's Android side rejects this iOS-only action with "Invalid action".
     if (window.cordova.platformId === 'ios') {
@@ -168,6 +168,30 @@ async function initInsider() {
     window.Insider.enableCarrierCollection(true);
 
     logInsider('initialize');
+}
+
+function logFirebase(method, result) {
+    appendPlaygroundLine('[FCM][' + method + ']: ' + describeResult(result));
+}
+
+// Firebase owns the permission prompt and the FCM token; Insider only gets the pushes it sent.
+function forwardInsiderPush(method, payload) {
+    logFirebase(method, payload);
+    if (payload && payload.source === 'Insider') {
+        window.Insider.handleNotification(payload);
+    }
+}
+
+function initFirebase() {
+    const messaging = window.cordova.plugins.firebase.messaging;
+    messaging.requestPermission({ forceShow: true })
+        .then(() => logFirebase('requestPermission', 'granted'))
+        .catch((error) => logFirebase('requestPermission', error));
+    messaging.getToken()
+        .then((token) => logFirebase('getToken', token))
+        .catch((error) => logFirebase('getToken', error));
+    messaging.onMessage((payload) => forwardInsiderPush('onMessage', payload));
+    messaging.onBackgroundMessage((payload) => forwardInsiderPush('onBackgroundMessage', payload));
 }
 
 function userAttributes() {

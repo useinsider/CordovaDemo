@@ -23,13 +23,13 @@
 		982AA051E8D5C879CB7E9F05 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B7815F52D3866EC7DC7D1B3 /* Foundation.framework */; };
 		A4E5FB5FD87B43512BFCFDE8 /* NotificationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1600C36EC7009572F6E23C1D /* NotificationViewController.m */; };
 		B83C1A3E906BE5C9E12C82A4 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 736F75CDB92DFF26BB0D904B /* MainInterface.storyboard */; };
+		BD76E37D87015A6D98E1D453 /* libPods-App.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 82DCE754084EC59D0932784A /* libPods-App.a */; };
 		C15AE6ABD36D359E0EBA0E48 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 783F7DCE7E59858E66A9A287 /* UserNotifications.framework */; };
 		D0B126BADF7FBA1DD9C1BF76 /* InsiderNotificationService.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 2CF273F93F21B42CC4E0B4E3 /* InsiderNotificationService.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		D9AC6A9BAA99D8D88BF295A5 /* UserNotificationsUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A2E5F9A41663AAE2BC32DF5F /* UserNotificationsUI.framework */; };
 		D9CD7A860BAAAFF5790F3F2F /* InsiderInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7AB67E0534193408492A5E23 /* InsiderInterface.storyboard */; };
 		DE25FA388D09DCB7A55F4F00 /* NotificationService.m in Sources */ = {isa = PBXBuildFile; fileRef = 2F3E5589916094954BC622E6 /* NotificationService.m */; };
 		E6830087A3CF1B8FDCE8C2B4 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B7815F52D3866EC7DC7D1B3 /* Foundation.framework */; };
-		F3E4F040E632EBD3F190ABAD /* libPods-App.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A7D1A3854CB03F2B24D959CD /* libPods-App.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -85,6 +85,7 @@
 		783F7DCE7E59858E66A9A287 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
 		7AB67E0534193408492A5E23 /* InsiderInterface.storyboard */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.storyboard; path = InsiderInterface.storyboard; sourceTree = "<group>"; };
 		80AF99773A662CFF8BDAF121 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		82DCE754084EC59D0932784A /* libPods-App.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-App.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		87E837E95B911DBD93F2E504 /* Pods-App.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-App.release.xcconfig"; path = "Target Support Files/Pods-App/Pods-App.release.xcconfig"; sourceTree = "<group>"; };
 		9040B1872C6DD3EB00662C5D /* Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Bridging-Header.h"; sourceTree = "<group>"; };
 		9040B1882C6DD41B00662C5D /* www */ = {isa = PBXFileReference; lastKnownFileType = folder; name = www; path = ../../www; sourceTree = "<group>"; };
@@ -109,7 +110,6 @@
 		90F7E7002C6EB78900AD84C2 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		90F7E7012C6EB78900AD84C2 /* MainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainViewController.h; sourceTree = "<group>"; };
 		A2E5F9A41663AAE2BC32DF5F /* UserNotificationsUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotificationsUI.framework; path = System/Library/Frameworks/UserNotificationsUI.framework; sourceTree = SDKROOT; };
-		A7D1A3854CB03F2B24D959CD /* libPods-App.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-App.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		BEE1603A70B1F9E9C3EECCC4 /* InsiderNotificationContent.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = InsiderNotificationContent.entitlements; sourceTree = "<group>"; };
 		C09B9AF9841FDC4D36DEA94C /* Base */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
 		C3CE7D21E53087AB22E8FC23 /* NotificationViewController.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = NotificationViewController.h; sourceTree = "<group>"; };
@@ -143,7 +143,7 @@
 				90A914592CA3D370003DB979 /* Cordova in Frameworks */,
 				90D82ABD2CF19AEA001383CF /* CordovaPlugins in Frameworks */,
 				2EFCC6A003001325AD792DB0 /* InsiderMobileAdvancedNotification in Frameworks */,
-				F3E4F040E632EBD3F190ABAD /* libPods-App.a in Frameworks */,
+				BD76E37D87015A6D98E1D453 /* libPods-App.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -190,7 +190,7 @@
 				7A164A1D6000E610F3FB6D6B /* iOS */,
 				783F7DCE7E59858E66A9A287 /* UserNotifications.framework */,
 				A2E5F9A41663AAE2BC32DF5F /* UserNotificationsUI.framework */,
-				A7D1A3854CB03F2B24D959CD /* libPods-App.a */,
+				82DCE754084EC59D0932784A /* libPods-App.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -723,8 +723,8 @@
 					"$(inherited)",
 					"-ObjC",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.useinsider.demo.external";
-				PRODUCT_NAME = "CordovaDemo";
+				PRODUCT_BUNDLE_IDENTIFIER = com.useinsider.demo.external;
+				PRODUCT_NAME = CordovaDemo;
 				SUPPORTS_MACCATALYST = YES;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
@@ -762,8 +762,8 @@
 					"$(inherited)",
 					"-ObjC",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.useinsider.demo.external";
-				PRODUCT_NAME = "CordovaDemo";
+				PRODUCT_BUNDLE_IDENTIFIER = com.useinsider.demo.external;
+				PRODUCT_NAME = CordovaDemo;
 				SUPPORTS_MACCATALYST = YES;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;

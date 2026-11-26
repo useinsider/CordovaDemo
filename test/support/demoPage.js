@@ -11,16 +11,30 @@ const readWww = (relativePath) => fs.readFileSync(path.join(WWW, relativePath), 
 
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-// Loads a www page with the real plugin JS; only the native bridge (cordova.exec) is faked.
+// cordova-plugin-firebase-messaging's JS needs the Cordova module loader, so its API is faked here.
+function fakeFirebaseMessaging() {
+  const listeners = { onMessage: [], onBackgroundMessage: [] };
+  return {
+    listeners,
+    requestPermission: jest.fn(() => Promise.resolve()),
+    getToken: jest.fn(() => Promise.resolve('test-fcm-token')),
+    onMessage: jest.fn((callback) => listeners.onMessage.push(callback)),
+    onBackgroundMessage: jest.fn((callback) => listeners.onBackgroundMessage.push(callback)),
+  };
+}
+
+// Loads a www page with the real Insider plugin JS; only the native bridge (cordova.exec) is faked.
 function loadDemoPage({ html, script, platformId, respond }) {
   const execCalls = [];
   const bridge = { respond };
+  const firebaseMessaging = fakeFirebaseMessaging();
   window.cordova = {
     platformId,
     exec: jest.fn((success, failure, service, action, args) => {
       execCalls.push({ service, action, args });
       bridge.respond({ action, args, success, failure });
     }),
+    plugins: { firebase: { messaging: firebaseMessaging } },
   };
   window.Insider = require(PLUGIN_ENTRY);
 
@@ -64,6 +78,7 @@ function loadDemoPage({ html, script, platformId, respond }) {
   return {
     bridge,
     execCalls,
+    firebaseMessaging,
     handlerErrors,
     settle,
     global: (name) => window.eval(name),

@@ -10,10 +10,14 @@
           "/*": [
             {
               "xml": "<preference name=\"GradlePluginGoogleServicesEnabled\" value=\"true\" />",
-              "count": 1
+              "count": 2
             },
             {
               "xml": "<preference name=\"GradlePluginGoogleServicesVersion\" value=\"4.4.2\" />",
+              "count": 1
+            },
+            {
+              "xml": "<preference name=\"GradlePluginGoogleServicesVersion\" value=\"4.4.0\" />",
               "count": 1
             }
           ]
@@ -34,6 +38,16 @@
               "xml": "<uses-permission android:name=\"android.permission.ACCESS_FINE_LOCATION\" />",
               "count": 1
             }
+          ],
+          "/manifest/application": [
+            {
+              "xml": "<service android:exported=\"false\" android:name=\"by.chemerisuk.cordova.firebase.FirebaseMessagingPluginService\"><intent-filter><action android:name=\"com.google.firebase.MESSAGING_EVENT\" /></intent-filter></service>",
+              "count": 1
+            },
+            {
+              "xml": "<meta-data android:name=\"com.google.firebase.messaging.default_notification_channel_id\" android:value=\"default\" />",
+              "count": 1
+            }
           ]
         }
       },
@@ -43,6 +57,10 @@
             {
               "xml": "<feature name=\"InsiderPlugin\"><param name=\"android-package\" value=\"com.useinsider.cordova.InsiderPlugin\" /><param name=\"onload\" value=\"true\" /></feature>",
               "count": 1
+            },
+            {
+              "xml": "<feature name=\"FirebaseMessaging\"><param name=\"android-package\" value=\"by.chemerisuk.cordova.firebase.FirebaseMessagingPlugin\" /><param name=\"onload\" value=\"true\" /></feature>",
+              "count": 1
             }
           ]
         }
@@ -51,6 +69,13 @@
   },
   "installed_plugins": {
     "cordova-plugin-insider": {
+      "PACKAGE_NAME": "com.useinsider.ecommerce"
+    },
+    "cordova-support-android-plugin": {
+      "PACKAGE_NAME": "com.useinsider.ecommerce"
+    },
+    "cordova-plugin-firebase-messaging": {
+      "ANDROID_FIREBASE_BOM_VERSION": "34.19.0",
       "PACKAGE_NAME": "com.useinsider.ecommerce"
     }
   },
@@ -133,9 +158,19 @@
       "id": "cordova-plugin-insider.InsiderEvents",
       "file": "plugins/cordova-plugin-insider/www/InsiderEvents.js",
       "pluginId": "cordova-plugin-insider"
+    },
+    {
+      "id": "cordova-plugin-firebase-messaging.FirebaseMessaging",
+      "file": "plugins/cordova-plugin-firebase-messaging/www/FirebaseMessaging.js",
+      "pluginId": "cordova-plugin-firebase-messaging",
+      "merges": [
+        "cordova.plugins.firebase.messaging"
+      ]
     }
   ],
   "plugin_metadata": {
-    "cordova-plugin-insider": "4.2.0"
+    "cordova-plugin-insider": "4.2.0",
+    "cordova-support-android-plugin": "2.0.4",
+    "cordova-plugin-firebase-messaging": "9.2.0"
   }
 }

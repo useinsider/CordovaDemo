@@ -77,7 +77,7 @@ function describeIndexPage(platformId) {
     test('deviceready initialises the SDK through native actions that exist', () => {
       const actions = page.execCalls.map((call) => call.action);
       expect(actions).toContain(platformId === 'ios' ? 'initWithLaunchOptions' : 'init');
-      expect(actions).toEqual(expect.arrayContaining(['registerWithQuietPermission', 'startTrackingGeofence']));
+      expect(actions).toContain('startTrackingGeofence');
       expect(unimplemented(actions)).toEqual([]);
       expect([...page.handlerErrors, ...logs.errors, ...logs.warnings]).toEqual([]);
     });

@@ -9,7 +9,15 @@
   "installed_plugins": {
     "cordova-plugin-insider": {
       "PACKAGE_NAME": "com.useinsider.ecommerce"
+    },
+    "cordova-plugin-firebase-messaging": {
+      "ANDROID_FIREBASE_BOM_VERSION": "34.19.0",
+      "PACKAGE_NAME": "com.useinsider.ecommerce"
     }
   },
-  "dependent_plugins": {}
+  "dependent_plugins": {
+    "cordova-support-android-plugin": {
+      "PACKAGE_NAME": "com.useinsider.ecommerce"
+    }
+  }
 }

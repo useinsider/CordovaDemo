@@ -4,6 +4,10 @@
         <param name="android-package" value="com.useinsider.cordova.InsiderPlugin" />
         <param name="onload" value="true" />
     </feature>
+    <feature name="FirebaseMessaging">
+        <param name="android-package" value="by.chemerisuk.cordova.firebase.FirebaseMessagingPlugin" />
+        <param name="onload" value="true" />
+    </feature>
     <name>CordovaDemo</name>
     <description>This Demo contains simple methods that you can use with the Insider SDK.</description>
     <content src="index.html" />

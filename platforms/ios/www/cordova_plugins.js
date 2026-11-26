@@ -77,9 +77,18 @@ cordova.define('cordova/plugin_list', function(require, exports, module) {
       "id": "cordova-plugin-insider.InsiderEvents",
       "file": "plugins/cordova-plugin-insider/www/InsiderEvents.js",
       "pluginId": "cordova-plugin-insider"
+    },
+    {
+      "id": "cordova-plugin-firebase-messaging.FirebaseMessaging",
+      "file": "plugins/cordova-plugin-firebase-messaging/www/FirebaseMessaging.js",
+      "pluginId": "cordova-plugin-firebase-messaging",
+      "merges": [
+        "cordova.plugins.firebase.messaging"
+      ]
     }
   ];
   module.exports.metadata = {
-    "cordova-plugin-insider": "4.2.0"
+    "cordova-plugin-insider": "4.2.0",
+    "cordova-plugin-firebase-messaging": "9.2.0"
   };
 });
