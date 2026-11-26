@@ -150,8 +150,8 @@ async function initInsider() {
                 case window.Insider.callbackType.NOTIFICATION_OPEN:
                     logInsider('NOTIFICATION_OPEN', callback.result || {});
                     break;
-                case window.Insider.callbackType.TEMP_STORE_CUSTOM_ACTION:
-                    logInsider('TEMP_STORE_CUSTOM_ACTION', callback.result || {});
+                case window.Insider.callbackType.SESSION_STARTED:
+                    logInsider('SESSION_STARTED', callback.result || {});
                     break;
             }
         },
