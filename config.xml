@@ -8,10 +8,9 @@
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
 
-    <!-- Cordova regenerates the Podfile on every plugin add/rm and drops the extension targets.
+    <!-- Warns when the notification extension targets are missing from the iOS project.
          Top-level, because cordova-lib skips hooks inside <platform> when no single platform is named. -->
-    <hook type="after_plugin_add" src="scripts/ios-extension-pods.js" />
-    <hook type="after_prepare" src="scripts/ios-extension-pods.js" />
+    <hook type="after_prepare" src="scripts/ios-extension-check.js" />
 
     <platform name="ios">
         <!-- InsiderMobile 16.5.1 requires iOS 15.0; a lower target fails to resolve or build the SDK. -->

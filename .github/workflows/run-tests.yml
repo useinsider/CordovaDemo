@@ -87,11 +87,6 @@ jobs:
         if: ${{ !cancelled() }}
         run: npx --registry=https://registry.npmjs.org "$CORDOVA_CLI" prepare ios
 
-      - name: Install pods
-        if: ${{ !cancelled() }}
-        working-directory: platforms/ios
-        run: pod install
-
       - name: Build iOS
         if: ${{ !cancelled() }}
         run: |

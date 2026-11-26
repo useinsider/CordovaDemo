@@ -10,13 +10,3 @@ target 'App' do
 	project 'App.xcodeproj'
 
 end
-
-target 'InsiderNotificationContent' do
-  inherit! :search_paths
-  pod "InsiderMobileAdvancedNotification"
-end
-
-target 'InsiderNotificationService' do
-  inherit! :search_paths
-  pod "InsiderMobileAdvancedNotification"
-end

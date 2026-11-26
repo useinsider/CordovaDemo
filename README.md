@@ -40,7 +40,7 @@ This Demo contains simple methods that you can use with the Insider SDK. The hom
 - Node.js 22 and the Cordova CLI 12 (`npm install -g cordova@12`)
 - `cordova-ios` ^8.2.0 and `cordova-android` ^15.1.0 (installed by `npm install`)
 - `cordova-plugin-insider` ^4.2.0 from npm
-- iOS: Xcode and CocoaPods (the app takes the Insider SDK through Swift Package Manager; the notification extensions use CocoaPods)
+- iOS: Xcode. The Insider SDK comes through Swift Package Manager; no Insider pod is used. Cordova still runs `pod install` on its generated Podfile, so CocoaPods must be installed.
 - Android: JDK 17 and the Android SDK
 
 ## Installation
@@ -64,11 +64,11 @@ Note: Can easily find the warnings added as comments by searching the `FIXME-INS
 ### iOS
 
 1. Replace widget id with your bundle identifier in `config.xml`.
-2. Run the `pod install` command in the `platforms/ios` directory. The deployment target is 15.0 (required by InsiderMobile 16.5.1) and `scripts/ios-extension-pods.js` re-adds the notification extension pods whenever Cordova regenerates the `Podfile` (plugin add/remove, prepare).
+2. The deployment target is 15.0 (required by InsiderMobile 16.5.1). Xcode resolves the Insider iOS SDK package on the first build. The app target takes `InsiderMobileAdvancedNotification` from that package for the two notification extensions, which link nothing themselves, and `InsiderNotificationContent` carries its own copy of `InsiderInterface.storyboard` (Inherit Module From Target), as the [Cordova Swift Package Manager guide](https://academy.insiderone.com/docs/migrate-cordova-ios-from-cocoapods-to-swift-package-manager) describes.
 3. Open `platforms/ios/App.xcworkspace` with Xcode and check team, app group and bundle identifier for all targets.
-   If you re-create the platform (`cordova platform rm ios && cordova platform add ios`), restore `platforms/ios/InsiderNotificationService` and `platforms/ios/InsiderNotificationContent` from git, run `ruby scripts/ios-extension-targets.rb` to add the two extension targets back to the Xcode project, then `cordova prepare ios`.
+   If you re-create the platform (`cordova platform rm ios && cordova platform add ios`), restore `platforms/ios/InsiderNotificationService` and `platforms/ios/InsiderNotificationContent` from git and run `ruby scripts/ios-extension-targets.rb`. It adds the two extension targets, the `InsiderMobileAdvancedNotification` library on the app target and the storyboard back to the Xcode project; `cordova prepare` warns while they are missing.
 4. Replace `yourpartnername` in the `insider` URL scheme (`insideryourpartnername`, `config.xml` → `platform ios` → `CFBundleURLTypes`) with your partner name, then run `cordova prepare ios`. (This step is important to add test device with QR or Email in the panel.)
-5. Change APP_GROUP variables value in `InsiderNotificationService/NotificationService.m` and `InsiderNotificationContent/NotificationViewController.m` files.
+5. The app group is `group.com.useinsider.mobile-ios`. To use your own, change it in `www/js/index.js` (`initInsider`), in the `APP_GROUP` constant of `InsiderNotificationService/NotificationService.m` and `InsiderNotificationContent/NotificationViewController.m`, in the two extension `.entitlements` files and in the `com.apple.security.application-groups` entries of `config.xml`.
 6. Run project with `cordova run ios` command. If the default simulator is not installed, pick one explicitly: `cordova run ios --emulator --target="iPhone-17"` (list them with `cordova run ios --list`). 
 
 ## License
