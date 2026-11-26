@@ -20,7 +20,7 @@
           "CFBundleURLTypes": [
             {
               "xml": "<array><dict><key>CFBundleURLName</key><string>insider</string><key>CFBundleURLSchemes</key><array><string>insideryourpartnername</string></array></dict></array>",
-              "count": 1
+              "count": 6
             }
           ]
         }

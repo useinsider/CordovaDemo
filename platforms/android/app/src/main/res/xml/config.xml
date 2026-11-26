@@ -9,6 +9,8 @@
     <content src="index.html" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
+    <hook src="scripts/ios-extension-pods.js" type="after_plugin_add" />
+    <hook src="scripts/ios-extension-pods.js" type="after_prepare" />
     <preference name="loglevel" value="DEBUG" />
     <preference name="GradlePluginGoogleServicesEnabled" value="true" />
     <preference name="GradlePluginGoogleServicesVersion" value="4.4.2" />

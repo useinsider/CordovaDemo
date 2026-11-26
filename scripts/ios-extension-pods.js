@@ -9,6 +9,11 @@ const EXTENSION_TARGETS = ['InsiderNotificationContent', 'InsiderNotificationSer
 // Cordova rewrites platforms/ios/Podfile whenever a plugin is added or removed and drops the
 // notification extension targets, which then fail to build without InsiderMobileAdvancedNotification.
 module.exports = function (context) {
+    const platforms = context.opts.platforms || [];
+    if (platforms.length > 0 && !platforms.includes('ios')) {
+        return;
+    }
+
     const podfile = path.join(context.opts.projectRoot, 'platforms', 'ios', 'Podfile');
 
     if (!fs.existsSync(podfile)) {
