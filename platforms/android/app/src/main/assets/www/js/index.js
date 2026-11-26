@@ -174,7 +174,8 @@ function logFirebase(method, result) {
     appendPlaygroundLine('[FCM][' + method + ']: ' + describeResult(result));
 }
 
-// Firebase owns the permission prompt and the FCM token; Insider only gets the pushes it sent.
+// Firebase owns the permission prompt and the FCM token. On Android, InsiderAwareMessagingService
+// hands Insider pushes to the SDK natively, so these listeners forward them on iOS only.
 function forwardInsiderPush(method, payload) {
     logFirebase(method, payload);
     if (payload && payload.source === 'Insider') {

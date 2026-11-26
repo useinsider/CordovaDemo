@@ -16,6 +16,8 @@
 
 This project demonstrates how to integrate the [Insider Cordova SDK](https://academy.insiderone.com/docs/cordova-integration) (`cordova-plugin-insider`) into a Cordova application for **iOS** and **Android**. It includes a fully working example with an output console for every SDK call, the iOS notification extensions on **Swift Package Manager**, Android push through Firebase Cloud Messaging and Huawei Messaging Service, and an App Cards inbox.
 
+This branch (`with-firebase-packages`) shows the same app in a project that already uses [`cordova-plugin-firebase-messaging`](https://github.com/chemerisuk/cordova-plugin-firebase-messaging) for its own pushes: Firebase asks for the notification permission and owns the FCM token, and pushes sent by Insider are handed to the Insider SDK. See [Firebase Messaging](#firebase-messaging).
+
 ## Preview
 
 <table align="center">
@@ -44,6 +46,7 @@ This project demonstrates how to integrate the [Insider Cordova SDK](https://aca
 | cordova-ios | 8.2.0 |
 | cordova-android | 15.1.0 |
 | cordova-plugin-insider | 4.2.0 |
+| cordova-plugin-firebase-messaging | 9.2.0 (Firebase iOS SDK 12.19.1 through SPM, Firebase BoM 34.19.0) |
 | iOS | 15.0 (required by InsiderMobile 16.5.1) |
 | Xcode | 16.0+ |
 | Android | API 24 (compile and target SDK 36) |
@@ -63,6 +66,7 @@ www/                                # The web app Cordova copies into both platf
 └── css/                            # Design tokens and page styles
 config.xml                          # App identity, icons, iOS deployment target, App Group, URL scheme, hooks
 res/icons/                          # App icon sources (iOS light/dark/tinted, Android adaptive)
+res/android/                        # InsiderAwareMessagingService.java, copied into the Android project by config.xml
 scripts/
 ├── ios-extension-targets.rb        # Adds the notification extensions and their SPM library to the Xcode project
 └── ios-extension-check.js          # after_prepare hook: warns when the extensions are missing
@@ -121,6 +125,7 @@ Run `cordova prepare` after changing `config.xml`.
 
 1. Open `platforms/ios/App.xcworkspace` in Xcode and check the team, App Group and bundle identifier of all three targets (`App`, `InsiderNotificationService`, `InsiderNotificationContent`).
 2. Push notifications need the Push Notifications capability (`aps-environment` is already in the app entitlements) and a push certificate or key for your bundle identifier in the Insider panel.
+3. Add `GoogleService-Info.plist` for your bundle identifier to the `App` target. The Firebase plugin configures Firebase at launch, and without this file the app crashes on start.
 
 ### 4. Run
 
@@ -150,7 +155,6 @@ async function initInsider() {
         },
     );
 
-    await window.Insider.registerWithQuietPermission(false);
     window.Insider.startTrackingGeofence();
     if (window.cordova.platformId === 'ios') {
         window.Insider.setActiveForegroundPushView();
@@ -163,7 +167,7 @@ async function initInsider() {
 
 The callback receives the SDK's events in `callback.result`; the demo writes push opens (`NOTIFICATION_OPEN`) and session starts (`SESSION_STARTED`) to the output console.
 
-`registerWithQuietPermission(false)` shows the system notification permission prompt on iOS; pass `true` for provisional (quiet) authorization. It does nothing on Android.
+On this branch the notification permission comes from Firebase (`initFirebase`, see [Firebase Messaging](#firebase-messaging)), so `registerWithQuietPermission` is not called.
 
 ### Test Device
 
@@ -200,7 +204,43 @@ The script adds both extension targets, the `InsiderMobileAdvancedNotification` 
 
 `cordova-plugin-insider` adds the Firebase Messaging and HMS dependencies, and the Insider Android SDK registers its own `InsiderFirebaseMessagingService` and `InsiderHuaweiMessagingService`, so the app needs no messaging service of its own. The plugin enables the Google Services Gradle plugin, which reads `google-services.json` at build time, and its install hook adds the Huawei AGConnect Gradle plugin for `agconnect-services.json`.
 
-The demo does not request runtime permissions on Android. Grant notifications (`POST_NOTIFICATIONS`, Android 13+) and location (for geofence tracking) in the app's system settings before testing push or geofences.
+On this branch the Firebase plugin asks for `POST_NOTIFICATIONS` (Android 13+). Grant location (for geofence tracking) in the app's system settings before testing geofences.
+
+## Firebase Messaging
+
+`initFirebase()` in `www/js/index.js` runs on `deviceready`, after `initInsider()`:
+
+```javascript
+function initFirebase() {
+    const messaging = window.cordova.plugins.firebase.messaging;
+    messaging.requestPermission({ forceShow: true })
+        .then(() => logFirebase('requestPermission', 'granted'))
+        .catch((error) => logFirebase('requestPermission', error));
+    messaging.getToken()
+        .then((token) => logFirebase('getToken', token))
+        .catch((error) => logFirebase('getToken', error));
+    messaging.onMessage((payload) => forwardInsiderPush('onMessage', payload));
+    messaging.onBackgroundMessage((payload) => forwardInsiderPush('onBackgroundMessage', payload));
+}
+```
+
+`forwardInsiderPush` writes every push to the output console as `[FCM][...]` and passes the ones whose `source` is `Insider` to `Insider.handleNotification`.
+
+### Android: InsiderAwareMessagingService
+
+Android hands an FCM message to **one** messaging service only. The app now has three: the Firebase plugin's `FirebaseMessagingPluginService`, the Insider SDK's `InsiderFirebaseMessagingService` and Firebase's own fallback. The plugin passes messages to JS only while the WebView is alive, so on its own an Insider push sent to a closed app would be lost.
+
+`res/android/InsiderAwareMessagingService.java` extends the plugin's service and is registered with intent filter priority `1`, so Android picks it over the others:
+
+- Insider pushes (`source` is `Insider`) go straight to `Insider.Instance.handleFCMNotification`, in the foreground, in the background and when the app is closed. They do not reach the JS listeners.
+- Other pushes go to the Firebase plugin unchanged.
+- New tokens go to both the plugin and `Insider.Instance.setPushToken`.
+
+`config.xml` copies the class into the Android project (`<resource-file>`) and adds the service to the manifest (`<config-file>`), so both survive `cordova platform rm/add android`. It also keeps the Google Services Gradle plugin at 4.4.2, the version `cordova-plugin-insider` asks for (the Firebase plugin asks for 4.4.0).
+
+### iOS
+
+The JS listeners forward Insider pushes to `Insider.handleNotification`. The iOS side of this branch has been built but not run: running it needs a `GoogleService-Info.plist` (see [iOS](#ios)).
 
 ## Testing
 

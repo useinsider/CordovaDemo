@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <!-- android-packageName: the shared Firebase project (google-services.json) has a client for this package only. -->
-<widget id="com.useinsider.demo.external" android-packageName="com.useinsider.ecommerce" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="com.useinsider.demo.external" android-packageName="com.useinsider.ecommerce" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>CordovaDemo</name>
     <description>This Demo contains simple methods that you can use with the Insider SDK.</description>
 
@@ -15,6 +15,15 @@
     <platform name="android">
         <!-- cordova-plugin-firebase-messaging asks for 4.4.0; keep the newer version cordova-plugin-insider asks for. -->
         <preference name="GradlePluginGoogleServicesVersion" value="4.4.2" />
+        <!-- FCM hands a message to one service only: the higher priority makes it this one, which also serves Insider pushes to a closed app. -->
+        <resource-file src="res/android/InsiderAwareMessagingService.java" target="app/src/main/java/com/useinsider/cordovademo/InsiderAwareMessagingService.java" />
+        <config-file target="AndroidManifest.xml" parent="/manifest/application">
+            <service android:name="com.useinsider.cordovademo.InsiderAwareMessagingService" android:exported="false">
+                <intent-filter android:priority="1">
+                    <action android:name="com.google.firebase.MESSAGING_EVENT" />
+                </intent-filter>
+            </service>
+        </config-file>
         <icon density="mdpi" src="res/icons/android/mdpi-legacy.png" background="res/icons/android/mdpi-background.png" foreground="res/icons/android/mdpi-foreground.png" monochrome="res/icons/android/mdpi-monochrome.png" />
         <icon density="hdpi" src="res/icons/android/hdpi-legacy.png" background="res/icons/android/hdpi-background.png" foreground="res/icons/android/hdpi-foreground.png" monochrome="res/icons/android/hdpi-monochrome.png" />
         <icon density="xhdpi" src="res/icons/android/xhdpi-legacy.png" background="res/icons/android/xhdpi-background.png" foreground="res/icons/android/xhdpi-foreground.png" monochrome="res/icons/android/xhdpi-monochrome.png" />

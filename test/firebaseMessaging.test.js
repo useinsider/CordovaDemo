@@ -12,7 +12,7 @@ describe('Firebase Messaging', () => {
 
   beforeAll(async () => {
     logs = captureConsole();
-    page = loadDemoPage({ html: 'index.html', script: 'js/index.js', platformId: 'android', respond: ({ success }) => success() });
+    page = loadDemoPage({ html: 'index.html', script: 'js/index.js', platformId: 'ios', respond: ({ success }) => success() });
     await deviceReady();
   });
 

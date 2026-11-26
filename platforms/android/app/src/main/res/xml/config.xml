@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget android-packageName="com.useinsider.ecommerce" id="com.useinsider.demo.external" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget android-packageName="com.useinsider.ecommerce" id="com.useinsider.demo.external" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <feature name="InsiderPlugin">
         <param name="android-package" value="com.useinsider.cordova.InsiderPlugin" />
         <param name="onload" value="true" />
@@ -14,6 +14,14 @@
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
     <hook src="scripts/ios-extension-check.js" type="after_prepare" />
+    <resource-file src="res/android/InsiderAwareMessagingService.java" target="app/src/main/java/com/useinsider/cordovademo/InsiderAwareMessagingService.java" />
+    <config-file parent="/manifest/application" target="AndroidManifest.xml">
+        <service android:exported="false" android:name="com.useinsider.cordovademo.InsiderAwareMessagingService">
+            <intent-filter android:priority="1">
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+    </config-file>
     <icon background="res/icons/android/mdpi-background.png" density="mdpi" foreground="res/icons/android/mdpi-foreground.png" monochrome="res/icons/android/mdpi-monochrome.png" src="res/icons/android/mdpi-legacy.png" />
     <icon background="res/icons/android/hdpi-background.png" density="hdpi" foreground="res/icons/android/hdpi-foreground.png" monochrome="res/icons/android/hdpi-monochrome.png" src="res/icons/android/hdpi-legacy.png" />
     <icon background="res/icons/android/xhdpi-background.png" density="xhdpi" foreground="res/icons/android/xhdpi-foreground.png" monochrome="res/icons/android/xhdpi-monochrome.png" src="res/icons/android/xhdpi-legacy.png" />
