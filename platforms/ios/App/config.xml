@@ -39,6 +39,18 @@
     <allow-intent href="https://*/*" />
     <hook src="scripts/ios-extension-pods.js" type="after_plugin_add" />
     <hook src="scripts/ios-extension-pods.js" type="after_prepare" />
+    <config-file parent="CFBundleURLTypes" target="*-Info.plist">
+        <array>
+            <dict>
+                <key>CFBundleURLName</key>
+                <string>insider</string>
+                <key>CFBundleURLSchemes</key>
+                <array>
+                    <string>insideryourpartnername</string>
+                </array>
+            </dict>
+        </array>
+    </config-file>
     <preference name="AllowInlineMediaPlayback" value="false" />
     <preference name="DisallowOverscroll" value="false" />
     <preference name="EnableViewportScale" value="false" />
