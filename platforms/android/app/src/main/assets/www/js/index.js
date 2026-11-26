@@ -144,7 +144,7 @@ let app = {
 
 async function initInsider() {
     // FIXME-INSIDER: Please change with your app group.
-    await window.Insider.init(PARTNER_NAME, 'group.com.useinsider.cordovademo',
+    await window.Insider.init(PARTNER_NAME, 'group.com.useinsider.mobile-ios',
         (callback) => {
             switch ((callback.result || {}).type) {
                 case window.Insider.callbackType.NOTIFICATION_OPEN:
